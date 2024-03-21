@@ -11,12 +11,18 @@ import (
 
 func CreateListOptions(ctx context.Context, listOptions *metav1.ListOptions) *metav1.ListOptions {
 	listOptionsFiltered := &metav1.ListOptions{}
-	if listOptions != nil && ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamClaimsFilter.Filter != "" {
-		listOptionsFiltered = &metav1.ListOptions{LabelSelector: fmt.Sprintf("%s,%s", ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamClaimsFilter.Filter, listOptions.LabelSelector)}
-	} else if listOptions == nil && ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamClaimsFilter.Filter != "" {
-		listOptionsFiltered = &metav1.ListOptions{LabelSelector: ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamClaimsFilter.Filter}
-	} else if listOptions != nil && ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamClaimsFilter.Filter == "" {
-		listOptionsFiltered = &metav1.ListOptions{LabelSelector: listOptions.LabelSelector}
+	if listOptions == nil {
+		if ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamClaimsFilter.Filter != "" {
+			listOptionsFiltered = &metav1.ListOptions{LabelSelector: ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamClaimsFilter.Filter}
+		}
+	} else {
+		if listOptions.LabelSelector != "" && ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamClaimsFilter.Filter != "" {
+			listOptionsFiltered = &metav1.ListOptions{LabelSelector: fmt.Sprintf("%s,%s", ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamClaimsFilter.Filter, listOptions.LabelSelector)}
+		} else if listOptions.LabelSelector == "" && ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamClaimsFilter.Filter != "" {
+			listOptionsFiltered = &metav1.ListOptions{LabelSelector: ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamClaimsFilter.Filter}
+		} else {
+			listOptionsFiltered = &metav1.ListOptions{LabelSelector: listOptions.LabelSelector}
+		}
 	}
 	return listOptionsFiltered
 }
