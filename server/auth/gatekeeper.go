@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 
+	"github.com/argoproj/argo-workflows/v3/config"
 	"github.com/argoproj/argo-workflows/v3/util/secrets"
 
 	eventsource "github.com/argoproj/argo-events/pkg/client/eventsource/clientset/versioned"
@@ -296,22 +297,37 @@ func (s *gatekeeper) getClientsForServiceAccount(ctx context.Context, claims *ty
 }
 
 func (s *gatekeeper) rbacAuthorization(ctx context.Context, claims *types.Claims, req interface{}) (*servertypes.Clients, error) {
+	var acounts []*corev1.ServiceAccount
 	ssoDelegationAllowed, ssoDelegated := false, false
 	loginAccount, err := s.getServiceAccount(claims, s.ssoNamespace)
 	if err != nil {
 		return nil, err
 	}
-	delegatedAccount := loginAccount
 	if s.canDelegateRBACToRequestNamespace(req) {
 		ssoDelegationAllowed = true
 		namespaceAccount, err := s.getServiceAccount(claims, getNamespace(req))
 		if err != nil {
 			log.WithError(err).Info("Error while SSO Delegation")
-		} else if precedence(namespaceAccount) > precedence(loginAccount) {
-			delegatedAccount = namespaceAccount
+		} else {
+			acounts = append(acounts, namespaceAccount)
+		}
+	}
+	if config.CanDelegateByLabel() {
+		labelAccount, err := s.getServiceAccount(claims, s.ssoNamespace)
+		if err != nil {
+			log.WithError(err).Info("Error while SSO Delegation")
+		} else {
+			acounts = append(acounts, labelAccount)
+		}
+	}
+	delegatedAccount := loginAccount
+	for _, account := range acounts {
+		if precedence(account) > precedence(loginAccount) {
+			delegatedAccount = account
 			ssoDelegated = true
 		}
 	}
+
 	// important! write an audit entry (i.e. log entry) so we know which user performed an operation
 	log.WithFields(log.Fields{"serviceAccount": delegatedAccount.Name, "loginServiceAccount": loginAccount.Name, "subject": claims.Subject, "email": claims.Email, "ssoDelegationAllowed": ssoDelegationAllowed, "ssoDelegated": ssoDelegated}).Info("selected SSO RBAC service account for user")
 	return s.getClientsForServiceAccount(ctx, claims, delegatedAccount)

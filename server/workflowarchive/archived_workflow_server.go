@@ -23,9 +23,9 @@ import (
 	"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow"
 	wfv1 "github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
 	"github.com/argoproj/argo-workflows/v3/server/auth"
-	"github.com/argoproj/argo-workflows/v3/workflow/util"
-
 	sutils "github.com/argoproj/argo-workflows/v3/server/utils"
+	"github.com/argoproj/argo-workflows/v3/workflow/filter"
+	"github.com/argoproj/argo-workflows/v3/workflow/util"
 )
 
 const disableValueListRetrievalKeyPattern = "DISABLE_VALUE_LIST_RETRIEVAL_KEY_PATTERN"
@@ -42,9 +42,7 @@ func NewWorkflowArchiveServer(wfArchive sqldb.WorkflowArchive) workflowarchivepk
 func (w *archivedWorkflowServer) ListArchivedWorkflows(ctx context.Context, req *workflowarchivepkg.ListArchivedWorkflowsRequest) (*wfv1.WorkflowList, error) {
 	options := req.ListOptions
 	namePrefix := req.NamePrefix
-	if options == nil {
-		options = &metav1.ListOptions{}
-	}
+	options = filter.CreateListOptions(ctx, req.ListOptions)
 	if options.Continue == "" {
 		options.Continue = "0"
 	}
@@ -165,6 +163,7 @@ func (w *archivedWorkflowServer) ListArchivedWorkflows(ctx context.Context, req 
 }
 
 func (w *archivedWorkflowServer) GetArchivedWorkflow(ctx context.Context, req *workflowarchivepkg.GetArchivedWorkflowRequest) (*wfv1.Workflow, error) {
+	var hasService bool
 	wf, err := w.wfArchive.GetWorkflow(req.Uid, req.Namespace, req.Name)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
@@ -179,6 +178,10 @@ func (w *archivedWorkflowServer) GetArchivedWorkflow(ctx context.Context, req *w
 	}
 	if !allowed {
 		return nil, status.Error(codes.PermissionDenied, "permission denied")
+	}
+	hasService = filter.ForbidActionsIfNeeded(ctx, wf.Labels)
+	if !hasService {
+		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
 	}
 	return wf, nil
 }

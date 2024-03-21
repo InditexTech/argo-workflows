@@ -30,6 +30,7 @@ import (
 	"github.com/argoproj/argo-workflows/v3/util/logs"
 	"github.com/argoproj/argo-workflows/v3/workflow/common"
 	"github.com/argoproj/argo-workflows/v3/workflow/creator"
+	"github.com/argoproj/argo-workflows/v3/workflow/filter"
 	"github.com/argoproj/argo-workflows/v3/workflow/hydrator"
 	"github.com/argoproj/argo-workflows/v3/workflow/templateresolution"
 	"github.com/argoproj/argo-workflows/v3/workflow/util"
@@ -100,6 +101,7 @@ func (s *workflowServer) CreateWorkflow(ctx context.Context, req *workflowpkg.Wo
 
 func (s *workflowServer) GetWorkflow(ctx context.Context, req *workflowpkg.WorkflowGetRequest) (*wfv1.Workflow, error) {
 	wfGetOption := metav1.GetOptions{}
+	var hasService bool
 	if req.GetOptions != nil {
 		wfGetOption = *req.GetOptions
 	}
@@ -123,6 +125,10 @@ func (s *workflowServer) GetWorkflow(ctx context.Context, req *workflowpkg.Workf
 		// should this be InvalidArgument?
 		return nil, sutils.ToStatusError(fmt.Errorf("unable to CleanFields in request: %w", err), codes.Internal)
 	} else if ok {
+		hasService = filter.ForbidActionsIfNeeded(ctx, newWf.Labels)
+		if !hasService {
+			return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
+		}
 		return newWf, nil
 	}
 	return wf, nil
@@ -168,9 +174,7 @@ func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.Wor
 	wfClient := auth.GetWfClient(ctx)
 
 	listOption := &metav1.ListOptions{}
-	if req.ListOptions != nil {
-		listOption = req.ListOptions
-	}
+	listOption = filter.CreateListOptions(ctx, req.ListOptions)
 	s.instanceIDService.With(listOption)
 	wfList, err := wfClient.ArgoprojV1alpha1().Workflows(req.Namespace).List(ctx, *listOption)
 	if err != nil {
@@ -631,6 +635,7 @@ func (s *workflowServer) WorkflowLogs(req *workflowpkg.WorkflowLogRequest, ws wo
 }
 
 func (s *workflowServer) getWorkflow(ctx context.Context, wfClient versioned.Interface, namespace string, name string, options metav1.GetOptions) (*wfv1.Workflow, error) {
+	var hasService bool
 	if name == latestAlias {
 		latest, err := getLatestWorkflow(ctx, wfClient, namespace)
 		if err != nil {
@@ -651,6 +656,10 @@ func (s *workflowServer) getWorkflow(ctx context.Context, wfClient versioned.Int
 			// We only return the original error to preserve the original status code.
 			return nil, sutils.ToStatusError(origErr, codes.Internal)
 		}
+	}
+	hasService = filter.ForbidActionsIfNeeded(ctx, wf.Labels)
+	if !hasService {
+		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
 	}
 	return wf, nil
 }
