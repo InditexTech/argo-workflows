@@ -81,6 +81,6 @@ func NewInterface(t mockConstructorTestingTNewInterface) *Interface {
 	return mock
 }
 
-func (_m *Interface) OpenAmConfig() *config.SSOExtendedLabel {
+func (_m *Interface) ExternalApiConfig() *config.SSOExtendedLabel {
 	return &config.SSOExtendedLabel{}
 }

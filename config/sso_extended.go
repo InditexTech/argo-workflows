@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"slices"
 	"strings"
 
 	"github.com/argoproj/argo-workflows/v3/server/auth/devhub"
@@ -14,46 +13,46 @@ type SSOExtendedLabel struct {
 	ApiPassword string `json:"apiPassword,omitempty"`
 	ApiUrl      string `json:"apiUrl,omitempty"`
 	Label       string `json:"label,omitempty"`
-	AdminGroup  string `json:"adminGroup,omitempty"`
+	// The AdminGroup does not filter by label gets all the objects
+	AdminGroup string `json:"adminGroup,omitempty"`
+}
+
+type ResourcesToFilter struct {
+	ArrayLabels  []string
+	Group        string
+	LabelsFilter string
 }
 
 func CanDelegateByLabel() bool {
-	if os.Getenv("SSO_DELEGATE_RBAC_TO_LABEL") != "true" {
-		return false
-	}
-	return true
+	return os.Getenv("SSO_DELEGATE_RBAC_TO_LABEL") == "true"
 }
 
-func RbacDelegateToLabel(ctx context.Context, mail string, apiUrl, apiPassword, label string) (string, []string, string, error) {
-	group := ""
-	labelsFilter := ""
-	arrayLabels := []string{}
+func RbacDelegateToLabel(ctx context.Context, mail string, apiUrl, apiPassword, label string) (*ResourcesToFilter, error) {
+	resourcesToFilterPopulated := &ResourcesToFilter{}
 	devhubClient := devhub.NewClient()
 	mailParts := strings.Split(mail, "@")
-	roles, err := devhub.GetDevhubRoles(devhubClient, apiUrl, apiPassword, mailParts[0])
+	servicesAndRoles, err := devhub.GetServicesAndRoles(devhubClient, apiUrl, apiPassword, mailParts[0])
 	if err != nil {
 		fmt.Printf("Can't Procces the petition on devhub to get roles %+v", err)
 	}
-	if len(roles) != 0 {
-		group = getUserGroup(roles)
+	if len(servicesAndRoles.Roles) != 0 {
+		resourcesToFilterPopulated.Group = getUserGroup(servicesAndRoles.Roles)
 	}
-	services, err := devhub.GetDevhubServices(devhubClient, apiUrl, apiPassword, mailParts[0])
-	if err != nil {
-		fmt.Printf("Can't Procces the petition on devhub to get services %+v", err)
-	}
-	if services != nil {
-		labelsFilter = fmt.Sprintf("%s in (%s)", label, strings.Join(services[:], ","))
-		for _, service := range services {
-			arrayLabels = append(arrayLabels, service)
+	if servicesAndRoles.Services != nil {
+		for service := range servicesAndRoles.Services {
+			resourcesToFilterPopulated.ArrayLabels = append(resourcesToFilterPopulated.ArrayLabels, service)
 		}
+		resourcesToFilterPopulated.LabelsFilter = fmt.Sprintf("%s in (%s)", label, strings.Join(resourcesToFilterPopulated.ArrayLabels[:], ","))
 	}
-	return labelsFilter, arrayLabels, group, nil
+	return resourcesToFilterPopulated, nil
 }
 
-func getUserGroup(roles []string) string {
+func getUserGroup(roles map[string]string) string {
 	sabyRole := "reader"
-	if slices.Contains(roles, "Authorized Deployer") || slices.Contains(roles, "Product Owner") || slices.Contains(roles, "Technical Lead") {
-		sabyRole = "writer"
+	for role := range roles {
+		if role == "Authorized Deployer" || role == "Product Owner" || role == "Technical Lead" {
+			sabyRole = "writer"
+		}
 	}
 	return sabyRole
 }

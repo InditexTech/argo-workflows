@@ -15,7 +15,7 @@ type nullService struct{}
 func (n nullService) IsRBACEnabled() bool {
 	return false
 }
-func (n nullService) OpenAmConfig() *config.SSOExtendedLabel {
+func (n nullService) ExternalApiConfig() *config.SSOExtendedLabel {
 	return &config.SSOExtendedLabel{}
 }
 func (n nullService) Authorize(string) (*types.Claims, error) {

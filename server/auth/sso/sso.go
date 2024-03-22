@@ -43,7 +43,7 @@ type Interface interface {
 	HandleRedirect(writer http.ResponseWriter, request *http.Request)
 	HandleCallback(writer http.ResponseWriter, request *http.Request)
 	IsRBACEnabled() bool
-	OpenAmConfig() *config.SSOExtendedLabel
+	ExternalApiConfig() *config.SSOExtendedLabel
 }
 
 var _ Interface = &sso{}
@@ -71,7 +71,7 @@ func (s *sso) IsRBACEnabled() bool {
 	return s.rbacConfig.IsEnabled()
 }
 
-func (s *sso) OpenAmConfig() *config.SSOExtendedLabel {
+func (s *sso) ExternalApiConfig() *config.SSOExtendedLabel {
 	return s.SSOExtendedLabel
 }
 
@@ -177,14 +177,15 @@ func newSso(
 	if clientSecret == nil {
 		return nil, fmt.Errorf("key %s missing in secret %s", c.ClientSecret.Key, c.ClientSecret.Name)
 	}
-	configOauth := &oauth2.Config{
+	ssoExtendedConfigurate := config.SSOExtendedLabel{}
+	config := &oauth2.Config{
 		ClientID:     string(clientID),
 		ClientSecret: string(clientSecret),
 		RedirectURL:  c.RedirectURL,
 		Endpoint:     provider.Endpoint(),
 		Scopes:       append(c.Scopes, oidc.ScopeOpenID),
 	}
-	idTokenVerifier := provider.Verifier(&oidc.Config{ClientID: configOauth.ClientID})
+	idTokenVerifier := provider.Verifier(&oidc.Config{ClientID: config.ClientID})
 	encrypter, err := jose.NewEncrypter(jose.A256GCM, jose.Recipient{Algorithm: jose.RSA_OAEP_256, Key: privateKey.Public()}, &jose.EncrypterOptions{Compression: jose.DEFLATE})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create JWT encrpytor: %w", err)
@@ -201,20 +202,18 @@ func newSso(
 		}
 	}
 
-	lf := log.Fields{"redirectUrl": configOauth.RedirectURL, "issuer": c.Issuer, "issuerAlias": "DISABLED", "clientId": c.ClientID, "scopes": configOauth.Scopes, "insecureSkipVerify": c.InsecureSkipVerify, "filterGroupsRegex": c.FilterGroupsRegex}
+	lf := log.Fields{"redirectUrl": config.RedirectURL, "issuer": c.Issuer, "issuerAlias": "DISABLED", "clientId": c.ClientID, "scopes": config.Scopes, "insecureSkipVerify": c.InsecureSkipVerify, "filterGroupsRegex": c.FilterGroupsRegex}
 	if c.IssuerAlias != "" {
 		lf["issuerAlias"] = c.IssuerAlias
 	}
-	ssoExtendedConfigurate := config.SSOExtendedLabel{
-		ApiUrl:      c.SSOExtendedLabel.ApiUrl,
-		ApiPassword: c.SSOExtendedLabel.ApiPassword,
-		Label:       c.SSOExtendedLabel.Label,
-		AdminGroup:  c.SSOExtendedLabel.AdminGroup,
-	}
+	ssoExtendedConfigurate.ApiUrl = c.SSOExtendedLabel.ApiUrl
+	ssoExtendedConfigurate.ApiPassword = c.SSOExtendedLabel.ApiPassword
+	ssoExtendedConfigurate.Label = c.SSOExtendedLabel.Label
+	ssoExtendedConfigurate.AdminGroup = c.SSOExtendedLabel.AdminGroup
 	log.WithFields(lf).Info("SSO configuration")
 
 	return &sso{
-		config:            configOauth,
+		config:            config,
 		idTokenVerifier:   idTokenVerifier,
 		baseHRef:          baseHRef,
 		httpClient:        httpClient,
@@ -253,9 +252,6 @@ func (s *sso) HandleRedirect(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
-	var filterLabels string
-	var arrayLabels []string
-	var group string
 	adminGroup := false
 	ctx := r.Context()
 	state := r.URL.Query().Get("state")
@@ -327,21 +323,21 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		groups = filteredGroups
 	}
 	if config.CanDelegateByLabel() {
-		ssoExtendedLabelConfig := s.OpenAmConfig()
+		ssoExtendedLabelConfig := s.ExternalApiConfig()
 		for _, g := range c.Groups {
 			if g == ssoExtendedLabelConfig.AdminGroup {
 				adminGroup = true
 			}
 		}
 		if !adminGroup {
-			filterLabels, arrayLabels, group, err = config.RbacDelegateToLabel(ctx, c.Email, ssoExtendedLabelConfig.ApiUrl, ssoExtendedLabelConfig.ApiPassword, ssoExtendedLabelConfig.Label)
+			resourcesFilter, err := config.RbacDelegateToLabel(ctx, c.Email, ssoExtendedLabelConfig.ApiUrl, ssoExtendedLabelConfig.ApiPassword, ssoExtendedLabelConfig.Label)
 			if err != nil {
 				log.WithError(err).Error("failed to perform RBAC authorization")
 			}
-			c.TeamClaimsFilter.Group = group
-			c.TeamClaimsFilter.Values = arrayLabels
-			c.TeamClaimsFilter.Filter = filterLabels
-			c.TeamClaimsFilter.Label = ssoExtendedLabelConfig.Label
+			c.TeamFilterClaims.Group = resourcesFilter.Group
+			c.TeamFilterClaims.Values = resourcesFilter.ArrayLabels
+			c.TeamFilterClaims.FilterExpresion = resourcesFilter.LabelsFilter
+			c.TeamFilterClaims.Label = ssoExtendedLabelConfig.Label
 		}
 	}
 	argoClaims := &types.Claims{
@@ -357,11 +353,11 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		ServiceAccountName:      c.ServiceAccountName,
 		PreferredUsername:       c.PreferredUsername,
 		ServiceAccountNamespace: c.ServiceAccountNamespace,
-		TeamClaimsFilter: types.TeamClaimsFilter{
-			Group:  c.TeamClaimsFilter.Group,
-			Values: c.TeamClaimsFilter.Values,
-			Filter: c.TeamClaimsFilter.Filter,
-			Label:  c.TeamClaimsFilter.Label,
+		TeamFilterClaims: types.TeamFilterClaims{
+			Group:           c.TeamFilterClaims.Group,
+			Values:          c.TeamFilterClaims.Values,
+			FilterExpresion: c.TeamFilterClaims.FilterExpresion,
+			Label:           c.TeamFilterClaims.Label,
 		},
 	}
 	raw, err := jwt.Encrypted(s.encrypter).Claims(argoClaims).CompactSerialize()
