@@ -46,7 +46,6 @@ func GetDevhubRoles(devhubclient *Client, apiUrl, apiPassword, userToIdentify st
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
 		return nil, err
 	}
-
 	if teams, ok := result["teams"].([]interface{}); ok {
 		for _, team := range teams {
 			if len(team.(map[string]interface{})["projects"].([]interface{})) > 0 {

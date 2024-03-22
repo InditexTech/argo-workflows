@@ -334,7 +334,7 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if !adminGroup {
-			filterLabels, arrayLabels, group, err = config.RbacDelegateToLabel(ctx, c.Name, ssoExtendedLabelConfig.ApiUrl, ssoExtendedLabelConfig.ApiPassword, ssoExtendedLabelConfig.Label)
+			filterLabels, arrayLabels, group, err = config.RbacDelegateToLabel(ctx, c.Email, ssoExtendedLabelConfig.ApiUrl, ssoExtendedLabelConfig.ApiPassword, ssoExtendedLabelConfig.Label)
 			if err != nil {
 				log.WithError(err).Error("failed to perform RBAC authorization")
 			}

@@ -24,21 +24,22 @@ func CanDelegateByLabel() bool {
 	return true
 }
 
-func RbacDelegateToLabel(ctx context.Context, name string, apiUrl, apiPassword, label string) (string, []string, string, error) {
+func RbacDelegateToLabel(ctx context.Context, mail string, apiUrl, apiPassword, label string) (string, []string, string, error) {
 	group := ""
 	labelsFilter := ""
 	arrayLabels := []string{}
 	devhubClient := devhub.NewClient()
-	roles, err := devhub.GetDevhubRoles(devhubClient, apiUrl, apiPassword, name)
+	mailParts := strings.Split(mail, "@")
+	roles, err := devhub.GetDevhubRoles(devhubClient, apiUrl, apiPassword, mailParts[0])
 	if err != nil {
-		fmt.Printf("Can't Procces the petition on devhub %+v", err)
+		fmt.Printf("Can't Procces the petition on devhub to get roles %+v", err)
 	}
 	if len(roles) != 0 {
 		group = getUserGroup(roles)
 	}
-	services, err := devhub.GetDevhubServices(devhubClient, apiUrl, apiPassword, name)
+	services, err := devhub.GetDevhubServices(devhubClient, apiUrl, apiPassword, mailParts[0])
 	if err != nil {
-		fmt.Printf("Can't Procces the petition on devhub %+v", err)
+		fmt.Printf("Can't Procces the petition on devhub to get services %+v", err)
 	}
 	if services != nil {
 		labelsFilter = fmt.Sprintf("%s in (%s)", label, strings.Join(services[:], ","))
