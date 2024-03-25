@@ -252,7 +252,6 @@ func (s *sso) HandleRedirect(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
-	adminGroup := false
 	ctx := r.Context()
 	state := r.URL.Query().Get("state")
 	cookie, err := r.Cookie(state)
@@ -323,13 +322,14 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		groups = filteredGroups
 	}
 	if config.CanDelegateByLabel() {
+		c.TeamFilterClaims.IsAdmin = false
 		ssoExtendedLabelConfig := s.ExternalApiConfig()
 		for _, g := range c.Groups {
 			if g == ssoExtendedLabelConfig.AdminGroup {
-				adminGroup = true
+				c.TeamFilterClaims.IsAdmin = true
 			}
 		}
-		if !adminGroup {
+		if !c.TeamFilterClaims.IsAdmin {
 			resourcesFilter, err := config.RbacDelegateToLabel(ctx, c.Email, ssoExtendedLabelConfig.ApiUrl, ssoExtendedLabelConfig.ApiPassword, ssoExtendedLabelConfig.Label)
 			if err != nil {
 				log.WithError(err).Error("failed to perform RBAC authorization")
@@ -358,6 +358,7 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 			Values:          c.TeamFilterClaims.Values,
 			FilterExpresion: c.TeamFilterClaims.FilterExpresion,
 			Label:           c.TeamFilterClaims.Label,
+			IsAdmin:         c.TeamFilterClaims.IsAdmin,
 		},
 	}
 	raw, err := jwt.Encrypted(s.encrypter).Claims(argoClaims).CompactSerialize()

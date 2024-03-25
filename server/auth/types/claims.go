@@ -36,6 +36,7 @@ type TeamFilterClaims struct {
 	Group           string   `json:"group,omitempty"`           // Group to search ServiceAccount for (write, read... whatever)
 	FilterExpresion string   `json:"filterexpresion,omitempty"` // This will be the filter used in list actions ex:  "$Label in ($values)"
 	Label           string   `json:"label,omitempty"`
+	IsAdmin         bool     `json:"isAdmin,omitempty"`
 }
 
 func init() {
