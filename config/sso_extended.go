@@ -35,9 +35,7 @@ func RbacDelegateToLabel(ctx context.Context, mail string, apiUrl, apiPassword, 
 	if err != nil {
 		fmt.Printf("Can't Procces the petition on devhub to get roles %+v", err)
 	}
-	if len(servicesAndRoles.Roles) != 0 {
-		resourcesToFilterPopulated.Group = getUserGroup(servicesAndRoles.Roles)
-	}
+	resourcesToFilterPopulated.Group = getUserGroup(servicesAndRoles.Roles)
 	if servicesAndRoles.Services != nil {
 		for service := range servicesAndRoles.Services {
 			resourcesToFilterPopulated.ArrayLabels = append(resourcesToFilterPopulated.ArrayLabels, service)
