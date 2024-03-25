@@ -29,7 +29,7 @@ func CreateListOptions(ctx context.Context, listOptions *metav1.ListOptions) *me
 
 func ForbidActionsIfNeeded(ctx context.Context, labels map[string]string) bool {
 	if !ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.IsAdmin {
-		if ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Values != nil {
+		if len(ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Values) > 0 {
 			for _, labelToIdentify := range ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Values {
 				if labelToIdentify == labels[ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Label] {
 					return true
