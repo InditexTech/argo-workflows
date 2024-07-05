@@ -12,12 +12,12 @@ import (
 	cronworkflowpkg "github.com/argoproj/argo-workflows/v3/pkg/apiclient/cronworkflow"
 	"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
 	"github.com/argoproj/argo-workflows/v3/server/auth"
+	sutils "github.com/argoproj/argo-workflows/v3/server/utils"
 	"github.com/argoproj/argo-workflows/v3/util/instanceid"
 	"github.com/argoproj/argo-workflows/v3/workflow/creator"
+	"github.com/argoproj/argo-workflows/v3/workflow/filter"
 	"github.com/argoproj/argo-workflows/v3/workflow/templateresolution"
 	"github.com/argoproj/argo-workflows/v3/workflow/validate"
-
-	sutils "github.com/argoproj/argo-workflows/v3/server/utils"
 )
 
 type cronWorkflowServiceServer struct {
@@ -44,9 +44,7 @@ func (c *cronWorkflowServiceServer) LintCronWorkflow(ctx context.Context, req *c
 
 func (c *cronWorkflowServiceServer) ListCronWorkflows(ctx context.Context, req *cronworkflowpkg.ListCronWorkflowsRequest) (*v1alpha1.CronWorkflowList, error) {
 	options := &metav1.ListOptions{}
-	if req.ListOptions != nil {
-		options = req.ListOptions
-	}
+	options = filter.CreateListOptions(ctx, req.ListOptions)
 	c.instanceIDService.With(options)
 	cronWfList, err := auth.GetWfClient(ctx).ArgoprojV1alpha1().CronWorkflows(req.Namespace).List(ctx, *options)
 	if err != nil {
@@ -150,12 +148,17 @@ func setCronWorkflowSuspend(ctx context.Context, setTo bool, namespace, name str
 func (c *cronWorkflowServiceServer) getCronWorkflowAndValidate(ctx context.Context, namespace string, name string, options metav1.GetOptions) (*v1alpha1.CronWorkflow, error) {
 	wfClient := auth.GetWfClient(ctx)
 	cronWf, err := wfClient.ArgoprojV1alpha1().CronWorkflows(namespace).Get(ctx, name, options)
+	var hasService bool
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
 	err = c.instanceIDService.Validate(cronWf)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.InvalidArgument)
+	}
+	hasService = filter.ForbidActionsIfNeeded(ctx, cronWf.Labels)
+	if !hasService {
+		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
 	}
 	return cronWf, nil
 }
