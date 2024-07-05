@@ -685,6 +685,8 @@ endif
 docs-spellcheck: /usr/local/bin/mdspell
 	# check docs for spelling mistakes
 	mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions --report $(shell find docs -name '*.md' -not -name upgrading.md -not -name README.md -not -name fields.md -not -name upgrading.md -not -name swagger.md -not -name executor_swagger.md -not -path '*/cli/*')
+	# alphabetize spelling file -- ignore first line (comment), then sort the rest case-sensitive and remove duplicates
+	$(shell cat .spelling | awk 'NR<2{ print $0; next } { print $0 | "sort" }' | uniq | tee .spelling > /dev/null)
 
 /usr/local/bin/markdown-link-check:
 # update this in Nix when upgrading it here
@@ -721,12 +723,12 @@ docs: /usr/local/bin/mkdocs \
 	docs-lint \
 	# TODO: This is temporarily disabled to unblock merging PRs.
 	# docs-linkcheck
+	# copy README.md to docs/README.md
+	./hack/copy-readme.sh
 	# check environment-variables.md contains all variables mentioned in the code
 	./hack/check-env-doc.sh
-	# check all docs are listed in mkdocs.yml
-	./hack/check-mkdocs.sh
 	# build the docs
-	mkdocs build
+	mkdocs build --strict
 	# tell the user the fastest way to edit docs
 	@echo "ℹ️ If you want to preview your docs, open site/index.html. If you want to edit them with hot-reload, run 'make docs-serve' to start mkdocs on port 8000"
 

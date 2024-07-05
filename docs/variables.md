@@ -56,7 +56,7 @@ The tag is substituted with the result of evaluating the tag as an expression.
 Note that any hyphenated parameter names or step names will cause a parsing error. You can reference them by
 indexing into the parameter or step map, e.g. `inputs.parameters['my-param']` or `steps['my-step'].outputs.result`.
 
-[Learn about the expression syntax](https://github.com/expr-lang/expr/blob/master/docs/language-definition.md).
+[Learn more about the expression syntax](https://expr-lang.org/docs/language-definition).
 
 #### Examples
 
@@ -265,7 +265,7 @@ For `Template`-level metrics:
 | `workflow.creationTimestamp.<STRFTIMECHAR>` | Creation time-stamp formatted with a [`strftime`](http://strftime.org) format character. |
 | `workflow.creationTimestamp.RFC3339` | Creation time-stamp formatted with in RFC 3339. |
 | `workflow.priority` | Workflow priority |
-| `workflow.duration` | Workflow duration estimate, may differ from actual duration by a couple of seconds |
+| `workflow.duration` | Workflow duration estimate in seconds, may differ from actual duration by a couple of seconds |
 | `workflow.scheduledTime` | Scheduled runtime formatted in RFC 3339 (only available for `CronWorkflow`) |
 
 ### Exit Handler

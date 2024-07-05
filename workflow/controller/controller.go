@@ -783,7 +783,7 @@ func (wfc *WorkflowController) processNextItem(ctx context.Context) bool {
 
 	woc := newWorkflowOperationCtx(wf, wfc)
 
-	if !wfc.throttler.Admit(key.(string)) {
+	if !(woc.GetShutdownStrategy().Enabled() && woc.GetShutdownStrategy() == wfv1.ShutdownStrategyTerminate) && !wfc.throttler.Admit(key.(string)) {
 		log.WithField("key", key).Info("Workflow processing has been postponed due to max parallelism limit")
 		if woc.wf.Status.Phase == wfv1.WorkflowUnknown {
 			woc.markWorkflowPhase(ctx, wfv1.WorkflowPending, "Workflow processing has been postponed because too many workflows are already running")
@@ -1021,7 +1021,7 @@ func (wfc *WorkflowController) addWorkflowInformerHandlers(ctx context.Context) 
 		DeleteFunc: func(obj interface{}) {
 			wf, ok := obj.(*unstructured.Unstructured)
 			if ok { // maybe cache.DeletedFinalStateUnknown
-				wfc.metrics.StopRealtimeMetricsForKey(string(wf.GetUID()))
+				wfc.metrics.DeleteRealtimeMetricsForKey(string(wf.GetUID()))
 			}
 		},
 	})
