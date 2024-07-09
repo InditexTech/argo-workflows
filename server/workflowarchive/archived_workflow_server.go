@@ -23,9 +23,12 @@ import (
 <<<<<<< HEAD
 	"github.com/argoproj/argo-workflows/v3/workflow/hydrator"
 	"github.com/argoproj/argo-workflows/v3/workflow/util"
+<<<<<<< HEAD
 
 =======
 >>>>>>> 0b233f9e8 (feat: first update into inditexTech to aling and save code)
+=======
+>>>>>>> d6134a21c35428739655e148c7700b6a413bb4b5
 	sutils "github.com/argoproj/argo-workflows/v3/server/utils"
 	"github.com/argoproj/argo-workflows/v3/workflow/filter"
 	"github.com/argoproj/argo-workflows/v3/workflow/util"
@@ -46,7 +49,10 @@ func NewWorkflowArchiveServer(wfArchive sqldb.WorkflowArchive, offloadNodeStatus
 
 func (w *archivedWorkflowServer) ListArchivedWorkflows(ctx context.Context, req *workflowarchivepkg.ListArchivedWorkflowsRequest) (*wfv1.WorkflowList, error) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> d6134a21c35428739655e148c7700b6a413bb4b5
 	options := req.ListOptions
 	namePrefix := req.NamePrefix
 	options = filter.CreateListOptions(ctx, req.ListOptions)
@@ -54,7 +60,10 @@ func (w *archivedWorkflowServer) ListArchivedWorkflows(ctx context.Context, req 
 		options.Continue = "0"
 	}
 	limit := int(options.Limit)
+<<<<<<< HEAD
 >>>>>>> 0b233f9e8 (feat: first update into inditexTech to aling and save code)
+=======
+>>>>>>> d6134a21c35428739655e148c7700b6a413bb4b5
 
 	options, err := sutils.BuildListOptions(*req.ListOptions, req.Namespace, req.NamePrefix)
 	if err != nil {

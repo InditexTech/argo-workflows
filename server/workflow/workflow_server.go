@@ -196,6 +196,16 @@ func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.Wor
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
+	return &wfv1.WorkflowList{Items: finalWfs, ListMeta: liveWfs.ListMeta}
+}
+
+func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.WorkflowListRequest) (*wfv1.WorkflowList, error) {
+	wfClient := auth.GetWfClient(ctx)
+
+	listOption := &metav1.ListOptions{}
+	listOption = filter.CreateListOptions(ctx, req.ListOptions)
+	s.instanceIDService.With(listOption)
+	wfList, err := wfClient.ArgoprojV1alpha1().Workflows(req.Namespace).List(ctx, *listOption)
 	if !allowed {
 		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("Permission denied, you are not allowed to list workflows in namespace \"%s\". Maybe you want to specify a namespace with query parameter `.namespace=%s`?", options.Namespace, options.Namespace))
 	}
