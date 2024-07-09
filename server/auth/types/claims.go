@@ -17,6 +17,7 @@ type Claims struct {
 	ServiceAccountName      string                 `json:"service_account_name,omitempty"`
 	ServiceAccountNamespace string                 `json:"service_account_namespace,omitempty"`
 	PreferredUsername       string                 `json:"preferred_username,omitempty"`
+	TeamClaimsFilter        TeamClaimsFilter       `json:"TeamClaimsFilter,omitempty"`
 	RawClaim                map[string]interface{} `json:"-"`
 }
 
@@ -29,6 +30,13 @@ type HttpClient interface {
 }
 
 var httpClient HttpClient
+
+type TeamClaimsFilter struct {
+	Values []string `json:"values,omitempty"` // the values in array tu use to filter in get/update... in others actions different than list
+	Group  string   `json:"group,omitempty"`  // Group to search ServiceAccount for (write, read... whatever)
+	Filter string   `json:"filter,omitempty"` // This will be the filter used in list actions ex:  "$Label in ($values)"
+	Label  string   `json:"label,omitempty"`
+}
 
 func init() {
 	httpClient = &http.Client{}
