@@ -16,6 +16,7 @@ import (
 	sutils "github.com/argoproj/argo-workflows/v3/server/utils"
 	"github.com/argoproj/argo-workflows/v3/util/instanceid"
 	"github.com/argoproj/argo-workflows/v3/workflow/creator"
+	"github.com/argoproj/argo-workflows/v3/workflow/filter"
 	"github.com/argoproj/argo-workflows/v3/workflow/templateresolution"
 	"github.com/argoproj/argo-workflows/v3/workflow/validate"
 )
@@ -115,10 +116,7 @@ func cursorPaginationByResourceVersion(items []v1alpha1.WorkflowTemplate, resour
 func (wts *WorkflowTemplateServer) ListWorkflowTemplates(ctx context.Context, req *workflowtemplatepkg.WorkflowTemplateListRequest) (*v1alpha1.WorkflowTemplateList, error) {
 	wfClient := auth.GetWfClient(ctx)
 	k8sOptions := &v1.ListOptions{}
-
-	if req.ListOptions != nil {
-		k8sOptions = req.ListOptions
-	}
+	k8sOptions = filter.CreateListOptions(ctx, req.ListOptions)
 
 	// Save the original Continue and Limit for custom filtering.
 	resourceVersion := k8sOptions.Continue

@@ -35,6 +35,7 @@ import (
 	"github.com/argoproj/argo-workflows/v3/util/logs"
 	"github.com/argoproj/argo-workflows/v3/workflow/common"
 	"github.com/argoproj/argo-workflows/v3/workflow/creator"
+	"github.com/argoproj/argo-workflows/v3/workflow/filter"
 	"github.com/argoproj/argo-workflows/v3/workflow/hydrator"
 	"github.com/argoproj/argo-workflows/v3/workflow/templateresolution"
 	"github.com/argoproj/argo-workflows/v3/workflow/util"
@@ -137,6 +138,7 @@ func (s *workflowServer) CreateWorkflow(ctx context.Context, req *workflowpkg.Wo
 
 func (s *workflowServer) GetWorkflow(ctx context.Context, req *workflowpkg.WorkflowGetRequest) (*wfv1.Workflow, error) {
 	wfGetOption := metav1.GetOptions{}
+	var hasService bool
 	if req.GetOptions != nil {
 		wfGetOption = *req.GetOptions
 	}
@@ -160,12 +162,17 @@ func (s *workflowServer) GetWorkflow(ctx context.Context, req *workflowpkg.Workf
 		// should this be InvalidArgument?
 		return nil, sutils.ToStatusError(fmt.Errorf("unable to CleanFields in request: %w", err), codes.Internal)
 	} else if ok {
+		hasService = filter.ForbidActionsIfNeeded(ctx, newWf.Labels)
+		if !hasService {
+			return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
+		}
 		return newWf, nil
 	}
 	return wf, nil
 }
 
 func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.WorkflowListRequest) (*wfv1.WorkflowList, error) {
+<<<<<<< HEAD
 	listOption := metav1.ListOptions{}
 	if req.ListOptions != nil {
 		listOption = *req.ListOptions
@@ -178,9 +185,27 @@ func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.Wor
 	}
 	// verify if we have permission to list Workflows
 	allowed, err := auth.CanI(ctx, "list", workflow.WorkflowPlural, options.Namespace, "")
+=======
+	wfClient := auth.GetWfClient(ctx)
+
+	listOption := &metav1.ListOptions{}
+	listOption = filter.CreateListOptions(ctx, req.ListOptions)
+	s.instanceIDService.With(listOption)
+	wfList, err := wfClient.ArgoprojV1alpha1().Workflows(req.Namespace).List(ctx, *listOption)
+>>>>>>> 0b233f9e8 (feat: first update into inditexTech to aling and save code)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
+	return &wfv1.WorkflowList{Items: finalWfs, ListMeta: liveWfs.ListMeta}
+}
+
+func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.WorkflowListRequest) (*wfv1.WorkflowList, error) {
+	wfClient := auth.GetWfClient(ctx)
+
+	listOption := &metav1.ListOptions{}
+	listOption = filter.CreateListOptions(ctx, req.ListOptions)
+	s.instanceIDService.With(listOption)
+	wfList, err := wfClient.ArgoprojV1alpha1().Workflows(req.Namespace).List(ctx, *listOption)
 	if !allowed {
 		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("Permission denied, you are not allowed to list workflows in namespace \"%s\". Maybe you want to specify a namespace with query parameter `.namespace=%s`?", options.Namespace, options.Namespace))
 	}
@@ -678,6 +703,7 @@ func (s *workflowServer) WorkflowLogs(req *workflowpkg.WorkflowLogRequest, ws wo
 }
 
 func (s *workflowServer) getWorkflow(ctx context.Context, wfClient versioned.Interface, namespace string, name string, options metav1.GetOptions) (*wfv1.Workflow, error) {
+	var hasService bool
 	if name == latestAlias {
 		latest, err := getLatestWorkflow(ctx, wfClient, namespace)
 		if err != nil {
@@ -698,6 +724,10 @@ func (s *workflowServer) getWorkflow(ctx context.Context, wfClient versioned.Int
 		if wf == nil {
 			return nil, status.Error(codes.NotFound, "not found")
 		}
+	}
+	hasService = filter.ForbidActionsIfNeeded(ctx, wf.Labels)
+	if !hasService {
+		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
 	}
 	return wf, nil
 }
