@@ -160,5 +160,6 @@ func (c *cronWorkflowServiceServer) getCronWorkflowAndValidate(ctx context.Conte
 	if !hasService {
 		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
 	}
+
 	return cronWf, nil
 }

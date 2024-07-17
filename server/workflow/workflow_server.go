@@ -170,48 +170,28 @@ func (s *workflowServer) GetWorkflow(ctx context.Context, req *workflowpkg.Workf
 	}
 	return wf, nil
 }
-
 func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.WorkflowListRequest) (*wfv1.WorkflowList, error) {
-<<<<<<< HEAD
-	listOption := metav1.ListOptions{}
+	listOption := &metav1.ListOptions{}
+	listOption = filter.CreateListOptions(ctx, req.ListOptions)
 	if req.ListOptions != nil {
-		listOption = *req.ListOptions
+		listOption = req.ListOptions
 	}
-	s.instanceIDService.With(&listOption)
-
-	options, err := sutils.BuildListOptions(listOption, req.Namespace, "")
+	s.instanceIDService.With(listOption)
+	options, err := sutils.BuildListOptions(*listOption, req.Namespace, "")
 	if err != nil {
 		return nil, err
 	}
 	// verify if we have permission to list Workflows
 	allowed, err := auth.CanI(ctx, "list", workflow.WorkflowPlural, options.Namespace, "")
-=======
-	wfClient := auth.GetWfClient(ctx)
-
-	listOption := &metav1.ListOptions{}
-	listOption = filter.CreateListOptions(ctx, req.ListOptions)
-	s.instanceIDService.With(listOption)
-	wfList, err := wfClient.ArgoprojV1alpha1().Workflows(req.Namespace).List(ctx, *listOption)
->>>>>>> 0b233f9e8 (feat: first update into inditexTech to aling and save code)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
-	return &wfv1.WorkflowList{Items: finalWfs, ListMeta: liveWfs.ListMeta}
-}
-
-func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.WorkflowListRequest) (*wfv1.WorkflowList, error) {
-	wfClient := auth.GetWfClient(ctx)
-
-	listOption := &metav1.ListOptions{}
-	listOption = filter.CreateListOptions(ctx, req.ListOptions)
-	s.instanceIDService.With(listOption)
-	wfList, err := wfClient.ArgoprojV1alpha1().Workflows(req.Namespace).List(ctx, *listOption)
 	if !allowed {
 		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("Permission denied, you are not allowed to list workflows in namespace \"%s\". Maybe you want to specify a namespace with query parameter `.namespace=%s`?", options.Namespace, options.Namespace))
 	}
 
 	var wfs wfv1.Workflows
-	liveWfCount, err := s.wfLister.CountWorkflows(ctx, req.Namespace, "", listOption)
+	liveWfCount, err := s.wfLister.CountWorkflows(ctx, req.Namespace, "", *listOption)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
@@ -224,7 +204,7 @@ func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.Wor
 	// first fetch live workflows
 	liveWfList := &wfv1.WorkflowList{}
 	if liveWfCount > 0 && (options.Limit == 0 || options.Offset < int(liveWfCount)) {
-		liveWfList, err = s.wfLister.ListWorkflows(ctx, req.Namespace, "", listOption)
+		liveWfList, err = s.wfLister.ListWorkflows(ctx, req.Namespace, "", *listOption)
 		if err != nil {
 			return nil, sutils.ToStatusError(err, codes.Internal)
 		}
@@ -729,6 +709,7 @@ func (s *workflowServer) getWorkflow(ctx context.Context, wfClient versioned.Int
 	if !hasService {
 		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
 	}
+
 	return wf, nil
 }
 

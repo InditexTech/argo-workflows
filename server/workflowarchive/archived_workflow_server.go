@@ -7,6 +7,15 @@ import (
 	"regexp"
 	"sort"
 
+	"github.com/argoproj/argo-workflows/v3/persist/sqldb"
+	workflowarchivepkg "github.com/argoproj/argo-workflows/v3/pkg/apiclient/workflowarchive"
+	"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow"
+	wfv1 "github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
+	"github.com/argoproj/argo-workflows/v3/server/auth"
+	sutils "github.com/argoproj/argo-workflows/v3/server/utils"
+	"github.com/argoproj/argo-workflows/v3/workflow/filter"
+	"github.com/argoproj/argo-workflows/v3/workflow/hydrator"
+	"github.com/argoproj/argo-workflows/v3/workflow/util"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -14,24 +23,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
-
-	"github.com/argoproj/argo-workflows/v3/persist/sqldb"
-	workflowarchivepkg "github.com/argoproj/argo-workflows/v3/pkg/apiclient/workflowarchive"
-	"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow"
-	wfv1 "github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
-	"github.com/argoproj/argo-workflows/v3/server/auth"
-<<<<<<< HEAD
-	"github.com/argoproj/argo-workflows/v3/workflow/hydrator"
-	"github.com/argoproj/argo-workflows/v3/workflow/util"
-<<<<<<< HEAD
-
-=======
->>>>>>> 0b233f9e8 (feat: first update into inditexTech to aling and save code)
-=======
->>>>>>> d6134a21c35428739655e148c7700b6a413bb4b5
-	sutils "github.com/argoproj/argo-workflows/v3/server/utils"
-	"github.com/argoproj/argo-workflows/v3/workflow/filter"
-	"github.com/argoproj/argo-workflows/v3/workflow/util"
 )
 
 const disableValueListRetrievalKeyPattern = "DISABLE_VALUE_LIST_RETRIEVAL_KEY_PATTERN"
@@ -48,24 +39,8 @@ func NewWorkflowArchiveServer(wfArchive sqldb.WorkflowArchive, offloadNodeStatus
 }
 
 func (w *archivedWorkflowServer) ListArchivedWorkflows(ctx context.Context, req *workflowarchivepkg.ListArchivedWorkflowsRequest) (*wfv1.WorkflowList, error) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> d6134a21c35428739655e148c7700b6a413bb4b5
-	options := req.ListOptions
-	namePrefix := req.NamePrefix
-	options = filter.CreateListOptions(ctx, req.ListOptions)
-	if options.Continue == "" {
-		options.Continue = "0"
-	}
-	limit := int(options.Limit)
-<<<<<<< HEAD
->>>>>>> 0b233f9e8 (feat: first update into inditexTech to aling and save code)
-=======
->>>>>>> d6134a21c35428739655e148c7700b6a413bb4b5
-
-	options, err := sutils.BuildListOptions(*req.ListOptions, req.Namespace, req.NamePrefix)
+	optionsFiltered := filter.CreateListOptions(ctx, req.ListOptions)
+	options, err := sutils.BuildListOptions(*optionsFiltered, req.Namespace, req.NamePrefix)
 	if err != nil {
 		return nil, err
 	}
