@@ -163,6 +163,7 @@ func TestNewSsoWithExtendedSSO(t *testing.T) {
 			ApiUrl:      "testApiUrl",
 			AdminGroup:  "testAdminGroup",
 			Label:       "testLabel",
+			WriteGroups: []string{"testWriteGroups"},
 		},
 	}
 	ssoInterface, err := newSso(fakeOidcFactory, config, fakeClient, "/", false)
@@ -172,6 +173,7 @@ func TestNewSsoWithExtendedSSO(t *testing.T) {
 	assert.Equal(t, "testPassword", ssoObject.SSOExtendedLabel.ApiPassword)
 	assert.Equal(t, "testApiUrl", ssoObject.SSOExtendedLabel.ApiUrl)
 	assert.Equal(t, "testLabel", ssoObject.SSOExtendedLabel.Label)
+	assert.Equal(t, 1, len(ssoObject.SSOExtendedLabel.WriteGroups))
 }
 func TestGetSessionExpiry(t *testing.T) {
 	config := Config{
