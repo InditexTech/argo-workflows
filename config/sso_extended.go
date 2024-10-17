@@ -12,6 +12,7 @@ import (
 type SSOExtendedLabel struct {
 	ApiPassword string   `json:"apiPassword,omitempty"`
 	ApiUrl      string   `json:"apiUrl,omitempty"`
+	ApiEndpoint string   `json:"apiEndpoint,omitempty"`
 	Label       string   `json:"label,omitempty"`
 	WriteGroups []string `json:"writeGroups,omitempty"`
 	// The AdminGroup does not filter by label gets all the objects
@@ -28,11 +29,11 @@ func CanDelegateByLabel() bool {
 	return os.Getenv("SSO_DELEGATE_RBAC_TO_LABEL") == "true"
 }
 
-func RbacDelegateToLabel(ctx context.Context, mail string, apiUrl, apiPassword, label string, writeGroups []string) (*ResourcesToFilter, error) {
+func RbacDelegateToLabel(ctx context.Context, mail string, apiUrl, apiEndpoint, apiPassword, label string, writeGroups []string) (*ResourcesToFilter, error) {
 	resourcesToFilterPopulated := &ResourcesToFilter{}
 	devhubClient := devhub.NewClient()
 	mailParts := strings.Split(mail, "@")
-	servicesAndGroup, err := devhub.GetServicesAndGroup(devhubClient, apiUrl, apiPassword, mailParts[0], writeGroups)
+	servicesAndGroup, err := devhub.GetServicesAndGroup(devhubClient, apiUrl, apiEndpoint, apiPassword, mailParts[0], writeGroups)
 	if err != nil {
 		fmt.Printf("Can't Procces the petition on devhub to get roles %+v", err)
 	}

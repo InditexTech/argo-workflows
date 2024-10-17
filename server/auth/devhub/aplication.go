@@ -11,12 +11,12 @@ type GroupAndServices struct {
 	Group    string
 }
 
-func GetServicesAndGroup(devhubclient *Client, apiUrl, apiPassword, userToIdentify string, writeGroups []string) (*GroupAndServices, error) {
+func GetServicesAndGroup(devhubclient *Client, apiUrl, apiEndpoint, apiPassword, userToIdentify string, writeGroups []string) (*GroupAndServices, error) {
 	var result map[string]interface{}
 	roles := make(map[string]string)
 	services := make(map[string]string)
 	servicesAndGroup := &GroupAndServices{}
-	apiDevhub := fmt.Sprintf("%s/api/identity/%s", apiUrl, userToIdentify)
+	apiDevhub := fmt.Sprintf("%s%s%s", apiUrl, apiEndpoint, userToIdentify)
 	res, err := HandleRequestApiInditex(devhubclient, apiDevhub, "GET", apiPassword, map[string]interface{}{})
 	if err != nil {
 		return nil, err

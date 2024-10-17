@@ -207,6 +207,7 @@ func newSso(
 		lf["issuerAlias"] = c.IssuerAlias
 	}
 	ssoExtendedConfigurate.ApiUrl = c.SSOExtendedLabel.ApiUrl
+	ssoExtendedConfigurate.ApiEndpoint = c.SSOExtendedLabel.ApiEndpoint
 	ssoExtendedConfigurate.ApiPassword = c.SSOExtendedLabel.ApiPassword
 	ssoExtendedConfigurate.Label = c.SSOExtendedLabel.Label
 	ssoExtendedConfigurate.AdminGroup = c.SSOExtendedLabel.AdminGroup
@@ -331,7 +332,7 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if !c.TeamFilterClaims.IsAdmin {
-			resourcesFilter, err := config.RbacDelegateToLabel(ctx, c.Email, ssoExtendedLabelConfig.ApiUrl, ssoExtendedLabelConfig.ApiPassword, ssoExtendedLabelConfig.Label, ssoExtendedLabelConfig.WriteGroups)
+			resourcesFilter, err := config.RbacDelegateToLabel(ctx, c.Email, ssoExtendedLabelConfig.ApiUrl, ssoExtendedLabelConfig.ApiEndpoint, ssoExtendedLabelConfig.ApiPassword, ssoExtendedLabelConfig.Label, ssoExtendedLabelConfig.WriteGroups)
 			if err != nil {
 				log.WithError(err).Error("failed to perform RBAC authorization")
 			}
