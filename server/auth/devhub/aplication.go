@@ -16,7 +16,7 @@ func GetServicesAndGroup(devhubclient *Client, apiUrl, apiEndpoint, apiPassword,
 	roles := make(map[string]string)
 	services := make(map[string]string)
 	servicesAndGroup := &GroupAndServices{}
-	apiDevhub := fmt.Sprintf("%s%s%s", apiUrl, apiEndpoint, userToIdentify)
+	apiDevhub := fmt.Sprintf("%s/%s/%s", apiUrl, apiEndpoint, userToIdentify)
 	res, err := HandleRequestApiInditex(devhubclient, apiDevhub, "GET", apiPassword, map[string]interface{}{})
 	if err != nil {
 		return nil, err
