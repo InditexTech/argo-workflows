@@ -39,9 +39,7 @@ func RbacDelegateToLabel(ctx context.Context, mail string, apiUrl, apiEndpoint, 
 	}
 	resourcesToFilterPopulated.Group = servicesAndGroup.Group
 	if servicesAndGroup.Services != nil {
-		for service := range servicesAndGroup.Services {
-			resourcesToFilterPopulated.ArrayLabels = append(resourcesToFilterPopulated.ArrayLabels, service)
-		}
+		resourcesToFilterPopulated.ArrayLabels = append(resourcesToFilterPopulated.ArrayLabels, servicesAndGroup.Services...)
 		resourcesToFilterPopulated.LabelsFilter = fmt.Sprintf("%s in (%s)", label, strings.Join(resourcesToFilterPopulated.ArrayLabels[:], ","))
 	}
 	return resourcesToFilterPopulated, nil

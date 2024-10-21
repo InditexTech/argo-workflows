@@ -7,14 +7,14 @@ import (
 )
 
 type GroupAndServices struct {
-	Services map[string]string
+	Services []string
 	Group    string
 }
 
 func GetServicesAndGroup(devhubclient *Client, apiUrl, apiEndpoint, apiPassword, userToIdentify string, writeGroups []string) (*GroupAndServices, error) {
 	var result map[string]interface{}
-	roles := make(map[string]string)
-	services := make(map[string]string)
+	var roles []string
+	var services []string
 	servicesAndGroup := &GroupAndServices{}
 	apiDevhub := fmt.Sprintf("%s/%s/%s", apiUrl, apiEndpoint, userToIdentify)
 	res, err := HandleRequestApiInditex(devhubclient, apiDevhub, "GET", apiPassword, map[string]interface{}{})
@@ -24,29 +24,42 @@ func GetServicesAndGroup(devhubclient *Client, apiUrl, apiEndpoint, apiPassword,
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
 		return nil, err
 	}
-	if teams, ok := result["teams"].([]interface{}); ok {
-		roles, services = GetRolesAndServices(teams, services, roles)
-	}
+
+	roles, services = GetRolesAndServices(result, services, roles)
 
 	servicesAndGroup.Group = GetGroupByRole(writeGroups, roles)
 	servicesAndGroup.Services = services
 	return servicesAndGroup, nil
 }
 
-func GetRolesAndServices(teams []interface{}, services, roles map[string]string) (map[string]string, map[string]string) {
+func GetRolesAndServices(result map[string]interface{}, services, roles []string) ([]string, []string) {
+	teams, ok := result["teams"].([]interface{})
+	if !ok {
+		return services, roles
+	}
 	for _, team := range teams {
-		if len(team.(map[string]interface{})["projects"].([]interface{})) > 0 {
-			for _, project := range team.(map[string]interface{})["projects"].([]interface{}) {
-				if relationshipType, ok := project.(map[string]interface{})["relationshipType"].(map[string]interface{}); ok && relationshipType["name"] == "Owner" {
-					services[project.(map[string]interface{})["key"].(string)] = "service"
-					for _, profile := range team.(map[string]interface{})["profiles"].([]interface{}) {
-						roles[profile.(map[string]interface{})["name"].(string)] = "role"
-					}
-					if len(team.(map[string]interface{})["effectiveCrossProfiles"].([]string)) > 0 {
-						for _, effectiveCrossProfile := range team.(map[string]interface{})["effectiveCrossProfiles"].([]string) {
-							roles[effectiveCrossProfile] = "role"
-						}
-					}
+		if len(team.(map[string]interface{})["applications"].([]interface{})) <= 0 {
+			continue
+		}
+		for _, project := range team.(map[string]interface{})["applications"].([]interface{}) {
+			if project.(map[string]interface{})["relationshipType"].(string) != "Owner" {
+				continue
+			}
+			if !slices.Contains(services, project.(map[string]interface{})["key"].(string)) {
+				services = append(services, project.(map[string]interface{})["key"].(string))
+			}
+			for _, profile := range team.(map[string]interface{})["profiles"].([]interface{}) {
+				if !slices.Contains(roles, profile.(map[string]interface{})["name"].(string)) {
+					roles = append(roles, profile.(map[string]interface{})["name"].(string))
+				}
+			}
+			crossprofiles, ok := result["crossProfiles"].([]interface{})
+			if !ok {
+				continue
+			}
+			for _, crossprofile := range crossprofiles {
+				if !slices.Contains(roles, crossprofile.(map[string]interface{})["name"].(string)) {
+					roles = append(roles, crossprofile.(map[string]interface{})["name"].(string))
 				}
 			}
 		}
@@ -54,9 +67,9 @@ func GetRolesAndServices(teams []interface{}, services, roles map[string]string)
 	return roles, services
 }
 
-func GetGroupByRole(writeGroups []string, roles map[string]string) string {
+func GetGroupByRole(writeGroups []string, roles []string) string {
 	groupByRole := "reader"
-	for role := range roles {
+	for _, role := range roles {
 		if slices.Contains(writeGroups, role) {
 			groupByRole = "writer"
 		}
