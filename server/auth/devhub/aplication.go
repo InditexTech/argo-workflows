@@ -10,56 +10,88 @@ type GroupAndServices struct {
 	Services []string
 	Group    string
 }
+type ApiStruct struct {
+	Login      string `json:"login"`
+	Name       string `json:"name"`
+	Department string `json:"department"`
+	Mail       string `json:"mail"`
+	Teams      []struct {
+		Key                string `json:"key"`
+		Name               string `json:"name"`
+		CompleteDepartment struct {
+			ID               string `json:"id"`
+			Name             string `json:"name"`
+			FullDepartmentID string `json:"fullDepartmentId"`
+			FullDepartment   string `json:"fullDepartment"`
+		} `json:"completeDepartment"`
+		Applications []struct {
+			Key              string `json:"key"`
+			Name             string `json:"name"`
+			RelationshipType string `json:"relationshipType"`
+		} `json:"applications"`
+		Profiles []struct {
+			Key  int    `json:"key"`
+			Name string `json:"name"`
+		} `json:"profiles"`
+		EffectiveCrossProfiles []string `json:"effectiveCrossProfiles"`
+		IsMember               bool     `json:"isMember"`
+	} `json:"teams"`
+	CrossProfiles []struct {
+		Key        string `json:"key"`
+		Department string `json:"department"`
+		Name       string `json:"name"`
+	} `json:"crossProfiles"`
+}
 
 func GetServicesAndGroup(devhubclient *Client, apiUrl, apiEndpoint, apiPassword, userToIdentify string, writeGroups []string) (*GroupAndServices, error) {
-	var result map[string]interface{}
 	var roles []string
 	var services []string
 	servicesAndGroup := &GroupAndServices{}
+	apiResponse := &ApiStruct{}
 	apiDevhub := fmt.Sprintf("%s/%s/%s", apiUrl, apiEndpoint, userToIdentify)
 	res, err := HandleRequestApiInditex(devhubclient, apiDevhub, "GET", apiPassword, map[string]interface{}{})
 	if err != nil {
 		return nil, err
 	}
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+	if err := json.NewDecoder(res.Body).Decode(apiResponse); err != nil {
 		return nil, err
 	}
 
-	roles, services = GetRolesAndServices(result, services, roles)
+	roles, services = GetRolesAndServices(apiResponse, services, roles)
 
 	servicesAndGroup.Group = GetGroupByRole(writeGroups, roles)
 	servicesAndGroup.Services = services
 	return servicesAndGroup, nil
 }
 
-func GetRolesAndServices(result map[string]interface{}, services, roles []string) ([]string, []string) {
-	teams, ok := result["teams"].([]interface{})
-	if !ok {
+func GetRolesAndServices(result *ApiStruct, services, roles []string) ([]string, []string) {
+	if result.Teams == nil {
 		return services, roles
 	}
-	for _, team := range teams {
-		if len(team.(map[string]interface{})["applications"].([]interface{})) <= 0 {
+	for _, team := range result.Teams {
+
+		if len(team.Applications) <= 0 {
 			continue
 		}
-		for _, project := range team.(map[string]interface{})["applications"].([]interface{}) {
-			if project.(map[string]interface{})["relationshipType"].(string) != "Owner" {
+		for _, project := range team.Applications {
+			if project.RelationshipType != "Owner" {
 				continue
 			}
-			if !slices.Contains(services, project.(map[string]interface{})["key"].(string)) {
-				services = append(services, project.(map[string]interface{})["key"].(string))
+			if !slices.Contains(services, project.Key) {
+				services = append(services, project.Key)
 			}
-			for _, profile := range team.(map[string]interface{})["profiles"].([]interface{}) {
-				if !slices.Contains(roles, profile.(map[string]interface{})["name"].(string)) {
-					roles = append(roles, profile.(map[string]interface{})["name"].(string))
+			for _, profile := range team.Profiles {
+				if !slices.Contains(roles, profile.Name) {
+					roles = append(roles, profile.Name)
 				}
 			}
-			crossprofiles, ok := result["crossProfiles"].([]interface{})
-			if !ok {
+			crossprofiles := result.CrossProfiles
+			if crossprofiles == nil {
 				continue
 			}
 			for _, crossprofile := range crossprofiles {
-				if !slices.Contains(roles, crossprofile.(map[string]interface{})["name"].(string)) {
-					roles = append(roles, crossprofile.(map[string]interface{})["name"].(string))
+				if !slices.Contains(roles, crossprofile.Name) {
+					roles = append(roles, crossprofile.Name)
 				}
 			}
 		}
