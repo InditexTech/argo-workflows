@@ -124,7 +124,7 @@ func (s *workflowServer) CreateWorkflow(ctx context.Context, req *workflowpkg.Wo
 	}
 	hasPermission = filter.ForbidActionsIfNeeded(ctx, req.Workflow.Labels)
 	if !hasPermission {
-		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 	wf, err := wfClient.ArgoprojV1alpha1().Workflows(req.Namespace).Create(ctx, req.Workflow, metav1.CreateOptions{})
 	if err != nil {
@@ -168,7 +168,7 @@ func (s *workflowServer) GetWorkflow(ctx context.Context, req *workflowpkg.Workf
 	} else if ok {
 		hasPermission = filter.ForbidActionsIfNeeded(ctx, newWf.Labels)
 		if !hasPermission {
-			return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
+			return nil, status.Error(codes.PermissionDenied, "permission denied")
 		}
 		return newWf, nil
 	}
@@ -711,7 +711,7 @@ func (s *workflowServer) getWorkflow(ctx context.Context, wfClient versioned.Int
 	}
 	hasPermission = filter.ForbidActionsIfNeeded(ctx, wf.Labels)
 	if !hasPermission && !isPodLogs {
-		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 
 	return wf, nil
@@ -775,7 +775,7 @@ func (s *workflowServer) SubmitWorkflow(ctx context.Context, req *workflowpkg.Wo
 	}
 	hasPermission = filter.ForbidActionsIfNeeded(ctx, wf.Labels)
 	if !hasPermission {
-		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 
 	wf, err = wfClient.ArgoprojV1alpha1().Workflows(req.Namespace).Create(ctx, wf, metav1.CreateOptions{})

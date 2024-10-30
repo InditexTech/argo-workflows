@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
@@ -69,7 +70,7 @@ func (c *cronWorkflowServiceServer) CreateCronWorkflow(ctx context.Context, req 
 	}
 	hasPermission = filter.ForbidActionsIfNeeded(ctx, req.CronWorkflow.Labels)
 	if !hasPermission {
-		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 	crWf, err := wfClient.ArgoprojV1alpha1().CronWorkflows(req.Namespace).Create(ctx, req.CronWorkflow, metav1.CreateOptions{})
 	if err != nil {
@@ -125,7 +126,7 @@ func (c *cronWorkflowServiceServer) DeleteCronWorkflow(ctx context.Context, req 
 func (c *cronWorkflowServiceServer) ResumeCronWorkflow(ctx context.Context, req *cronworkflowpkg.CronWorkflowResumeRequest) (*v1alpha1.CronWorkflow, error) {
 	_, err := c.getCronWorkflowAndValidate(ctx, req.Namespace, req.Name, metav1.GetOptions{})
 	if err != nil {
-		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 	crWf, err := setCronWorkflowSuspend(ctx, false, req.Namespace, req.Name)
 	if err != nil {
@@ -137,7 +138,7 @@ func (c *cronWorkflowServiceServer) ResumeCronWorkflow(ctx context.Context, req 
 func (c *cronWorkflowServiceServer) SuspendCronWorkflow(ctx context.Context, req *cronworkflowpkg.CronWorkflowSuspendRequest) (*v1alpha1.CronWorkflow, error) {
 	_, err := c.getCronWorkflowAndValidate(ctx, req.Namespace, req.Name, metav1.GetOptions{})
 	if err != nil {
-		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 	crWf, err := setCronWorkflowSuspend(ctx, true, req.Namespace, req.Name)
 	if err != nil {
@@ -171,7 +172,7 @@ func (c *cronWorkflowServiceServer) getCronWorkflowAndValidate(ctx context.Conte
 	}
 	hasPermission = filter.ForbidActionsIfNeeded(ctx, cronWf.Labels)
 	if !hasPermission {
-		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 
 	return cronWf, nil

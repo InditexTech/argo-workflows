@@ -116,7 +116,7 @@ func (w *archivedWorkflowServer) GetArchivedWorkflow(ctx context.Context, req *w
 	}
 	hasPermission = filter.ForbidActionsIfNeeded(ctx, wf.Labels)
 	if !hasPermission {
-		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 	return wf, nil
 }
