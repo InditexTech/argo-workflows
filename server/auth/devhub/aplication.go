@@ -7,7 +7,7 @@ import (
 )
 
 type GroupAndServices struct {
-	Services []string
+	Services map[string]string
 	Group    string
 }
 type ApiStruct struct {
@@ -45,7 +45,7 @@ type ApiStruct struct {
 
 func GetServicesAndGroup(devhubclient *Client, apiUrl, apiEndpoint, apiPassword, userToIdentify string, writeGroups []string) (*GroupAndServices, error) {
 	var roles []string
-	var services []string
+	var services map[string]string
 	servicesAndGroup := &GroupAndServices{}
 	apiResponse := &ApiStruct{}
 	apiDevhub := fmt.Sprintf("%s/%s/%s", apiUrl, apiEndpoint, userToIdentify)
@@ -57,14 +57,14 @@ func GetServicesAndGroup(devhubclient *Client, apiUrl, apiEndpoint, apiPassword,
 		return nil, err
 	}
 
-	roles, services = GetRolesAndServices(apiResponse, services, roles)
+	services, roles = GetRolesAndServices(apiResponse, services, roles)
 
 	servicesAndGroup.Group = GetGroupByRole(writeGroups, roles)
 	servicesAndGroup.Services = services
 	return servicesAndGroup, nil
 }
 
-func GetRolesAndServices(result *ApiStruct, services, roles []string) ([]string, []string) {
+func GetRolesAndServices(result *ApiStruct, services map[string]string, roles []string) (map[string]string, []string) {
 	if result.Teams == nil {
 		return services, roles
 	}
@@ -74,12 +74,8 @@ func GetRolesAndServices(result *ApiStruct, services, roles []string) ([]string,
 			continue
 		}
 		for _, project := range team.Applications {
-			if project.RelationshipType != "Owner" {
-				continue
-			}
-			if !slices.Contains(services, project.Key) {
-				services = append(services, project.Key)
-			}
+			services[project.Key] = project.RelationshipType
+
 			for _, profile := range team.Profiles {
 				if !slices.Contains(roles, profile.Name) {
 					roles = append(roles, profile.Name)
@@ -96,7 +92,7 @@ func GetRolesAndServices(result *ApiStruct, services, roles []string) ([]string,
 			}
 		}
 	}
-	return roles, services
+	return services, roles
 }
 
 func GetGroupByRole(writeGroups []string, roles []string) string {

@@ -98,7 +98,7 @@ func (w *archivedWorkflowServer) ListArchivedWorkflows(ctx context.Context, req 
 }
 
 func (w *archivedWorkflowServer) GetArchivedWorkflow(ctx context.Context, req *workflowarchivepkg.GetArchivedWorkflowRequest) (*wfv1.Workflow, error) {
-	var hasService bool
+	var hasPermission bool
 	wf, err := w.wfArchive.GetWorkflow(req.Uid, req.Namespace, req.Name)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
@@ -114,8 +114,8 @@ func (w *archivedWorkflowServer) GetArchivedWorkflow(ctx context.Context, req *w
 	if !allowed {
 		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
-	hasService = filter.ForbidActionsIfNeeded(ctx, wf.Labels)
-	if !hasService {
+	hasPermission = filter.ForbidActionsIfNeeded(ctx, wf.Labels)
+	if !hasPermission {
 		return nil, sutils.ToStatusError(fmt.Errorf("Permission Denied!"), codes.PermissionDenied)
 	}
 	return wf, nil

@@ -84,7 +84,7 @@ func TestUnmarshalJSON(t *testing.T) {
 					},
 				},
 				TeamFilterClaims: TeamFilterClaims{
-					Values:          []string{"testValue1", "testValue2"},
+					Values:          map[string]string{"test": "testValue1", "test2": "testValue2"},
 					Group:           "testGroup",
 					FilterExpresion: "testFilter",
 					Label:           "testLabel",
@@ -154,7 +154,7 @@ func TestUnmarshalJSON(t *testing.T) {
 					},
 				},
 				TeamFilterClaims: TeamFilterClaims{
-					Values:          []string{"testValue1", "testValue2"},
+					Values:          map[string]string{"test": "testValue1", "test2": "testValue2"},
 					Group:           "testGroup",
 					FilterExpresion: "testFilter",
 					Label:           "testLabel",

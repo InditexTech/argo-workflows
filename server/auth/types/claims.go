@@ -32,11 +32,11 @@ type HttpClient interface {
 var httpClient HttpClient
 
 type TeamFilterClaims struct {
-	Values          []string `json:"values,omitempty"`          // the values in array tu use to filter in get/update... in others actions different than list
-	Group           string   `json:"group,omitempty"`           // Group to search ServiceAccount for (write, read... whatever)
-	FilterExpresion string   `json:"filterexpresion,omitempty"` // This will be the filter used in list actions ex:  "$Label in ($values)"
-	Label           string   `json:"label,omitempty"`
-	IsAdmin         bool     `json:"isAdmin,omitempty"`
+	Values          map[string]string `json:"values,omitempty"`          // the values in array tu use to filter in get/update... in others actions different than list
+	Group           string            `json:"group,omitempty"`           // Group to search ServiceAccount for (write, read... whatever)
+	FilterExpresion string            `json:"filterexpresion,omitempty"` // This will be the filter used in list actions ex:  "$Label in ($values)"
+	Label           string            `json:"label,omitempty"`
+	IsAdmin         bool              `json:"isAdmin,omitempty"`
 }
 
 func init() {
