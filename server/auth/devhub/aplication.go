@@ -45,7 +45,7 @@ type ApiStruct struct {
 
 func GetServicesAndGroup(devhubclient *Client, apiUrl, apiEndpoint, apiPassword, userToIdentify string, writeGroups []string) (*GroupAndServices, error) {
 	var roles []string
-	var services map[string]string
+	services := make(map[string]string)
 	servicesAndGroup := &GroupAndServices{}
 	apiResponse := &ApiStruct{}
 	apiDevhub := fmt.Sprintf("%s/%s/%s", apiUrl, apiEndpoint, userToIdentify)
@@ -74,7 +74,14 @@ func GetRolesAndServices(result *ApiStruct, services map[string]string, roles []
 			continue
 		}
 		for _, project := range team.Applications {
-			services[project.Key] = project.RelationshipType
+			_, ok := services[project.Key]
+			if ok {
+				if services[project.Key] != "Owner" && project.RelationshipType == "Owner" {
+					services[project.Key] = project.RelationshipType
+				}
+			} else {
+				services[project.Key] = project.RelationshipType
+			}
 
 			for _, profile := range team.Profiles {
 				if !slices.Contains(roles, profile.Name) {

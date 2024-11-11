@@ -142,12 +142,11 @@ func (s *workflowServer) CreateWorkflow(ctx context.Context, req *workflowpkg.Wo
 
 func (s *workflowServer) GetWorkflow(ctx context.Context, req *workflowpkg.WorkflowGetRequest) (*wfv1.Workflow, error) {
 	wfGetOption := metav1.GetOptions{}
-	var hasPermission bool
 	if req.GetOptions != nil {
 		wfGetOption = *req.GetOptions
 	}
 	wfClient := auth.GetWfClient(ctx)
-	wf, err := s.getWorkflow(ctx, wfClient, req.Namespace, req.Name, wfGetOption, false)
+	wf, err := s.getWorkflow(ctx, wfClient, req.Namespace, req.Name, wfGetOption, true)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
@@ -166,10 +165,6 @@ func (s *workflowServer) GetWorkflow(ctx context.Context, req *workflowpkg.Workf
 		// should this be InvalidArgument?
 		return nil, sutils.ToStatusError(fmt.Errorf("unable to CleanFields in request: %w", err), codes.Internal)
 	} else if ok {
-		hasPermission = filter.ForbidActionsIfNeeded(ctx, newWf.Labels)
-		if !hasPermission {
-			return nil, status.Error(codes.PermissionDenied, "permission denied")
-		}
 		return newWf, nil
 	}
 	return wf, nil
@@ -285,7 +280,7 @@ func (s *workflowServer) WatchWorkflows(req *workflowpkg.WatchWorkflowsRequest, 
 		if wfName != "" {
 			// If we are using an alias (such as `@latest`) we need to dereference it.
 			// s.getWorkflow does that for us
-			wf, err := s.getWorkflow(ctx, wfClient, req.Namespace, wfName, metav1.GetOptions{}, false)
+			wf, err := s.getWorkflow(ctx, wfClient, req.Namespace, wfName, metav1.GetOptions{}, true)
 			if err != nil {
 				return sutils.ToStatusError(err, codes.Internal)
 			}

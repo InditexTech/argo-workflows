@@ -13,6 +13,7 @@ type SSOExtendedLabel struct {
 	ApiPassword string   `json:"apiPassword,omitempty"`
 	ApiUrl      string   `json:"apiUrl,omitempty"`
 	ApiEndpoint string   `json:"apiEndpoint,omitempty"`
+	EnvToFilter string   `json:"env,omitempty"`
 	Label       string   `json:"label,omitempty"`
 	WriteGroups []string `json:"writeGroups,omitempty"`
 	// The AdminGroup does not filter by label gets all the objects

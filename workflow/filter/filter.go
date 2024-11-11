@@ -39,24 +39,18 @@ func ForbidActionsIfNeeded(ctx context.Context, labels map[string]string) bool {
 	if !config.CanDelegateByLabel() || ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.IsAdmin {
 		return true
 	}
-	if len(ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Values) > 0 {
-		for _, labelToIdentify := range ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Values {
-			if labelToIdentify == labels[ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Label] {
-				return HavePermissions(ctx, labels[ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Label])
-			}
-
-		}
-	}
-	return false
-}
-
-func HavePermissions(ctx context.Context, app string) bool {
-	if ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Values[app] == "Contributor" {
+	if len(ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Values) <= 0 {
 		return false
 	}
-	if ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Values[app] == "Owner" && ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Group == "writer" {
-		return true
+	for key, relationship := range ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Values {
+		if key == labels[ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Label] {
+			if ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.EnvToFilter != "pro" {
+				return true
+			}
+			if relationship == "Owner" && ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Group == "writer" {
+				return true
+			}
+		}
 	}
-
 	return false
 }

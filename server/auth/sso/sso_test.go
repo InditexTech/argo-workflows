@@ -162,6 +162,7 @@ func TestNewSsoWithExtendedSSO(t *testing.T) {
 			ApiPassword: "testPassword",
 			ApiUrl:      "testApiUrl",
 			ApiEndpoint: "testApiEndpoint",
+			EnvToFilter: "testEnv",
 			AdminGroup:  "testAdminGroup",
 			Label:       "testLabel",
 			WriteGroups: []string{"testWriteGroups"},
@@ -174,6 +175,7 @@ func TestNewSsoWithExtendedSSO(t *testing.T) {
 	assert.Equal(t, "testPassword", ssoObject.SSOExtendedLabel.ApiPassword)
 	assert.Equal(t, "testApiUrl", ssoObject.SSOExtendedLabel.ApiUrl)
 	assert.Equal(t, "testApiEndpoint", ssoObject.SSOExtendedLabel.ApiEndpoint)
+	assert.Equal(t, "testEnv", ssoObject.SSOExtendedLabel.EnvToFilter)
 	assert.Equal(t, "testLabel", ssoObject.SSOExtendedLabel.Label)
 	assert.Equal(t, 1, len(ssoObject.SSOExtendedLabel.WriteGroups))
 }

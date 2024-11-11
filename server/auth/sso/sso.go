@@ -192,7 +192,7 @@ func newSso(
 	}
 
 	var filterGroupsRegex []*regexp.Regexp
-	if c.FilterGroupsRegex != nil && len(c.FilterGroupsRegex) > 0 {
+	if c.FilterGroupsRegex != nil {
 		for _, regex := range c.FilterGroupsRegex {
 			compiledRegex, err := regexp.Compile(regex)
 			if err != nil {
@@ -212,6 +212,7 @@ func newSso(
 	ssoExtendedConfigurate.Label = c.SSOExtendedLabel.Label
 	ssoExtendedConfigurate.AdminGroup = c.SSOExtendedLabel.AdminGroup
 	ssoExtendedConfigurate.WriteGroups = c.SSOExtendedLabel.WriteGroups
+	ssoExtendedConfigurate.EnvToFilter = c.SSOExtendedLabel.EnvToFilter
 	log.WithFields(lf).Info("SSO configuration")
 
 	return &sso{
@@ -311,7 +312,7 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// only return groups that match at least one of the regexes
-	if s.filterGroupsRegex != nil && len(s.filterGroupsRegex) > 0 {
+	if s.filterGroupsRegex != nil {
 		var filteredGroups []string
 		for _, group := range groups {
 			for _, regex := range s.filterGroupsRegex {
@@ -340,6 +341,7 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 			c.TeamFilterClaims.Values = resourcesFilter.ArrayLabels
 			c.TeamFilterClaims.FilterExpresion = resourcesFilter.LabelsFilter
 			c.TeamFilterClaims.Label = ssoExtendedLabelConfig.Label
+			c.TeamFilterClaims.EnvToFilter = ssoExtendedLabelConfig.EnvToFilter
 		}
 	}
 	argoClaims := &types.Claims{
@@ -361,6 +363,7 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 			FilterExpresion: c.TeamFilterClaims.FilterExpresion,
 			Label:           c.TeamFilterClaims.Label,
 			IsAdmin:         c.TeamFilterClaims.IsAdmin,
+			EnvToFilter:     c.TeamFilterClaims.EnvToFilter,
 		},
 	}
 	raw, err := jwt.Encrypted(s.encrypter).Claims(argoClaims).CompactSerialize()
