@@ -74,9 +74,8 @@ func GetRolesAndServices(result *ApiStruct, services map[string]string, roles []
 			continue
 		}
 		for _, project := range team.Applications {
-			_, ok := services[project.Key]
-			if ok {
-				if services[project.Key] != "Owner" && project.RelationshipType == "Owner" {
+			if existingRole, exists := services[project.Key]; exists {
+				if existingRole != "Owner" && project.RelationshipType == "Owner" {
 					services[project.Key] = project.RelationshipType
 				}
 			} else {

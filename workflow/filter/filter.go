@@ -43,14 +43,13 @@ func ForbidActionsIfNeeded(ctx context.Context, labels map[string]string) bool {
 		return false
 	}
 	for key, relationship := range ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Values {
-		if key == labels[ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Label] {
-			if ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.EnvToFilter != "pro" {
-				return true
-			}
-			if relationship == "Owner" && ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Group == "writer" {
-				return true
-			}
+		if key != labels[ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Label] {
+			continue
 		}
+		if ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.EnvToFilter != "pro" || (relationship == "Owner" && ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Group == "writer") {
+			return true
+		}
+
 	}
 	return false
 }

@@ -89,7 +89,6 @@ func (s *workflowServer) Run(stopCh <-chan struct{}) {
 }
 
 func (s *workflowServer) CreateWorkflow(ctx context.Context, req *workflowpkg.WorkflowCreateRequest) (*wfv1.Workflow, error) {
-	var hasPermission bool
 	wfClient := auth.GetWfClient(ctx)
 
 	if req.Workflow == nil {
@@ -122,8 +121,7 @@ func (s *workflowServer) CreateWorkflow(ctx context.Context, req *workflowpkg.Wo
 		}
 		return workflow, nil
 	}
-	hasPermission = filter.ForbidActionsIfNeeded(ctx, req.Workflow.Labels)
-	if !hasPermission {
+	if hasPermission := filter.ForbidActionsIfNeeded(ctx, req.Workflow.Labels); !hasPermission {
 		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 	wf, err := wfClient.ArgoprojV1alpha1().Workflows(req.Namespace).Create(ctx, req.Workflow, metav1.CreateOptions{})
@@ -682,7 +680,6 @@ func (s *workflowServer) WorkflowLogs(req *workflowpkg.WorkflowLogRequest, ws wo
 }
 
 func (s *workflowServer) getWorkflow(ctx context.Context, wfClient versioned.Interface, namespace string, name string, options metav1.GetOptions, isPodLogs bool) (*wfv1.Workflow, error) {
-	var hasPermission bool
 	if name == latestAlias {
 		latest, err := getLatestWorkflow(ctx, wfClient, namespace)
 		if err != nil {
@@ -704,11 +701,9 @@ func (s *workflowServer) getWorkflow(ctx context.Context, wfClient versioned.Int
 			return nil, status.Error(codes.NotFound, "not found")
 		}
 	}
-	hasPermission = filter.ForbidActionsIfNeeded(ctx, wf.Labels)
-	if !hasPermission && !isPodLogs {
+	if hasPermission := filter.ForbidActionsIfNeeded(ctx, wf.Labels); !hasPermission && !isPodLogs {
 		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
-
 	return wf, nil
 }
 
@@ -734,7 +729,6 @@ func getLatestWorkflow(ctx context.Context, wfClient versioned.Interface, namesp
 }
 
 func (s *workflowServer) SubmitWorkflow(ctx context.Context, req *workflowpkg.WorkflowSubmitRequest) (*wfv1.Workflow, error) {
-	var hasPermission bool
 	wfClient := auth.GetWfClient(ctx)
 	var wf *wfv1.Workflow
 	switch req.ResourceKind {
@@ -768,11 +762,9 @@ func (s *workflowServer) SubmitWorkflow(ctx context.Context, req *workflowpkg.Wo
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.InvalidArgument)
 	}
-	hasPermission = filter.ForbidActionsIfNeeded(ctx, wf.Labels)
-	if !hasPermission {
+	if hasPermission := filter.ForbidActionsIfNeeded(ctx, wf.Labels); !hasPermission {
 		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
-
 	wf, err = wfClient.ArgoprojV1alpha1().Workflows(req.Namespace).Create(ctx, wf, metav1.CreateOptions{})
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.InvalidArgument)

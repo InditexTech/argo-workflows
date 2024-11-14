@@ -55,7 +55,6 @@ func (c *cronWorkflowServiceServer) ListCronWorkflows(ctx context.Context, req *
 }
 
 func (c *cronWorkflowServiceServer) CreateCronWorkflow(ctx context.Context, req *cronworkflowpkg.CreateCronWorkflowRequest) (*v1alpha1.CronWorkflow, error) {
-	var hasPermission bool
 	wfClient := auth.GetWfClient(ctx)
 	if req.CronWorkflow == nil {
 		return nil, sutils.ToStatusError(fmt.Errorf("cron workflow was not found in the request body"), codes.NotFound)
@@ -68,8 +67,7 @@ func (c *cronWorkflowServiceServer) CreateCronWorkflow(ctx context.Context, req 
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.InvalidArgument)
 	}
-	hasPermission = filter.ForbidActionsIfNeeded(ctx, req.CronWorkflow.Labels)
-	if !hasPermission {
+	if hasPermission := filter.ForbidActionsIfNeeded(ctx, req.CronWorkflow.Labels); !hasPermission {
 		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 	crWf, err := wfClient.ArgoprojV1alpha1().CronWorkflows(req.Namespace).Create(ctx, req.CronWorkflow, metav1.CreateOptions{})
@@ -162,7 +160,6 @@ func setCronWorkflowSuspend(ctx context.Context, setTo bool, namespace, name str
 func (c *cronWorkflowServiceServer) getCronWorkflowAndValidate(ctx context.Context, namespace string, name string, options metav1.GetOptions, isGetCron bool) (*v1alpha1.CronWorkflow, error) {
 	wfClient := auth.GetWfClient(ctx)
 	cronWf, err := wfClient.ArgoprojV1alpha1().CronWorkflows(namespace).Get(ctx, name, options)
-	var hasPermission bool
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
@@ -170,8 +167,7 @@ func (c *cronWorkflowServiceServer) getCronWorkflowAndValidate(ctx context.Conte
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.InvalidArgument)
 	}
-	hasPermission = filter.ForbidActionsIfNeeded(ctx, cronWf.Labels)
-	if !hasPermission && !isGetCron {
+	if hasPermission := filter.ForbidActionsIfNeeded(ctx, cronWf.Labels); !hasPermission && !isGetCron {
 		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 
