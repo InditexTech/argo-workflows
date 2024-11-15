@@ -39,17 +39,13 @@ func ForbidActionsIfNeeded(ctx context.Context, labels map[string]string) bool {
 	if !config.CanDelegateByLabel() || ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.IsAdmin {
 		return true
 	}
-	if len(ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Values) <= 0 {
+	if len(ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.ServiceToGroup) <= 0 {
 		return false
 	}
-	for key, relationship := range ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Values {
-		if key != labels[ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Label] {
-			continue
-		}
-		if ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.EnvToFilter != "pro" || (relationship == "Owner" && ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Group == "writer") {
+	for key, group := range ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.ServiceToGroup {
+		if key == labels[ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Label] && group == "writer" {
 			return true
 		}
-
 	}
 	return false
 }

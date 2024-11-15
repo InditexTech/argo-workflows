@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/argoproj/argo-workflows/v3/config"
+	"github.com/argoproj/argo-workflows/v3/server/auth/devhub"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/oauth2"
@@ -162,10 +163,11 @@ func TestNewSsoWithExtendedSSO(t *testing.T) {
 			ApiPassword: "testPassword",
 			ApiUrl:      "testApiUrl",
 			ApiEndpoint: "testApiEndpoint",
-			EnvToFilter: "testEnv",
 			AdminGroup:  "testAdminGroup",
 			Label:       "testLabel",
-			WriteGroups: []string{"testWriteGroups"},
+			WriteGroups: devhub.WriteGroupsList{
+				devhub.WriteGroupsParams{Relationship: "testrelan", Roles: []string{"testrole"}},
+			},
 		},
 	}
 	ssoInterface, err := newSso(fakeOidcFactory, config, fakeClient, "/", false)
@@ -175,7 +177,6 @@ func TestNewSsoWithExtendedSSO(t *testing.T) {
 	assert.Equal(t, "testPassword", ssoObject.SSOExtendedLabel.ApiPassword)
 	assert.Equal(t, "testApiUrl", ssoObject.SSOExtendedLabel.ApiUrl)
 	assert.Equal(t, "testApiEndpoint", ssoObject.SSOExtendedLabel.ApiEndpoint)
-	assert.Equal(t, "testEnv", ssoObject.SSOExtendedLabel.EnvToFilter)
 	assert.Equal(t, "testLabel", ssoObject.SSOExtendedLabel.Label)
 	assert.Equal(t, 1, len(ssoObject.SSOExtendedLabel.WriteGroups))
 }

@@ -212,7 +212,6 @@ func newSso(
 	ssoExtendedConfigurate.Label = c.SSOExtendedLabel.Label
 	ssoExtendedConfigurate.AdminGroup = c.SSOExtendedLabel.AdminGroup
 	ssoExtendedConfigurate.WriteGroups = c.SSOExtendedLabel.WriteGroups
-	ssoExtendedConfigurate.EnvToFilter = c.SSOExtendedLabel.EnvToFilter
 	log.WithFields(lf).Info("SSO configuration")
 
 	return &sso{
@@ -337,11 +336,9 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.WithError(err).Error("failed to perform RBAC authorization")
 			}
-			c.TeamFilterClaims.Group = resourcesFilter.Group
-			c.TeamFilterClaims.Values = resourcesFilter.ArrayLabels
+			c.TeamFilterClaims.ServiceToGroup = resourcesFilter.ServiceToGroup
 			c.TeamFilterClaims.FilterExpresion = resourcesFilter.LabelsFilter
 			c.TeamFilterClaims.Label = ssoExtendedLabelConfig.Label
-			c.TeamFilterClaims.EnvToFilter = ssoExtendedLabelConfig.EnvToFilter
 		}
 	}
 	argoClaims := &types.Claims{
@@ -358,12 +355,10 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		PreferredUsername:       c.PreferredUsername,
 		ServiceAccountNamespace: c.ServiceAccountNamespace,
 		TeamFilterClaims: types.TeamFilterClaims{
-			Group:           c.TeamFilterClaims.Group,
-			Values:          c.TeamFilterClaims.Values,
+			ServiceToGroup:  c.TeamFilterClaims.ServiceToGroup,
 			FilterExpresion: c.TeamFilterClaims.FilterExpresion,
 			Label:           c.TeamFilterClaims.Label,
 			IsAdmin:         c.TeamFilterClaims.IsAdmin,
-			EnvToFilter:     c.TeamFilterClaims.EnvToFilter,
 		},
 	}
 	raw, err := jwt.Encrypted(s.encrypter).Claims(argoClaims).CompactSerialize()
