@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/argoproj/argo-workflows/v3/config"
+	"github.com/argoproj/argo-workflows/v3/server/auth/devhub"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/oauth2"
@@ -164,7 +165,9 @@ func TestNewSsoWithExtendedSSO(t *testing.T) {
 			ApiEndpoint: "testApiEndpoint",
 			AdminGroup:  "testAdminGroup",
 			Label:       "testLabel",
-			WriteGroups: []string{"testWriteGroups"},
+			WriteGroups: devhub.WriteGroupsList{
+				devhub.WriteGroupsParams{Relationship: "testrelan", Roles: []string{"testrole"}},
+			},
 		},
 	}
 	ssoInterface, err := newSso(fakeOidcFactory, config, fakeClient, "/", false)

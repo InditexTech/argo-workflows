@@ -36,18 +36,16 @@ func CreateListOptions(ctx context.Context, listOptions *metav1.ListOptions) *me
 
 func ForbidActionsIfNeeded(ctx context.Context, labels map[string]string) bool {
 
-	if config.CanDelegateByLabel() {
-		if !ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.IsAdmin {
-			if len(ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Values) > 0 {
-				for _, labelToIdentify := range ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Values {
-					if labelToIdentify == labels[ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Label] {
-						return true
-					}
-
-				}
-			}
-			return false
+	if !config.CanDelegateByLabel() || ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.IsAdmin {
+		return true
+	}
+	if len(ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.ServiceToGroup) <= 0 {
+		return false
+	}
+	for key, group := range ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.ServiceToGroup {
+		if key == labels[ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Label] && group == "writer" {
+			return true
 		}
 	}
-	return true
+	return false
 }

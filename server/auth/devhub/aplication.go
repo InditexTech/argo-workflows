@@ -7,9 +7,14 @@ import (
 )
 
 type GroupAndServices struct {
-	Services []string
-	Group    string
+	ServiceToGroup map[string]string
 }
+type WriteGroupsParams struct {
+	Relationship string   `yaml:"relationship"`
+	Roles        []string `yaml:"roles"`
+}
+
+type WriteGroupsList []WriteGroupsParams
 type ApiStruct struct {
 	Login      string `json:"login"`
 	Name       string `json:"name"`
@@ -43,9 +48,9 @@ type ApiStruct struct {
 	} `json:"crossProfiles"`
 }
 
-func GetServicesAndGroup(devhubclient *Client, apiUrl, apiEndpoint, apiPassword, userToIdentify string, writeGroups []string) (*GroupAndServices, error) {
-	var roles []string
-	var services []string
+func GetServicesAndGroup(devhubclient *Client, apiUrl, apiEndpoint, apiPassword, userToIdentify string, writeGroups WriteGroupsList) (*GroupAndServices, error) {
+	servicesToRoles := make(map[string][]string)
+	servicesToRelationship := make(map[string]string)
 	servicesAndGroup := &GroupAndServices{}
 	apiResponse := &ApiStruct{}
 	apiDevhub := fmt.Sprintf("%s/%s/%s", apiUrl, apiEndpoint, userToIdentify)
@@ -57,16 +62,15 @@ func GetServicesAndGroup(devhubclient *Client, apiUrl, apiEndpoint, apiPassword,
 		return nil, err
 	}
 
-	roles, services = GetRolesAndServices(apiResponse, services, roles)
-
-	servicesAndGroup.Group = GetGroupByRole(writeGroups, roles)
-	servicesAndGroup.Services = services
+	servicesToRelationship, servicesToRoles = GetRolesAndServices(apiResponse, servicesToRelationship, servicesToRoles)
+	servicesAndGroup.ServiceToGroup = GetServiceToGroup(writeGroups, servicesToRelationship, servicesToRoles)
 	return servicesAndGroup, nil
 }
 
-func GetRolesAndServices(result *ApiStruct, services, roles []string) ([]string, []string) {
+func GetRolesAndServices(result *ApiStruct, servicesToRelationship map[string]string, servicesToRoles map[string][]string) (map[string]string, map[string][]string) {
+	var roles []string
 	if result.Teams == nil {
-		return services, roles
+		return servicesToRelationship, servicesToRoles
 	}
 	for _, team := range result.Teams {
 
@@ -74,12 +78,14 @@ func GetRolesAndServices(result *ApiStruct, services, roles []string) ([]string,
 			continue
 		}
 		for _, project := range team.Applications {
-			if project.RelationshipType != "Owner" {
-				continue
+			if existingRole, exists := servicesToRelationship[project.Key]; exists {
+				if existingRole != "Owner" && project.RelationshipType == "Owner" {
+					servicesToRelationship[project.Key] = project.RelationshipType
+				}
+			} else {
+				servicesToRelationship[project.Key] = project.RelationshipType
 			}
-			if !slices.Contains(services, project.Key) {
-				services = append(services, project.Key)
-			}
+
 			for _, profile := range team.Profiles {
 				if !slices.Contains(roles, profile.Name) {
 					roles = append(roles, profile.Name)
@@ -94,17 +100,31 @@ func GetRolesAndServices(result *ApiStruct, services, roles []string) ([]string,
 					roles = append(roles, crossprofile.Name)
 				}
 			}
+			servicesToRoles[project.Key] = roles
+
 		}
 	}
-	return roles, services
+	return servicesToRelationship, servicesToRoles
 }
 
-func GetGroupByRole(writeGroups []string, roles []string) string {
-	groupByRole := "reader"
-	for _, role := range roles {
-		if slices.Contains(writeGroups, role) {
-			groupByRole = "writer"
+func GetServiceToGroup(writeGroups WriteGroupsList, servicesToRelationship map[string]string, servicesToRoles map[string][]string) map[string]string {
+	appToRole := make(map[string]string)
+	for _, writeGroup := range writeGroups {
+		for app, relationship := range servicesToRelationship {
+			if relationship != writeGroup.Relationship {
+				continue
+			}
+			for _, role := range servicesToRoles[app] {
+				if slices.Contains(writeGroup.Roles, role) {
+					appToRole[app] = "writer"
+					break
+				} else {
+					appToRole[app] = "reader"
+				}
+			}
+
 		}
+
 	}
-	return groupByRole
+	return appToRole
 }
