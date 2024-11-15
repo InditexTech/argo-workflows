@@ -36,7 +36,8 @@ func RbacDelegateToLabel(ctx context.Context, mail string, apiUrl, apiEndpoint, 
 	mailParts := strings.Split(mail, "@")
 	servicesAndGroup, err := devhub.GetServicesAndGroup(devhubClient, apiUrl, apiEndpoint, apiPassword, mailParts[0], writeGroups)
 	if err != nil {
-		log.WithError(err).Error("can't Procces the petition on devhub to get roles %+v", err)
+		log.WithError(err).Error(fmt.Printf("Can't Procces the petition on devhub to get roles %+v", err))
+
 	}
 	resourcesToFilterPopulated.ServiceToGroup = servicesAndGroup.ServiceToGroup
 	if servicesAndGroup.ServiceToGroup != nil {
