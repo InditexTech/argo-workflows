@@ -36,7 +36,7 @@ func CreateListOptions(ctx context.Context, listOptions *metav1.ListOptions) *me
 
 func ForbidActionsIfNeeded(ctx context.Context, labels map[string]string) bool {
 
-	if !config.CanDelegateByLabel() || ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.IsAdmin {
+	if !config.CanDelegateByLabel() || ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.IsAdmin || ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).Issuer == "kubernetes/serviceaccount" {
 		return true
 	}
 	if len(ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.ServiceToGroup) <= 0 {
