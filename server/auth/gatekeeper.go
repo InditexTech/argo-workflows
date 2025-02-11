@@ -162,7 +162,6 @@ func getAuthHeaders(md metadata.MD) []string {
 		header.Add("Cookie", t)
 		request := http.Request{Header: header}
 		cookies := request.Cookies()
-		//fmt.Printf("QUE ES COOKIES: %v\n", cookies)
 		for _, c := range cookies {
 			if c.Name == "authorization" {
 				authorizations = append(authorizations, c.Value)
@@ -174,7 +173,6 @@ func getAuthHeaders(md metadata.MD) []string {
 
 func (s gatekeeper) getClients(ctx context.Context, req interface{}) (*servertypes.Clients, *types.Claims, error) {
 	md, _ := metadata.FromIncomingContext(ctx)
-	//fmt.Printf("QUE ES METADATA: %v\n", md)
 	authorizations := getAuthHeaders(md)
 	// Required for GetMode() with Server auth when no auth header specified
 	if len(authorizations) == 0 {
