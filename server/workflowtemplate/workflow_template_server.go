@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	workflowtemplatepkg "github.com/argoproj/argo-workflows/v3/pkg/apiclient/workflowtemplate"
@@ -66,6 +67,9 @@ func (wts *WorkflowTemplateServer) getTemplateAndValidate(ctx context.Context, n
 	err = wts.instanceIDService.Validate(wfTmpl)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.InvalidArgument)
+	}
+	if hasPermission := filter.ForbidActionsIfNeeded(ctx, wfTmpl.Labels); !hasPermission {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 	return wfTmpl, nil
 }

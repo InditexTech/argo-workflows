@@ -401,7 +401,6 @@ func (s *sso) Authorize(authorization string) (*types.Claims, error) {
 	if err := tok.Claims(s.privateKey, c); err != nil {
 		return nil, fmt.Errorf("failed to parse claims: %v", err)
 	}
-
 	if err := c.Validate(jwt.Expected{Issuer: issuer}); err != nil {
 		return nil, fmt.Errorf("failed to validate claims: %v", err)
 	}
