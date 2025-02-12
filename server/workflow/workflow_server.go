@@ -470,17 +470,14 @@ func (s *workflowServer) ResubmitWorkflow(ctx context.Context, req *workflowpkg.
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
-
 	err = s.validateWorkflow(wf)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.InvalidArgument)
 	}
-
 	newWF, err := util.FormulateResubmitWorkflow(ctx, wf, req.Memoized, req.Parameters)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
-
 	created, err := util.SubmitWorkflow(ctx, wfClient.ArgoprojV1alpha1().Workflows(req.Namespace), wfClient, req.Namespace, newWF, &wfv1.SubmitOpts{})
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
@@ -729,6 +726,7 @@ func getLatestWorkflow(ctx context.Context, wfClient versioned.Interface, namesp
 }
 
 func (s *workflowServer) SubmitWorkflow(ctx context.Context, req *workflowpkg.WorkflowSubmitRequest) (*wfv1.Workflow, error) {
+	isWorkflowTemplate := false
 	wfClient := auth.GetWfClient(ctx)
 	var wf *wfv1.Workflow
 	switch req.ResourceKind {
@@ -740,6 +738,7 @@ func (s *workflowServer) SubmitWorkflow(ctx context.Context, req *workflowpkg.Wo
 		wf = common.ConvertCronWorkflowToWorkflow(cronWf)
 	case workflow.WorkflowTemplateKind, workflow.WorkflowTemplateSingular, workflow.WorkflowTemplatePlural, workflow.WorkflowTemplateShortName:
 		wf = common.NewWorkflowFromWorkflowTemplate(req.ResourceName, false)
+		isWorkflowTemplate = true
 	case workflow.ClusterWorkflowTemplateKind, workflow.ClusterWorkflowTemplateSingular, workflow.ClusterWorkflowTemplatePlural, workflow.ClusterWorkflowTemplateShortName:
 		wf = common.NewWorkflowFromWorkflowTemplate(req.ResourceName, true)
 	default:
@@ -762,7 +761,7 @@ func (s *workflowServer) SubmitWorkflow(ctx context.Context, req *workflowpkg.Wo
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.InvalidArgument)
 	}
-	if hasPermission := filter.ForbidActionsIfNeeded(ctx, wf.Labels); !hasPermission {
+	if hasPermission := filter.ForbidActionsIfNeeded(ctx, wf.Labels); !hasPermission && !isWorkflowTemplate {
 		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 	wf, err = wfClient.ArgoprojV1alpha1().Workflows(req.Namespace).Create(ctx, wf, metav1.CreateOptions{})
