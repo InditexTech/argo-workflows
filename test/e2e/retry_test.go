@@ -1,11 +1,13 @@
 //go:build functional
-// +build functional
 
 package e2e
 
 import (
+<<<<<<< HEAD
 	"context"
 	"io"
+=======
+>>>>>>> draft-3.6.5
 	"strings"
 	"testing"
 	"time"
@@ -64,7 +66,11 @@ spec:
 			return status.Name == "test-retry-limit(0)"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Equal(t, v1alpha1.NodeFailed, status.Phase)
+<<<<<<< HEAD
 			assert.Equal(t, true, status.NodeFlag.Retried)
+=======
+			assert.True(t, status.NodeFlag.Retried)
+>>>>>>> draft-3.6.5
 		})
 }
 
@@ -124,8 +130,11 @@ spec:
 }
 
 func (s *RetryTestSuite) TestWorkflowTemplateWithRetryStrategyInContainerSet() {
+<<<<<<< HEAD
 	var name string
 	var ns string
+=======
+>>>>>>> draft-3.6.5
 	s.Given().
 		WorkflowTemplate("@testdata/workflow-template-with-containerset.yaml").
 		Workflow(`
@@ -141,6 +150,7 @@ spec:
 		WaitForWorkflow(fixtures.ToBeFailed).
 		Then().
 		ExpectWorkflow(func(t *testing.T, metadata *metav1.ObjectMeta, status *wfv1.WorkflowStatus) {
+<<<<<<< HEAD
 			assert.Equal(t, status.Phase, wfv1.WorkflowFailed)
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
@@ -192,6 +202,29 @@ spec:
 		countFailureInfo := strings.Count(output, "intentional failure")
 		assert.Equal(s.T(), 2, countFailureInfo)
 	})
+=======
+			assert.Equal(t, wfv1.WorkflowFailed, status.Phase)
+		}).
+		// Success, no need retry
+		ExpectContainerLogs("c1", func(t *testing.T, logs string) {
+			count := strings.Count(logs, "capturing logs")
+			assert.Equal(t, 1, count)
+			assert.Contains(t, logs, "hi")
+		}).
+		// Command err. No retry logic is entered.
+		ExpectContainerLogs("c2", func(t *testing.T, logs string) {
+			count := strings.Count(logs, "capturing logs")
+			assert.Equal(t, 0, count)
+			assert.Contains(t, logs, "executable file not found in $PATH")
+		}).
+		// Retry when err.
+		ExpectContainerLogs("c3", func(t *testing.T, logs string) {
+			count := strings.Count(logs, "capturing logs")
+			assert.Equal(t, 2, count)
+			countFailureInfo := strings.Count(logs, "intentional failure")
+			assert.Equal(t, 2, countFailureInfo)
+		})
+>>>>>>> draft-3.6.5
 }
 
 func (s *RetryTestSuite) TestRetryNodeAntiAffinity() {
@@ -227,7 +260,11 @@ spec:
 			if status.Phase == wfv1.WorkflowRunning {
 				nodeStatus := status.Nodes.FindByDisplayName("test-nodeantiaffinity-strategy(0)")
 				nodeStatusRetry := status.Nodes.FindByDisplayName("test-nodeantiaffinity-strategy(1)")
+<<<<<<< HEAD
 				assert.Contains(t, nodeStatusRetry.Message, "1 node(s) didn't match Pod's node affinity/selector")
+=======
+				assert.Contains(t, nodeStatusRetry.Message, "didn't match Pod's node affinity/selector")
+>>>>>>> draft-3.6.5
 				assert.NotEqual(t, nodeStatus.HostNodeName, nodeStatusRetry.HostNodeName)
 			}
 		})

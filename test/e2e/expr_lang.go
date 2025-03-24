@@ -1,5 +1,8 @@
 //go:build functional
+<<<<<<< HEAD
 // +build functional
+=======
+>>>>>>> draft-3.6.5
 
 package e2e
 
@@ -51,7 +54,11 @@ spec:
 		WaitForWorkflow(fixtures.ToBeSucceeded).
 		Then().
 		ExpectWorkflow(func(t *testing.T, metadata *v1.ObjectMeta, status *v1alpha1.WorkflowStatus) {
+<<<<<<< HEAD
 			assert.Equal(t, status.Phase, v1alpha1.WorkflowSucceeded)
+=======
+			assert.Equal(t, v1alpha1.WorkflowSucceeded, status.Phase)
+>>>>>>> draft-3.6.5
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 			return strings.Contains(status.Name, ".split")

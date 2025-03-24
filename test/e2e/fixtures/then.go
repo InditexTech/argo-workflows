@@ -3,6 +3,7 @@ package fixtures
 import (
 	"context"
 	"fmt"
+	"io"
 	"reflect"
 	"testing"
 	"time"
@@ -12,6 +13,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -33,6 +35,7 @@ type Then struct {
 	hydrator    hydrator.Interface
 	kubeClient  kubernetes.Interface
 	bearerToken string
+	restConfig  *rest.Config
 }
 
 func (t *Then) ExpectWorkflow(block func(t *testing.T, metadata *metav1.ObjectMeta, status *wfv1.WorkflowStatus)) *Then {
@@ -105,10 +108,11 @@ func (t *Then) ExpectWorkflowNode(selector func(status wfv1.NodeStatus) bool, f 
 					p = nil // i did not expect to need to nil the pod, but here we are
 				}
 			}
+			f(tt, n, p)
 		} else {
 			_, _ = fmt.Println("Did not find node")
+			t.t.Error("Did not find expected node")
 		}
-		f(tt, n, p)
 	})
 }
 
@@ -126,6 +130,15 @@ func (t *Then) ExpectCron(block func(t *testing.T, cronWf *wfv1.CronWorkflow)) *
 	}
 	block(t.t, cronWf)
 	return t
+}
+
+func (t *Then) ExpectWorkflowListFromCronWorkflow(block func(t *testing.T, wfList *wfv1.WorkflowList)) *Then {
+	t.t.Helper()
+	if t.cronWf == nil {
+		t.t.Fatal("No cron workflow to match against")
+	}
+	labelSelector := common.LabelKeyCronWorkflow + "=" + t.cronWf.Name
+	return t.ExpectWorkflowList(metav1.ListOptions{LabelSelector: labelSelector}, block)
 }
 
 func (t *Then) ExpectWorkflowList(listOptions metav1.ListOptions, block func(t *testing.T, wfList *wfv1.WorkflowList)) *Then {
@@ -263,6 +276,28 @@ func (t *Then) ExpectPods(f func(t *testing.T, pods []apiv1.Pod)) *Then {
 	return t
 }
 
+<<<<<<< HEAD
+=======
+func (t *Then) ExpectContainerLogs(container string, f func(t *testing.T, logs string)) *Then {
+	t.t.Helper()
+
+	stream, err := t.kubeClient.CoreV1().Pods(t.wf.Namespace).GetLogs(t.wf.Name, &apiv1.PodLogOptions{Container: container}).Stream(context.Background())
+	if err != nil {
+		t.t.Fatal(err)
+	}
+
+	defer stream.Close()
+	logBytes, err := io.ReadAll(stream)
+	if err != nil {
+		t.t.Fatal(err)
+	}
+
+	f(t.t, string(logBytes))
+
+	return t
+}
+
+>>>>>>> draft-3.6.5
 func (t *Then) ExpectWorkflowTaskSet(block func(t *testing.T, wfts *wfv1.WorkflowTaskSet)) *Then {
 	t.t.Helper()
 	ctx := context.Background()
@@ -291,5 +326,6 @@ func (t *Then) When() *When {
 		wf:          t.wf,
 		kubeClient:  t.kubeClient,
 		bearerToken: t.bearerToken,
+		restConfig:  t.restConfig,
 	}
 }

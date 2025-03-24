@@ -58,6 +58,20 @@ func TestEvalBool(t *testing.T) {
 			want:    true,
 			wantErr: false,
 		},
+<<<<<<< HEAD
+=======
+		{
+			name: "test null expression",
+			args: args{
+				input: "steps[\"prepare\"].outputs != null",
+				env: map[string]interface{}{"steps": map[string]interface{}{
+					"prepare": map[string]interface{}{"outputs": "msg"},
+				}},
+			},
+			want:    false,
+			wantErr: true,
+		},
+>>>>>>> draft-3.6.5
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

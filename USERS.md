@@ -7,6 +7,9 @@ User community survey results are available: [2023](https://blog.argoproj.io/arg
 
 As the Argo Community grows, we'd like to keep track of our users. Please send a PR with your organization or project name in the following sections.
 
+Argo Workflows is seeking more community involvement and ultimately more [Reviewers and Approvers](https://github.com/argoproj/argoproj/blob/main/community/membership.md) to help keep it viable. 
+See [Sustainability Effort](https://github.com/argoproj/argo-workflows/blob/main/community/sustainability_effort.md) for more information. 
+
 ### Organizations Using Argo
 
 Currently, the following organizations are **officially** using Argo Workflows:
@@ -70,6 +73,7 @@ Currently, the following organizations are **officially** using Argo Workflows:
 1. [DataRobot](https://www.datarobot.com/)
 1. [DataStax](https://www.datastax.com/)
 1. [DDEV](https://www.ddev.com/)
+1. [Deutsche Telekom AG](https://telekom.com)
 1. [DevSamurai](https://www.devsamurai.com/)
 1. [Devtron Labs](https://github.com/devtron-labs/devtron)
 1. [DLR](https://www.dlr.de/eoc/)
@@ -125,6 +129,7 @@ Currently, the following organizations are **officially** using Argo Workflows:
 1. [MariaDB](https://mariadb.com/)
 1. [Marmalade](https://www.marmalade.co/)
 1. [Max Kelsen](https://maxkelsen.com/)
+1. [Maya](https://www.maya.ph/)
 1. [Microba](https://www.microba.com/)
 1. [Microblink](https://microblink.com/)
 1. [Mirantis](https://mirantis.com/)
@@ -154,6 +159,7 @@ Currently, the following organizations are **officially** using Argo Workflows:
 1. [Procore](https://www.procore.com)
 1. [Promaton](https://www.promaton.com/)
 1. [Prudential](https://www.prudential.com.sg/)
+1. [Pvotal Technologies](https://pvotal.tech/)
 1. [Quantibio](http://quantibio.com/us/en/)
 1. [QuantumBlack](https://quantumblack.com/)
 1. [Raccoon Digital Marketing](https://raccoon.ag/)

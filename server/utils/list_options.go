@@ -13,12 +13,23 @@ import (
 )
 
 type ListOptions struct {
+<<<<<<< HEAD
 	Namespace, Name, NamePrefix string
 	MinStartedAt, MaxStartedAt  time.Time
 	LabelRequirements           labels.Requirements
 	Limit, Offset               int
 	ShowRemainingItemCount      bool
 	StartedAtAscending          bool
+=======
+	Namespace, Name              string
+	NamePrefix, NameFilter       string
+	MinStartedAt, MaxStartedAt   time.Time
+	CreatedAfter, FinishedBefore time.Time
+	LabelRequirements            labels.Requirements
+	Limit, Offset                int
+	ShowRemainingItemCount       bool
+	StartedAtAscending           bool
+>>>>>>> draft-3.6.5
 }
 
 func (l ListOptions) WithLimit(limit int) ListOptions {
@@ -51,10 +62,18 @@ func (l ListOptions) WithStartedAtAscending(ascending bool) ListOptions {
 	return l
 }
 
+<<<<<<< HEAD
 func BuildListOptions(options metav1.ListOptions, ns, namePrefix string) (ListOptions, error) {
 	if options.Continue == "" {
 		options.Continue = "0"
 	}
+=======
+func BuildListOptions(options metav1.ListOptions, ns, namePrefix, nameFilter, createdAfter, finishedBefore string) (ListOptions, error) {
+	if options.Continue == "" {
+		options.Continue = "0"
+	}
+
+>>>>>>> draft-3.6.5
 	limit := int(options.Limit)
 
 	offset, err := strconv.Atoi(options.Continue)
@@ -73,6 +92,24 @@ func BuildListOptions(options metav1.ListOptions, ns, namePrefix string) (ListOp
 	name := ""
 	minStartedAt := time.Time{}
 	maxStartedAt := time.Time{}
+<<<<<<< HEAD
+=======
+	createdAfterTime := time.Time{}
+	finishedBeforeTime := time.Time{}
+
+	if createdAfter != "" {
+		createdAfterTime, err = time.Parse(time.RFC3339, createdAfter)
+		if err != nil {
+			return ListOptions{}, ToStatusError(err, codes.Internal)
+		}
+	}
+	if finishedBefore != "" {
+		finishedBeforeTime, err = time.Parse(time.RFC3339, finishedBefore)
+		if err != nil {
+			return ListOptions{}, ToStatusError(err, codes.Internal)
+		}
+	}
+>>>>>>> draft-3.6.5
 	showRemainingItemCount := false
 	for _, selector := range strings.Split(options.FieldSelector, ",") {
 		if len(selector) == 0 {
@@ -123,6 +160,12 @@ func BuildListOptions(options metav1.ListOptions, ns, namePrefix string) (ListOp
 		Namespace:              namespace,
 		Name:                   name,
 		NamePrefix:             namePrefix,
+<<<<<<< HEAD
+=======
+		NameFilter:             nameFilter,
+		CreatedAfter:           createdAfterTime,
+		FinishedBefore:         finishedBeforeTime,
+>>>>>>> draft-3.6.5
 		MinStartedAt:           minStartedAt,
 		MaxStartedAt:           maxStartedAt,
 		LabelRequirements:      requirements,

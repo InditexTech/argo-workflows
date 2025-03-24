@@ -11,7 +11,11 @@ jobs:
     permissions:
       pull-requests: write # for approving a PR
       contents: write # for enabling auto-merge on a PR
+<<<<<<< HEAD
     runs-on: ubuntu-latest
+=======
+    runs-on: ubuntu-24.04
+>>>>>>> draft-3.6.5
     steps:
       - name: Dependabot metadata
         id: metadata

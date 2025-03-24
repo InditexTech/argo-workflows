@@ -38,7 +38,11 @@ spec:
             dependencies: [delay-delete-workflow]
     - name: artgc-dag-delay-delete
       container:
+<<<<<<< HEAD
         image: alpine:latest
+=======
+        image: argoproj/argosay:v2
+>>>>>>> draft-3.6.5
         volumeMounts:
           - name: artifacts
             mountPath: /mnt/vol
@@ -72,7 +76,11 @@ spec:
         labels:
           template: "artgc-dag-artifact-creator"
       container:
+<<<<<<< HEAD
         image: alpine:latest
+=======
+        image: argoproj/argosay:v2
+>>>>>>> draft-3.6.5
         volumeMounts:
           - name: artifacts
             mountPath: /mnt/vol

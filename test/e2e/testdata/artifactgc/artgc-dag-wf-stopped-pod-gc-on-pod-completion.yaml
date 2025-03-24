@@ -39,7 +39,11 @@ spec:
             dependencies: [delay-stop-workflow]
     - name: artgc-dag-delay-stop
       container:
+<<<<<<< HEAD
         image: alpine:latest
+=======
+        image: argoproj/argosay:v2
+>>>>>>> draft-3.6.5
         volumeMounts:
           - name: artifacts
             mountPath: /mnt/vol
@@ -73,7 +77,11 @@ spec:
         labels:
           template: "artgc-dag-artifact-creator-1"
       container:
+<<<<<<< HEAD
         image: alpine:latest
+=======
+        image: argoproj/argosay:v2
+>>>>>>> draft-3.6.5
         volumeMounts:
           - name: artifacts
             mountPath: /mnt/vol
@@ -104,7 +112,11 @@ spec:
         labels:
           template: "artgc-dag-artifact-creator-2"
       container:
+<<<<<<< HEAD
         image: alpine:latest
+=======
+        image: argoproj/argosay:v2
+>>>>>>> draft-3.6.5
         volumeMounts:
           - name: artifacts
             mountPath: /mnt/vol

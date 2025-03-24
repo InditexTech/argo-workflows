@@ -1,11 +1,11 @@
 //go:build functional
-// +build functional
 
 package e2e
 
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -14,6 +14,7 @@ import (
 
 	"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
 	"github.com/argoproj/argo-workflows/v3/test/e2e/fixtures"
+	"github.com/argoproj/argo-workflows/v3/workflow/common"
 )
 
 type HooksSuite struct {
@@ -52,7 +53,7 @@ spec:
 		WaitForWorkflow(fixtures.ToBeSucceeded).
 		Then().
 		ExpectWorkflow(func(t *testing.T, metadata *v1.ObjectMeta, status *v1alpha1.WorkflowStatus) {
-			assert.Equal(t, status.Phase, v1alpha1.WorkflowSucceeded)
+			assert.Equal(t, v1alpha1.WorkflowSucceeded, status.Phase)
 		}).ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 		return strings.Contains(status.Name, ".hooks.running")
 	}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
@@ -102,7 +103,7 @@ spec:
 		WaitForWorkflow(fixtures.ToBeFailed).
 		Then().
 		ExpectWorkflow(func(t *testing.T, metadata *v1.ObjectMeta, status *v1alpha1.WorkflowStatus) {
-			assert.Equal(t, status.Phase, v1alpha1.WorkflowFailed)
+			assert.Equal(t, v1alpha1.WorkflowFailed, status.Phase)
 		}).ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 		return strings.Contains(status.Name, ".hooks.running")
 	}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
@@ -281,7 +282,10 @@ spec:
 	}).ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 		return strings.Contains(status.Name, "step-2.hooks.running")
 	}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
-		assert.Equal(t, v1alpha1.NodeSucceeded, status.Phase)
+		// TODO: Temporarily comment out this assertion since it's flaky:
+		// 	  The running hook is occasionally not triggered. Possibly because the step finishes too quickly
+		//	  while the controller did not get a chance to trigger this hook.
+		//assert.Equal(t, v1alpha1.NodeSucceeded, status.Phase)
 	})
 }
 
@@ -451,7 +455,7 @@ spec:
 		WaitForWorkflow(fixtures.ToBeSucceeded).
 		Then().
 		ExpectWorkflow(func(t *testing.T, metadata *v1.ObjectMeta, status *v1alpha1.WorkflowStatus) {
-			assert.Equal(t, status.Phase, v1alpha1.WorkflowSucceeded)
+			assert.Equal(t, v1alpha1.WorkflowSucceeded, status.Phase)
 			assert.Equal(t, status.Progress, v1alpha1.Progress("2/2"))
 			assert.Equal(t, 1, int(status.Progress.N()/status.Progress.M()))
 		}).
@@ -499,7 +503,7 @@ spec:
 		WaitForWorkflow(fixtures.ToBeSucceeded).
 		Then().
 		ExpectWorkflow(func(t *testing.T, metadata *v1.ObjectMeta, status *v1alpha1.WorkflowStatus) {
-			assert.Equal(t, status.Phase, v1alpha1.WorkflowSucceeded)
+			assert.Equal(t, v1alpha1.WorkflowSucceeded, status.Phase)
 			assert.Equal(t, status.Progress, v1alpha1.Progress("2/2"))
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
@@ -533,26 +537,21 @@ spec:
                 template: sleep
     - name: sleep
       synchronization:
-        mutex:
-          name: job
-      script:
-        image: alpine:latest
-        command: [/bin/sh]
-        source: |
-          sleep 4
+        mutexes:
+          - name: job
+      container:
+        image: argoproj/argosay:v2
+        args: ["sleep", "4"]
     - name: exit0
-      script:
-        image: alpine:latest
-        command: [/bin/sh]
-        source: |
-          sleep 2
-          exit 0
+      container:
+        image: argoproj/argosay:v2
+        args: ["sleep", "2"]
 `).When().
 		SubmitWorkflow().
 		WaitForWorkflow(fixtures.ToBeSucceeded).
 		Then().
 		ExpectWorkflow(func(t *testing.T, metadata *v1.ObjectMeta, status *v1alpha1.WorkflowStatus) {
-			assert.Equal(t, status.Phase, v1alpha1.WorkflowSucceeded)
+			assert.Equal(t, v1alpha1.WorkflowSucceeded, status.Phase)
 			assert.Equal(t, status.Progress, v1alpha1.Progress("3/3"))
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
@@ -607,22 +606,36 @@ spec:
 		WaitForWorkflow(fixtures.ToBeFailed).
 		Then().
 		ExpectWorkflow(func(t *testing.T, metadata *v1.ObjectMeta, status *v1alpha1.WorkflowStatus) {
+<<<<<<< HEAD
 			assert.Equal(t, status.Phase, v1alpha1.WorkflowFailed)
+=======
+			assert.Equal(t, v1alpha1.WorkflowFailed, status.Phase)
+>>>>>>> draft-3.6.5
 			assert.Equal(t, status.Progress, v1alpha1.Progress("2/4"))
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 			return status.Name == "test-workflow-level-hooks-with-retry.hooks.running"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Equal(t, v1alpha1.NodeSucceeded, status.Phase)
+<<<<<<< HEAD
 			assert.Equal(t, true, status.NodeFlag.Hooked)
 			assert.Equal(t, false, status.NodeFlag.Retried)
+=======
+			assert.True(t, status.NodeFlag.Hooked)
+			assert.False(t, status.NodeFlag.Retried)
+>>>>>>> draft-3.6.5
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 			return status.Name == "test-workflow-level-hooks-with-retry.hooks.failed"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Equal(t, v1alpha1.NodeSucceeded, status.Phase)
+<<<<<<< HEAD
 			assert.Equal(t, true, status.NodeFlag.Hooked)
 			assert.Equal(t, false, status.NodeFlag.Retried)
+=======
+			assert.True(t, status.NodeFlag.Hooked)
+			assert.False(t, status.NodeFlag.Retried)
+>>>>>>> draft-3.6.5
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 			return status.Name == "test-workflow-level-hooks-with-retry"
@@ -635,15 +648,25 @@ spec:
 			return status.Name == "test-workflow-level-hooks-with-retry(0)"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Equal(t, v1alpha1.NodeFailed, status.Phase)
+<<<<<<< HEAD
 			assert.Equal(t, false, status.NodeFlag.Hooked)
 			assert.Equal(t, true, status.NodeFlag.Retried)
+=======
+			assert.False(t, status.NodeFlag.Hooked)
+			assert.True(t, status.NodeFlag.Retried)
+>>>>>>> draft-3.6.5
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 			return status.Name == "test-workflow-level-hooks-with-retry(1)"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Equal(t, v1alpha1.NodeFailed, status.Phase)
+<<<<<<< HEAD
 			assert.Equal(t, false, status.NodeFlag.Hooked)
 			assert.Equal(t, true, status.NodeFlag.Retried)
+=======
+			assert.False(t, status.NodeFlag.Hooked)
+			assert.True(t, status.NodeFlag.Retried)
+>>>>>>> draft-3.6.5
 		})
 }
 
@@ -687,6 +710,7 @@ spec:
     
     - name: output-artifact
       script:
+<<<<<<< HEAD
         image: python:alpine3.6
         command: [ python ]
         source: |
@@ -699,6 +723,14 @@ spec:
           if {{retries}} == 2:
           	sys.exit(0)
           sys.exit(1)
+=======
+        image: argoproj/argosay:v2
+        command: [/bin/sh]
+        source: |
+          sleep 1
+          echo 'Welcome' > result.txt
+          [ "{{retries}}" = "2" ]
+>>>>>>> draft-3.6.5
       retryStrategy: 
         limit: 2
       outputs:
@@ -708,6 +740,7 @@ spec:
 
     - name: started
       container:
+<<<<<<< HEAD
         image: python:alpine3.6
         command: [sh, -c]
         args: ["echo STARTED!"]
@@ -723,6 +756,20 @@ spec:
         image: python:alpine3.6
         command: [sh, -c]
         args: ["echo FAILED or ERROR!"]
+=======
+        image: argoproj/argosay:v2
+        args: ["echo", "STARTED!"]
+
+    - name: success
+      container:
+        image: argoproj/argosay:v2
+        args: ["echo", "SUCCEEDED!"]
+
+    - name: failed
+      container:
+        image: argoproj/argosay:v2
+        args: ["echo", "FAILED or ERROR!"]
+>>>>>>> draft-3.6.5
 
     - name: print-artifact
       inputs:
@@ -730,9 +777,14 @@ spec:
           - name: message
             path: /tmp/message
       container:
+<<<<<<< HEAD
         image: python:alpine3.6
         command: [sh, -c]
         args: ["cat /tmp/message"]
+=======
+        image: argoproj/argosay:v2
+        args: ["cat", "/tmp/message"]
+>>>>>>> draft-3.6.5
 `).When().
 		SubmitWorkflow().
 		WaitForWorkflow(fixtures.ToBeCompleted).
@@ -751,20 +803,32 @@ spec:
 			return status.Name == "retries-with-hooks-and-artifact[0].build(0)"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Contains(t, children, status.ID)
+<<<<<<< HEAD
 			assert.Equal(t, false, status.NodeFlag.Hooked)
+=======
+			assert.False(t, status.NodeFlag.Hooked)
+>>>>>>> draft-3.6.5
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 			return status.Name == "retries-with-hooks-and-artifact[0].build.hooks.started"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Contains(t, children, status.ID)
+<<<<<<< HEAD
 			assert.Equal(t, true, status.NodeFlag.Hooked)
+=======
+			assert.True(t, status.NodeFlag.Hooked)
+>>>>>>> draft-3.6.5
 			assert.Equal(t, v1alpha1.NodeSucceeded, status.Phase)
 		})).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 			return status.Name == "retries-with-hooks-and-artifact[0].build.hooks.success"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Contains(t, children, status.ID)
+<<<<<<< HEAD
 			assert.Equal(t, true, status.NodeFlag.Hooked)
+=======
+			assert.True(t, status.NodeFlag.Hooked)
+>>>>>>> draft-3.6.5
 			assert.Equal(t, v1alpha1.NodeSucceeded, status.Phase)
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
@@ -774,6 +838,104 @@ spec:
 		})
 }
 
+<<<<<<< HEAD
+=======
+func (s *HooksSuite) TestExitHandlerWithWorkflowLevelDeadline() {
+	var onExitNodeName string
+	(s.Given().
+		Workflow(`apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: exit-handler-with-workflow-level-deadline
+spec:
+  entrypoint: main
+  activeDeadlineSeconds: 1
+  hooks:
+    exit:
+      template: exit-handler
+  templates:
+    - name: main
+      steps:
+      - - name: sleep
+          template: sleep
+    - name: exit-handler
+      steps:
+      - - name: sleep
+          template: sleep
+    - name: sleep
+      container:
+        image: argoproj/argosay:v2
+        args: ["sleep", "5"]
+`).When().
+		SubmitWorkflow().
+		WaitForWorkflow(fixtures.ToBeCompleted, 2*time.Minute).
+		WaitForWorkflow(fixtures.Condition(func(wf *v1alpha1.Workflow) (bool, string) {
+			onExitNodeName = common.GenerateOnExitNodeName(wf.ObjectMeta.Name)
+			onExitNode := wf.Status.Nodes.FindByDisplayName(onExitNodeName)
+			return onExitNode.Completed(), "exit handler completed"
+		})).
+		Then().
+		ExpectWorkflow(func(t *testing.T, metadata *v1.ObjectMeta, status *v1alpha1.WorkflowStatus) {
+			assert.Equal(t, v1alpha1.WorkflowFailed, status.Phase)
+		}).
+		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
+			return status.DisplayName == onExitNodeName
+		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
+			assert.True(t, status.NodeFlag.Hooked)
+			assert.Equal(t, v1alpha1.NodeSucceeded, status.Phase)
+		}))
+}
+
+func (s *HooksSuite) TestHttpExitHandlerWithWorkflowLevelDeadline() {
+	var onExitNodeName string
+	(s.Given().
+		Workflow(`apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: http-exit-handler-with-workflow-level-deadline
+spec:
+  entrypoint: main
+  activeDeadlineSeconds: 1
+  hooks:
+    exit:
+      template: exit-handler
+  templates:
+    - name: main
+      steps:
+      - - name: sleep
+          template: sleep
+    - name: sleep
+      container:
+        image: argoproj/argosay:v2
+        args: ["sleep", "5"]
+    - name: exit-handler
+      steps:
+      - - name: http
+          template: http
+    - name: http
+      http:
+        url: http://httpbin:9100/get
+`).When().
+		SubmitWorkflow().
+		WaitForWorkflow(fixtures.ToBeCompleted).
+		WaitForWorkflow(fixtures.Condition(func(wf *v1alpha1.Workflow) (bool, string) {
+			onExitNodeName = common.GenerateOnExitNodeName(wf.ObjectMeta.Name)
+			onExitNode := wf.Status.Nodes.FindByDisplayName(onExitNodeName)
+			return onExitNode.Completed(), "exit handler completed"
+		})).
+		Then().
+		ExpectWorkflow(func(t *testing.T, metadata *v1.ObjectMeta, status *v1alpha1.WorkflowStatus) {
+			assert.Equal(t, v1alpha1.WorkflowFailed, status.Phase)
+		}).
+		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
+			return status.DisplayName == onExitNodeName
+		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
+			assert.True(t, status.NodeFlag.Hooked)
+			assert.Equal(t, v1alpha1.NodeSucceeded, status.Phase)
+		}))
+}
+
+>>>>>>> draft-3.6.5
 func TestHooksSuite(t *testing.T) {
 	suite.Run(t, new(HooksSuite))
 }

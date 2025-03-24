@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 
 	"github.com/argoproj/argo-workflows/v3/workflow/data"
 )
@@ -25,7 +25,11 @@ func (we *WorkflowExecutor) Data(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+<<<<<<< HEAD
 	we.Template.Outputs.Result = pointer.StringPtr(string(out))
+=======
+	we.Template.Outputs.Result = ptr.To(string(out))
+>>>>>>> draft-3.6.5
 	err = we.ReportOutputs(ctx, nil)
 	if err != nil {
 		return err

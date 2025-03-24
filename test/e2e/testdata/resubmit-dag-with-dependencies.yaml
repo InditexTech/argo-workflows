@@ -23,6 +23,7 @@ spec:
             template: success
     - name: fail
       container:
+<<<<<<< HEAD
         image: busybox
         command: ["sh", -c]
         args:
@@ -33,3 +34,11 @@ spec:
         command: ["sh", -c]
         args:
           - exit 0
+=======
+        image: argoproj/argosay:v2
+        args: ["exit", "1"]
+    - name: success
+      container:
+        image: argoproj/argosay:v2
+        args: ["exit", "0"]
+>>>>>>> draft-3.6.5

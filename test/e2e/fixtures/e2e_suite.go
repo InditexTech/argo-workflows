@@ -3,12 +3,17 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/argoproj/argo-workflows/v3/server/utils"
 	"github.com/argoproj/argo-workflows/v3/util/secrets"
+
+	apierr "k8s.io/apimachinery/pkg/api/errors"
+
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/TwiN/go-color"
 	"github.com/stretchr/testify/suite"
@@ -21,7 +26,7 @@ import (
 	// load authentication plugin for obtaining credentials from cloud providers.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 
 	"github.com/argoproj/argo-workflows/v3/config"
 	"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow"
@@ -35,7 +40,8 @@ import (
 
 const (
 	Namespace = "argo"
-	Label     = workflow.WorkflowFullName + "/test" // mark this workflow as a test
+	Label     = workflow.WorkflowFullName + "/test"     // mark this workflow as a test
+	Backfill  = workflow.WorkflowFullName + "/backfill" // clean backfill workflows
 )
 
 var timeoutBias = env.LookupEnvDurationOr("E2E_WAIT_TIMEOUT_BIAS", 0*time.Second)
@@ -78,7 +84,7 @@ func (s *E2ESuite) SetupSuite() {
 	s.wfTemplateClient = versioned.NewForConfigOrDie(s.RestConfig).ArgoprojV1alpha1().WorkflowTemplates(Namespace)
 	s.wftsClient = versioned.NewForConfigOrDie(s.RestConfig).ArgoprojV1alpha1().WorkflowTaskSets(Namespace)
 	s.cronClient = versioned.NewForConfigOrDie(s.RestConfig).ArgoprojV1alpha1().CronWorkflows(Namespace)
-	s.Persistence = newPersistence(s.KubeClient, s.Config)
+	s.Persistence = newPersistence(ctx, s.KubeClient, s.Config)
 	s.hydrator = hydrator.New(s.Persistence.offloadNodeStatusRepo)
 	s.cwfTemplateClient = versioned.NewForConfigOrDie(s.RestConfig).ArgoprojV1alpha1().ClusterWorkflowTemplates()
 }
@@ -89,7 +95,11 @@ func (s *E2ESuite) TearDownSuite() {
 		_, _ = fmt.Println(color.Ize(color.Yellow, fmt.Sprintf("=== SLOW TEST:  %s", x)))
 	}
 	if s.T().Failed() {
+<<<<<<< HEAD
 		s.T().Log("to learn how to diagnose failed tests: https://argo-workflows.readthedocs.io/en/release-3.5/running-locally/#running-e2e-tests-locally")
+=======
+		s.T().Log("to learn how to diagnose failed tests: https://argo-workflows.readthedocs.io/en/latest/running-locally/#running-e2e-tests-locally")
+>>>>>>> draft-3.6.5
 	}
 }
 
@@ -127,6 +137,7 @@ func (s *E2ESuite) DeleteResources() {
 		return Label
 	}
 
+	pods := schema.GroupVersionResource{Version: "v1", Resource: "pods"}
 	resources := []schema.GroupVersionResource{
 		{Group: workflow.Group, Version: workflow.Version, Resource: workflow.CronWorkflowPlural},
 		{Group: workflow.Group, Version: workflow.Version, Resource: workflow.WorkflowPlural},
@@ -135,13 +146,29 @@ func (s *E2ESuite) DeleteResources() {
 		{Group: workflow.Group, Version: workflow.Version, Resource: workflow.WorkflowEventBindingPlural},
 		{Group: workflow.Group, Version: workflow.Version, Resource: "sensors"},
 		{Group: workflow.Group, Version: workflow.Version, Resource: "eventsources"},
-		{Version: "v1", Resource: "pods"},
+		pods,
 		{Version: "v1", Resource: "resourcequotas"},
 		{Version: "v1", Resource: "configmaps"},
 	}
 	for _, r := range resources {
 		for {
-			s.CheckError(s.dynamicFor(r).DeleteCollection(ctx, metav1.DeleteOptions{GracePeriodSeconds: pointer.Int64Ptr(2)}, metav1.ListOptions{LabelSelector: l(r)}))
+			// remove finalizer from all the resources of the given GroupVersionResource
+			resourceInf := s.dynamicFor(pods)
+			resourceList, err := resourceInf.List(ctx, metav1.ListOptions{LabelSelector: common.LabelKeyCompleted + "=false"})
+			s.CheckError(err)
+			for _, item := range resourceList.Items {
+				patch, err := json.Marshal(map[string]interface{}{
+					"metadata": map[string]interface{}{
+						"finalizers": []string{},
+					},
+				})
+				s.CheckError(err)
+				_, err = resourceInf.Patch(ctx, item.GetName(), types.MergePatchType, patch, metav1.PatchOptions{})
+				if err != nil && !apierr.IsNotFound(err) {
+					s.CheckError(err)
+				}
+			}
+			s.CheckError(s.dynamicFor(r).DeleteCollection(ctx, metav1.DeleteOptions{GracePeriodSeconds: ptr.To(int64(2))}, metav1.ListOptions{LabelSelector: l(r)}))
 			ls, err := s.dynamicFor(r).List(ctx, metav1.ListOptions{LabelSelector: l(r)})
 			s.CheckError(err)
 			if len(ls.Items) == 0 {
@@ -153,7 +180,7 @@ func (s *E2ESuite) DeleteResources() {
 
 	// delete archived workflows from the archive
 	if s.Persistence.IsEnabled() {
-		archive := s.Persistence.workflowArchive
+		archive := s.Persistence.WorkflowArchive
 		parse, err := labels.ParseToRequirements(Label)
 		s.CheckError(err)
 		workflows, err := archive.ListWorkflows(utils.ListOptions{
@@ -162,6 +189,17 @@ func (s *E2ESuite) DeleteResources() {
 		})
 		s.CheckError(err)
 		for _, w := range workflows {
+			err := archive.DeleteWorkflow(string(w.UID))
+			s.CheckError(err)
+		}
+		parse, err = labels.ParseToRequirements(Backfill)
+		s.CheckError(err)
+		backfillWorkflows, err := archive.ListWorkflows(utils.ListOptions{
+			Namespace:         Namespace,
+			LabelRequirements: parse,
+		})
+		s.CheckError(err)
+		for _, w := range backfillWorkflows {
 			err := archive.DeleteWorkflow(string(w.UID))
 			s.CheckError(err)
 		}
@@ -222,5 +260,6 @@ func (s *E2ESuite) Given() *Given {
 		hydrator:          s.hydrator,
 		kubeClient:        s.KubeClient,
 		bearerToken:       bearerToken,
+		restConfig:        s.RestConfig,
 	}
 }

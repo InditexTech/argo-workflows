@@ -15,6 +15,7 @@ linters:
     - asasalint
     - bidichk
     - bodyclose
+    - copyloopvar
     - errcheck
     - exportloopref
     - goimports
@@ -33,6 +34,7 @@ linters:
     - rowserrcheck
     - sqlclosecheck
     - staticcheck
+    - testifylint
     - typecheck
     - unparam
     - unused
@@ -64,5 +66,3 @@ issues:
     - sdks
     - ui
     - vendor
-  exclude-files:
-    - server/static/files.go

@@ -127,6 +127,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.SemaphoreRef":                  schema_pkg_apis_workflow_v1alpha1_SemaphoreRef(ref),
 		"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.SemaphoreStatus":               schema_pkg_apis_workflow_v1alpha1_SemaphoreStatus(ref),
 		"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.Sequence":                      schema_pkg_apis_workflow_v1alpha1_Sequence(ref),
+		"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.StopStrategy":                  schema_pkg_apis_workflow_v1alpha1_StopStrategy(ref),
 		"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.Submit":                        schema_pkg_apis_workflow_v1alpha1_Submit(ref),
 		"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.SubmitOpts":                    schema_pkg_apis_workflow_v1alpha1_SubmitOpts(ref),
 		"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.SuppliedValueFrom":             schema_pkg_apis_workflow_v1alpha1_SuppliedValueFrom(ref),
@@ -1412,6 +1413,16 @@ func schema_pkg_apis_workflow_v1alpha1_Backoff(ref common.ReferenceCallback) com
 					"maxDuration": {
 						SchemaProps: spec.SchemaProps{
 							Description: "MaxDuration is the maximum amount of time allowed for a workflow in the backoff strategy. It is important to note that if the workflow template includes activeDeadlineSeconds, the pod's deadline is initially set with activeDeadlineSeconds. However, when the workflow fails, the pod's deadline is then overridden by maxDuration. This ensures that the workflow does not exceed the specified maximum duration when retries are involved.",
+<<<<<<< HEAD
+=======
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"cap": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Cap is a limit on revised values of the duration parameter. If a multiplication by the factor parameter would make the duration exceed the cap then the duration is set to the cap",
+>>>>>>> draft-3.6.5
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1688,6 +1699,11 @@ func schema_pkg_apis_workflow_v1alpha1_ContainerNode(ref common.ReferenceCallbac
 						},
 					},
 					"command": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
 						SchemaProps: spec.SchemaProps{
 							Description: "Entrypoint array. Not executed within a shell. The container image's ENTRYPOINT is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell",
 							Type:        []string{"array"},
@@ -1703,6 +1719,11 @@ func schema_pkg_apis_workflow_v1alpha1_ContainerNode(ref common.ReferenceCallbac
 						},
 					},
 					"args": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
 						SchemaProps: spec.SchemaProps{
 							Description: "Arguments to the entrypoint. The container image's CMD is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell",
 							Type:        []string{"array"},
@@ -1737,7 +1758,7 @@ func schema_pkg_apis_workflow_v1alpha1_ContainerNode(ref common.ReferenceCallbac
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "List of ports to expose from the container. Exposing a port here gives the system additional information about the network connections a container uses, but is primarily informational. Not specifying a port here DOES NOT prevent that port from being exposed. Any port which is listening on the default \"0.0.0.0\" address inside a container will be accessible from the network. Cannot be updated.",
+							Description: "List of ports to expose from the container. Not specifying a port here DOES NOT prevent that port from being exposed. Any port which is listening on the default \"0.0.0.0\" address inside a container will be accessible from the network. Modifying this array with strategic merge patch may corrupt the data. For more information See https://github.com/kubernetes/kubernetes/issues/108255. Cannot be updated.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -1750,6 +1771,11 @@ func schema_pkg_apis_workflow_v1alpha1_ContainerNode(ref common.ReferenceCallbac
 						},
 					},
 					"envFrom": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
 						SchemaProps: spec.SchemaProps{
 							Description: "List of sources to populate environment variables in the container. The keys defined within a source must be a C_IDENTIFIER. All invalid keys will be reported as an event when the container is starting. When a key exists in multiple sources, the value associated with the last source will take precedence. Values defined by an Env with a duplicate key will take precedence. Cannot be updated.",
 							Type:        []string{"array"},
@@ -1766,6 +1792,10 @@ func schema_pkg_apis_workflow_v1alpha1_ContainerNode(ref common.ReferenceCallbac
 					"env": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"name",
+								},
+								"x-kubernetes-list-type":       "map",
 								"x-kubernetes-patch-merge-key": "name",
 								"x-kubernetes-patch-strategy":  "merge",
 							},
@@ -1790,9 +1820,39 @@ func schema_pkg_apis_workflow_v1alpha1_ContainerNode(ref common.ReferenceCallbac
 							Ref:         ref("k8s.io/api/core/v1.ResourceRequirements"),
 						},
 					},
+					"resizePolicy": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "Resources resize policy for the container.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/api/core/v1.ContainerResizePolicy"),
+									},
+								},
+							},
+						},
+					},
+					"restartPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "RestartPolicy defines the restart behavior of individual containers in a pod. This field may only be set for init containers, and the only allowed value is \"Always\". For non-init containers or when this field is not specified, the restart behavior is defined by the Pod's restart policy and the container type. Setting the RestartPolicy as \"Always\" for the init container will have the following effect: this init container will be continually restarted on exit until all regular containers have terminated. Once all regular containers have completed, all init containers with restartPolicy \"Always\" will be shut down. This lifecycle differs from normal init containers and is often referred to as a \"sidecar\" container. Although this init container still starts in the init container sequence, it does not wait for the container to complete before proceeding to the next init container. Instead, the next init container starts immediately after this init container is started, or after any startupProbe has successfully completed.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"volumeMounts": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"mountPath",
+								},
+								"x-kubernetes-list-type":       "map",
 								"x-kubernetes-patch-merge-key": "mountPath",
 								"x-kubernetes-patch-strategy":  "merge",
 							},
@@ -1813,6 +1873,10 @@ func schema_pkg_apis_workflow_v1alpha1_ContainerNode(ref common.ReferenceCallbac
 					"volumeDevices": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"devicePath",
+								},
+								"x-kubernetes-list-type":       "map",
 								"x-kubernetes-patch-merge-key": "devicePath",
 								"x-kubernetes-patch-strategy":  "merge",
 							},
@@ -1921,7 +1985,7 @@ func schema_pkg_apis_workflow_v1alpha1_ContainerNode(ref common.ReferenceCallbac
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.ContainerPort", "k8s.io/api/core/v1.EnvFromSource", "k8s.io/api/core/v1.EnvVar", "k8s.io/api/core/v1.Lifecycle", "k8s.io/api/core/v1.Probe", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.SecurityContext", "k8s.io/api/core/v1.VolumeDevice", "k8s.io/api/core/v1.VolumeMount"},
+			"k8s.io/api/core/v1.ContainerPort", "k8s.io/api/core/v1.ContainerResizePolicy", "k8s.io/api/core/v1.EnvFromSource", "k8s.io/api/core/v1.EnvVar", "k8s.io/api/core/v1.Lifecycle", "k8s.io/api/core/v1.Probe", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.SecurityContext", "k8s.io/api/core/v1.VolumeDevice", "k8s.io/api/core/v1.VolumeMount"},
 	}
 }
 
@@ -2181,8 +2245,7 @@ func schema_pkg_apis_workflow_v1alpha1_CronWorkflowSpec(ref common.ReferenceCall
 					},
 					"schedule": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Schedule is a schedule to run the Workflow in Cron format",
-							Default:     "",
+							Description: "Schedule is a schedule to run the Workflow in Cron format. Deprecated, use Schedules",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2235,12 +2298,40 @@ func schema_pkg_apis_workflow_v1alpha1_CronWorkflowSpec(ref common.ReferenceCall
 							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
 						},
 					},
+					"stopStrategy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "v3.6 and after: StopStrategy defines if the CronWorkflow should stop scheduling based on a condition",
+							Ref:         ref("github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.StopStrategy"),
+						},
+					},
+					"schedules": {
+						SchemaProps: spec.SchemaProps{
+							Description: "v3.6 and after: Schedules is a list of schedules to run the Workflow in Cron format",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"when": {
+						SchemaProps: spec.SchemaProps{
+							Description: "v3.6 and after: When is an expression that determines if a run should be scheduled.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
-				Required: []string{"workflowSpec", "schedule"},
+				Required: []string{"workflowSpec"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.WorkflowSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.StopStrategy", "github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.WorkflowSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
@@ -2285,8 +2376,31 @@ func schema_pkg_apis_workflow_v1alpha1_CronWorkflowStatus(ref common.ReferenceCa
 							},
 						},
 					},
+					"succeeded": {
+						SchemaProps: spec.SchemaProps{
+							Description: "v3.6 and after: Succeeded counts how many times child workflows succeeded",
+							Default:     0,
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"failed": {
+						SchemaProps: spec.SchemaProps{
+							Description: "v3.6 and after: Failed counts how many times child workflows failed",
+							Default:     0,
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"phase": {
+						SchemaProps: spec.SchemaProps{
+							Description: "v3.6 and after: Phase is an enum of Active or Stopped. It changes to Stopped when stopStrategy.expression is true",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
-				Required: []string{"active", "lastScheduledTime", "conditions"},
 			},
 		},
 		Dependencies: []string{
@@ -2318,7 +2432,7 @@ func schema_pkg_apis_workflow_v1alpha1_DAGTask(ref common.ReferenceCallback) com
 					},
 					"inline": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Inline is the template. Template must be empty if this is declared (and vice-versa).",
+							Description: "Inline is the template. Template must be empty if this is declared (and vice-versa). Note: As mentioned in the corresponding definition in WorkflowStep, this struct is defined recursively, so we need \"x-kubernetes-preserve-unknown-fields: true\" in the validation schema.",
 							Ref:         ref("github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.Template"),
 						},
 					},
@@ -2352,7 +2466,7 @@ func schema_pkg_apis_workflow_v1alpha1_DAGTask(ref common.ReferenceCallback) com
 					},
 					"withItems": {
 						SchemaProps: spec.SchemaProps{
-							Description: "WithItems expands a task into multiple parallel tasks from the items in the list",
+							Description: "WithItems expands a task into multiple parallel tasks from the items in the list Note: The structure of WithItems is free-form, so we need \"x-kubernetes-preserve-unknown-fields: true\" in the validation schema.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2803,6 +2917,13 @@ func schema_pkg_apis_workflow_v1alpha1_GitArtifact(ref common.ReferenceCallback)
 							Format:      "",
 						},
 					},
+					"insecureSkipTLS": {
+						SchemaProps: spec.SchemaProps{
+							Description: "InsecureSkipTLS disables server certificate verification resulting in insecure HTTPS connections",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"repo"},
 			},
@@ -2876,6 +2997,13 @@ func schema_pkg_apis_workflow_v1alpha1_HDFSArtifact(ref common.ReferenceCallback
 					"hdfsUser": {
 						SchemaProps: spec.SchemaProps{
 							Description: "HDFSUser is the user to access HDFS file system. It is ignored if either ccache or keytab is used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"dataTransferProtection": {
+						SchemaProps: spec.SchemaProps{
+							Description: "DataTransferProtection is the protection level for HDFS data transfer. It corresponds to the dfs.data.transfer.protection configuration in HDFS.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2972,6 +3100,13 @@ func schema_pkg_apis_workflow_v1alpha1_HDFSArtifactRepository(ref common.Referen
 							Format:      "",
 						},
 					},
+					"dataTransferProtection": {
+						SchemaProps: spec.SchemaProps{
+							Description: "DataTransferProtection is the protection level for HDFS data transfer. It corresponds to the dfs.data.transfer.protection configuration in HDFS.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"pathFormat": {
 						SchemaProps: spec.SchemaProps{
 							Description: "PathFormat is defines the format of path to store a file. Can reference workflow variables",
@@ -3058,6 +3193,13 @@ func schema_pkg_apis_workflow_v1alpha1_HDFSConfig(ref common.ReferenceCallback) 
 					"hdfsUser": {
 						SchemaProps: spec.SchemaProps{
 							Description: "HDFSUser is the user to access HDFS file system. It is ignored if either ccache or keytab is used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"dataTransferProtection": {
+						SchemaProps: spec.SchemaProps{
+							Description: "DataTransferProtection is the protection level for HDFS data transfer. It corresponds to the dfs.data.transfer.protection configuration in HDFS.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4647,7 +4789,7 @@ func schema_pkg_apis_workflow_v1alpha1_Outputs(ref common.ReferenceCallback) com
 					},
 					"result": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Result holds the result (stdout) of a script template",
+							Description: "Result holds the result (stdout) of a script or container template, or the response body of an HTTP template",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4671,8 +4813,9 @@ func schema_pkg_apis_workflow_v1alpha1_ParallelSteps(ref common.ReferenceCallbac
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Type:   ParallelSteps{}.OpenAPISchemaType(),
-				Format: ParallelSteps{}.OpenAPISchemaFormat(),
+				Description: "swagger:ignore",
+				Type:        ParallelSteps{}.OpenAPISchemaType(),
+				Format:      ParallelSteps{}.OpenAPISchemaFormat(),
 			},
 		},
 	}
@@ -4702,7 +4845,7 @@ func schema_pkg_apis_workflow_v1alpha1_Parameter(ref common.ReferenceCallback) c
 					},
 					"value": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Value is the literal value to use for the parameter. If specified in the context of an input parameter, the value takes precedence over any passed values",
+							Description: "Value is the literal value to use for the parameter. If specified in the context of an input parameter, any passed values take precedence over the specified value",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4785,14 +4928,15 @@ func schema_pkg_apis_workflow_v1alpha1_PodGC(ref common.ReferenceCallback) commo
 					"deleteDelayDuration": {
 						SchemaProps: spec.SchemaProps{
 							Description: "DeleteDelayDuration specifies the duration before pods in the GC queue get deleted.",
-							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.Duration", "k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector"},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector"},
 	}
 }
 
@@ -5093,6 +5237,12 @@ func schema_pkg_apis_workflow_v1alpha1_S3Artifact(ref common.ReferenceCallback) 
 							Ref:         ref("k8s.io/api/core/v1.SecretKeySelector"),
 						},
 					},
+					"sessionTokenSecret": {
+						SchemaProps: spec.SchemaProps{
+							Description: "SessionTokenSecret is used for ephemeral credentials like an IAM assume role or S3 access grant",
+							Ref:         ref("k8s.io/api/core/v1.SecretKeySelector"),
+						},
+					},
 					"roleARN": {
 						SchemaProps: spec.SchemaProps{
 							Description: "RoleARN is the Amazon Resource Name (ARN) of the role to assume.",
@@ -5183,6 +5333,12 @@ func schema_pkg_apis_workflow_v1alpha1_S3ArtifactRepository(ref common.Reference
 					"secretKeySecret": {
 						SchemaProps: spec.SchemaProps{
 							Description: "SecretKeySecret is the secret selector to the bucket's secret key",
+							Ref:         ref("k8s.io/api/core/v1.SecretKeySelector"),
+						},
+					},
+					"sessionTokenSecret": {
+						SchemaProps: spec.SchemaProps{
+							Description: "SessionTokenSecret is used for ephemeral credentials like an IAM assume role or S3 access grant",
 							Ref:         ref("k8s.io/api/core/v1.SecretKeySelector"),
 						},
 					},
@@ -5283,6 +5439,12 @@ func schema_pkg_apis_workflow_v1alpha1_S3Bucket(ref common.ReferenceCallback) co
 					"secretKeySecret": {
 						SchemaProps: spec.SchemaProps{
 							Description: "SecretKeySecret is the secret selector to the bucket's secret key",
+							Ref:         ref("k8s.io/api/core/v1.SecretKeySelector"),
+						},
+					},
+					"sessionTokenSecret": {
+						SchemaProps: spec.SchemaProps{
+							Description: "SessionTokenSecret is used for ephemeral credentials like an IAM assume role or S3 access grant",
 							Ref:         ref("k8s.io/api/core/v1.SecretKeySelector"),
 						},
 					},
@@ -5390,6 +5552,11 @@ func schema_pkg_apis_workflow_v1alpha1_ScriptTemplate(ref common.ReferenceCallba
 						},
 					},
 					"command": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
 						SchemaProps: spec.SchemaProps{
 							Description: "Entrypoint array. Not executed within a shell. The container image's ENTRYPOINT is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell",
 							Type:        []string{"array"},
@@ -5405,6 +5572,11 @@ func schema_pkg_apis_workflow_v1alpha1_ScriptTemplate(ref common.ReferenceCallba
 						},
 					},
 					"args": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
 						SchemaProps: spec.SchemaProps{
 							Description: "Arguments to the entrypoint. The container image's CMD is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell",
 							Type:        []string{"array"},
@@ -5439,7 +5611,7 @@ func schema_pkg_apis_workflow_v1alpha1_ScriptTemplate(ref common.ReferenceCallba
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "List of ports to expose from the container. Exposing a port here gives the system additional information about the network connections a container uses, but is primarily informational. Not specifying a port here DOES NOT prevent that port from being exposed. Any port which is listening on the default \"0.0.0.0\" address inside a container will be accessible from the network. Cannot be updated.",
+							Description: "List of ports to expose from the container. Not specifying a port here DOES NOT prevent that port from being exposed. Any port which is listening on the default \"0.0.0.0\" address inside a container will be accessible from the network. Modifying this array with strategic merge patch may corrupt the data. For more information See https://github.com/kubernetes/kubernetes/issues/108255. Cannot be updated.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5452,6 +5624,11 @@ func schema_pkg_apis_workflow_v1alpha1_ScriptTemplate(ref common.ReferenceCallba
 						},
 					},
 					"envFrom": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
 						SchemaProps: spec.SchemaProps{
 							Description: "List of sources to populate environment variables in the container. The keys defined within a source must be a C_IDENTIFIER. All invalid keys will be reported as an event when the container is starting. When a key exists in multiple sources, the value associated with the last source will take precedence. Values defined by an Env with a duplicate key will take precedence. Cannot be updated.",
 							Type:        []string{"array"},
@@ -5468,6 +5645,10 @@ func schema_pkg_apis_workflow_v1alpha1_ScriptTemplate(ref common.ReferenceCallba
 					"env": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"name",
+								},
+								"x-kubernetes-list-type":       "map",
 								"x-kubernetes-patch-merge-key": "name",
 								"x-kubernetes-patch-strategy":  "merge",
 							},
@@ -5492,9 +5673,39 @@ func schema_pkg_apis_workflow_v1alpha1_ScriptTemplate(ref common.ReferenceCallba
 							Ref:         ref("k8s.io/api/core/v1.ResourceRequirements"),
 						},
 					},
+					"resizePolicy": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "Resources resize policy for the container.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/api/core/v1.ContainerResizePolicy"),
+									},
+								},
+							},
+						},
+					},
+					"restartPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "RestartPolicy defines the restart behavior of individual containers in a pod. This field may only be set for init containers, and the only allowed value is \"Always\". For non-init containers or when this field is not specified, the restart behavior is defined by the Pod's restart policy and the container type. Setting the RestartPolicy as \"Always\" for the init container will have the following effect: this init container will be continually restarted on exit until all regular containers have terminated. Once all regular containers have completed, all init containers with restartPolicy \"Always\" will be shut down. This lifecycle differs from normal init containers and is often referred to as a \"sidecar\" container. Although this init container still starts in the init container sequence, it does not wait for the container to complete before proceeding to the next init container. Instead, the next init container starts immediately after this init container is started, or after any startupProbe has successfully completed.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"volumeMounts": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"mountPath",
+								},
+								"x-kubernetes-list-type":       "map",
 								"x-kubernetes-patch-merge-key": "mountPath",
 								"x-kubernetes-patch-strategy":  "merge",
 							},
@@ -5515,6 +5726,10 @@ func schema_pkg_apis_workflow_v1alpha1_ScriptTemplate(ref common.ReferenceCallba
 					"volumeDevices": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"devicePath",
+								},
+								"x-kubernetes-list-type":       "map",
 								"x-kubernetes-patch-merge-key": "devicePath",
 								"x-kubernetes-patch-strategy":  "merge",
 							},
@@ -5613,11 +5828,11 @@ func schema_pkg_apis_workflow_v1alpha1_ScriptTemplate(ref common.ReferenceCallba
 						},
 					},
 				},
-				Required: []string{"name", "source"},
+				Required: []string{"name"},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.ContainerPort", "k8s.io/api/core/v1.EnvFromSource", "k8s.io/api/core/v1.EnvVar", "k8s.io/api/core/v1.Lifecycle", "k8s.io/api/core/v1.Probe", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.SecurityContext", "k8s.io/api/core/v1.VolumeDevice", "k8s.io/api/core/v1.VolumeMount"},
+			"k8s.io/api/core/v1.ContainerPort", "k8s.io/api/core/v1.ContainerResizePolicy", "k8s.io/api/core/v1.EnvFromSource", "k8s.io/api/core/v1.EnvVar", "k8s.io/api/core/v1.Lifecycle", "k8s.io/api/core/v1.Probe", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.SecurityContext", "k8s.io/api/core/v1.VolumeDevice", "k8s.io/api/core/v1.VolumeMount"},
 	}
 }
 
@@ -5767,6 +5982,28 @@ func schema_pkg_apis_workflow_v1alpha1_Sequence(ref common.ReferenceCallback) co
 		},
 		Dependencies: []string{
 			"k8s.io/apimachinery/pkg/util/intstr.IntOrString"},
+	}
+}
+
+func schema_pkg_apis_workflow_v1alpha1_StopStrategy(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "StopStrategy defines if the CronWorkflow should stop scheduling based on an expression. v3.6 and after",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"expression": {
+						SchemaProps: spec.SchemaProps{
+							Description: "v3.6 and after: Expression is an expression that stops scheduling workflows when true. Use the variables `cronworkflow`.`failed` or `cronworkflow`.`succeeded` to access the number of failed or successful child workflows.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"expression"},
+			},
+		},
 	}
 }
 
@@ -5951,14 +6188,40 @@ func schema_pkg_apis_workflow_v1alpha1_Synchronization(ref common.ReferenceCallb
 				Properties: map[string]spec.Schema{
 					"semaphore": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Semaphore holds the Semaphore configuration",
+							Description: "Semaphore holds the Semaphore configuration - deprecated, use semaphores instead",
 							Ref:         ref("github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.SemaphoreRef"),
 						},
 					},
 					"mutex": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Mutex holds the Mutex lock details",
+							Description: "Mutex holds the Mutex lock details - deprecated, use mutexes instead",
 							Ref:         ref("github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.Mutex"),
+						},
+					},
+					"semaphores": {
+						SchemaProps: spec.SchemaProps{
+							Description: "v3.6 and after: Semaphores holds the list of Semaphores configuration",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.SemaphoreRef"),
+									},
+								},
+							},
+						},
+					},
+					"mutexes": {
+						SchemaProps: spec.SchemaProps{
+							Description: "v3.6 and after: Mutexes holds the list of Mutex lock details",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.Mutex"),
+									},
+								},
+							},
 						},
 					},
 				},
@@ -6178,7 +6441,7 @@ func schema_pkg_apis_workflow_v1alpha1_Template(ref common.ReferenceCallback) co
 					},
 					"plugin": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Plugin is a plugin template",
+							Description: "Plugin is a plugin template Note: the structure of a plugin template is free-form, so we need to have \"x-kubernetes-preserve-unknown-fields: true\" in the validation schema.",
 							Ref:         ref("github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.Plugin"),
 						},
 					},
@@ -6308,13 +6571,6 @@ func schema_pkg_apis_workflow_v1alpha1_Template(ref common.ReferenceCallback) co
 							Format:      "",
 						},
 					},
-					"priority": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Priority to apply to workflow pods.",
-							Type:        []string{"integer"},
-							Format:      "int32",
-						},
-					},
 					"serviceAccountName": {
 						SchemaProps: spec.SchemaProps{
 							Description: "ServiceAccountName to apply to workflow pods",
@@ -6391,6 +6647,22 @@ func schema_pkg_apis_workflow_v1alpha1_Template(ref common.ReferenceCallback) co
 							Description: "Timeout allows to set the total node execution timeout duration counting from the node's start time. This duration also includes time in which the node spends in Pending state. This duration may not be applied to Step or DAG templates.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"annotations": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Annotations is a list of annotations to add to the template at runtime",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},
@@ -6479,6 +6751,11 @@ func schema_pkg_apis_workflow_v1alpha1_UserContainer(ref common.ReferenceCallbac
 						},
 					},
 					"command": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
 						SchemaProps: spec.SchemaProps{
 							Description: "Entrypoint array. Not executed within a shell. The container image's ENTRYPOINT is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell",
 							Type:        []string{"array"},
@@ -6494,6 +6771,11 @@ func schema_pkg_apis_workflow_v1alpha1_UserContainer(ref common.ReferenceCallbac
 						},
 					},
 					"args": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
 						SchemaProps: spec.SchemaProps{
 							Description: "Arguments to the entrypoint. The container image's CMD is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell",
 							Type:        []string{"array"},
@@ -6528,7 +6810,7 @@ func schema_pkg_apis_workflow_v1alpha1_UserContainer(ref common.ReferenceCallbac
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "List of ports to expose from the container. Exposing a port here gives the system additional information about the network connections a container uses, but is primarily informational. Not specifying a port here DOES NOT prevent that port from being exposed. Any port which is listening on the default \"0.0.0.0\" address inside a container will be accessible from the network. Cannot be updated.",
+							Description: "List of ports to expose from the container. Not specifying a port here DOES NOT prevent that port from being exposed. Any port which is listening on the default \"0.0.0.0\" address inside a container will be accessible from the network. Modifying this array with strategic merge patch may corrupt the data. For more information See https://github.com/kubernetes/kubernetes/issues/108255. Cannot be updated.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -6541,6 +6823,11 @@ func schema_pkg_apis_workflow_v1alpha1_UserContainer(ref common.ReferenceCallbac
 						},
 					},
 					"envFrom": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
 						SchemaProps: spec.SchemaProps{
 							Description: "List of sources to populate environment variables in the container. The keys defined within a source must be a C_IDENTIFIER. All invalid keys will be reported as an event when the container is starting. When a key exists in multiple sources, the value associated with the last source will take precedence. Values defined by an Env with a duplicate key will take precedence. Cannot be updated.",
 							Type:        []string{"array"},
@@ -6557,6 +6844,10 @@ func schema_pkg_apis_workflow_v1alpha1_UserContainer(ref common.ReferenceCallbac
 					"env": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"name",
+								},
+								"x-kubernetes-list-type":       "map",
 								"x-kubernetes-patch-merge-key": "name",
 								"x-kubernetes-patch-strategy":  "merge",
 							},
@@ -6581,9 +6872,39 @@ func schema_pkg_apis_workflow_v1alpha1_UserContainer(ref common.ReferenceCallbac
 							Ref:         ref("k8s.io/api/core/v1.ResourceRequirements"),
 						},
 					},
+					"resizePolicy": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "Resources resize policy for the container.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/api/core/v1.ContainerResizePolicy"),
+									},
+								},
+							},
+						},
+					},
+					"restartPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "RestartPolicy defines the restart behavior of individual containers in a pod. This field may only be set for init containers, and the only allowed value is \"Always\". For non-init containers or when this field is not specified, the restart behavior is defined by the Pod's restart policy and the container type. Setting the RestartPolicy as \"Always\" for the init container will have the following effect: this init container will be continually restarted on exit until all regular containers have terminated. Once all regular containers have completed, all init containers with restartPolicy \"Always\" will be shut down. This lifecycle differs from normal init containers and is often referred to as a \"sidecar\" container. Although this init container still starts in the init container sequence, it does not wait for the container to complete before proceeding to the next init container. Instead, the next init container starts immediately after this init container is started, or after any startupProbe has successfully completed.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"volumeMounts": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"mountPath",
+								},
+								"x-kubernetes-list-type":       "map",
 								"x-kubernetes-patch-merge-key": "mountPath",
 								"x-kubernetes-patch-strategy":  "merge",
 							},
@@ -6604,6 +6925,10 @@ func schema_pkg_apis_workflow_v1alpha1_UserContainer(ref common.ReferenceCallbac
 					"volumeDevices": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"devicePath",
+								},
+								"x-kubernetes-list-type":       "map",
 								"x-kubernetes-patch-merge-key": "devicePath",
 								"x-kubernetes-patch-strategy":  "merge",
 							},
@@ -6705,7 +7030,7 @@ func schema_pkg_apis_workflow_v1alpha1_UserContainer(ref common.ReferenceCallbac
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.ContainerPort", "k8s.io/api/core/v1.EnvFromSource", "k8s.io/api/core/v1.EnvVar", "k8s.io/api/core/v1.Lifecycle", "k8s.io/api/core/v1.Probe", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.SecurityContext", "k8s.io/api/core/v1.VolumeDevice", "k8s.io/api/core/v1.VolumeMount"},
+			"k8s.io/api/core/v1.ContainerPort", "k8s.io/api/core/v1.ContainerResizePolicy", "k8s.io/api/core/v1.EnvFromSource", "k8s.io/api/core/v1.EnvVar", "k8s.io/api/core/v1.Lifecycle", "k8s.io/api/core/v1.Probe", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.SecurityContext", "k8s.io/api/core/v1.VolumeDevice", "k8s.io/api/core/v1.VolumeMount"},
 	}
 }
 
@@ -7538,13 +7863,6 @@ func schema_pkg_apis_workflow_v1alpha1_WorkflowSpec(ref common.ReferenceCallback
 							Format:      "",
 						},
 					},
-					"podPriority": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Priority to apply to workflow pods. DEPRECATED: Use PodPriorityClassName instead.",
-							Type:        []string{"integer"},
-							Format:      "int32",
-						},
-					},
 					"hostAliases": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -7888,7 +8206,7 @@ func schema_pkg_apis_workflow_v1alpha1_WorkflowStep(ref common.ReferenceCallback
 					},
 					"inline": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Inline is the template. Template must be empty if this is declared (and vice-versa).",
+							Description: "Inline is the template. Template must be empty if this is declared (and vice-versa). Note: This struct is defined recursively, since the inline template can potentially contain steps/DAGs that also has an \"inline\" field. Kubernetes doesn't allow recursive types, so we need \"x-kubernetes-preserve-unknown-fields: true\" in the validation schema.",
 							Ref:         ref("github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1.Template"),
 						},
 					},
@@ -7907,7 +8225,7 @@ func schema_pkg_apis_workflow_v1alpha1_WorkflowStep(ref common.ReferenceCallback
 					},
 					"withItems": {
 						SchemaProps: spec.SchemaProps{
-							Description: "WithItems expands a step into multiple parallel steps from the items in the list",
+							Description: "WithItems expands a step into multiple parallel steps from the items in the list Note: The structure of WithItems is free-form, so we need \"x-kubernetes-preserve-unknown-fields: true\" in the validation schema.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{

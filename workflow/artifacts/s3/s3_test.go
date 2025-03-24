@@ -2,15 +2,17 @@ package s3
 
 import (
 	"bytes"
+	"context"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
-	argos3 "github.com/argoproj/pkg/s3"
 	"github.com/minio/minio-go/v7"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	wfv1 "github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
 )
@@ -24,7 +26,7 @@ type mockS3Client struct {
 	mockedErrs map[string]error
 }
 
-func newMockS3Client(files map[string][]string, mockedErrs map[string]error) argos3.S3Client {
+func newMockS3Client(files map[string][]string, mockedErrs map[string]error) S3Client {
 	return &mockS3Client{
 		files:      files,
 		mockedErrs: mockedErrs,
@@ -127,7 +129,7 @@ func (s *mockS3Client) MakeBucket(bucketName string, opts minio.MakeBucketOption
 
 func TestOpenStreamS3Artifact(t *testing.T) {
 	tests := map[string]struct {
-		s3client  argos3.S3Client
+		s3client  S3Client
 		bucket    string
 		key       string
 		localPath string
@@ -215,7 +217,7 @@ func TestOpenStreamS3Artifact(t *testing.T) {
 		},
 	}
 
-	_ = os.Setenv(transientEnvVarKey, "this error is transient")
+	t.Setenv(transientEnvVarKey, "this error is transient")
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			stream, err := streamS3Artifact(tc.s3client, &wfv1.Artifact{
@@ -229,15 +231,14 @@ func TestOpenStreamS3Artifact(t *testing.T) {
 				},
 			})
 			if tc.errMsg == "" {
-				assert.Nil(t, err)
+				require.NoError(t, err)
 				assert.NotNil(t, stream)
 			} else {
-				assert.NotNil(t, err)
+				require.Error(t, err)
 				assert.Equal(t, tc.errMsg, err.Error())
 			}
 		})
 	}
-	_ = os.Unsetenv(transientEnvVarKey)
 }
 
 // Delete deletes an S3 artifact by artifact key
@@ -247,7 +248,7 @@ func (s *mockS3Client) Delete(bucket, key string) error {
 
 func TestLoadS3Artifact(t *testing.T) {
 	tests := map[string]struct {
-		s3client  argos3.S3Client
+		s3client  S3Client
 		bucket    string
 		key       string
 		localPath string
@@ -380,7 +381,7 @@ func TestLoadS3Artifact(t *testing.T) {
 		},
 	}
 
-	_ = os.Setenv(transientEnvVarKey, "this error is transient")
+	t.Setenv(transientEnvVarKey, "this error is transient")
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			success, err := loadS3Artifact(tc.s3client, &wfv1.Artifact{
@@ -397,11 +398,10 @@ func TestLoadS3Artifact(t *testing.T) {
 			if err != nil {
 				assert.Equal(t, tc.errMsg, err.Error())
 			} else {
-				assert.Equal(t, tc.errMsg, "")
+				assert.Equal(t, "", tc.errMsg)
 			}
 		})
 	}
-	_ = os.Unsetenv(transientEnvVarKey)
 }
 
 func TestSaveS3Artifact(t *testing.T) {
@@ -413,7 +413,7 @@ func TestSaveS3Artifact(t *testing.T) {
 	}
 
 	tests := map[string]struct {
-		s3client  argos3.S3Client
+		s3client  S3Client
 		bucket    string
 		key       string
 		localPath string
@@ -509,7 +509,7 @@ func TestSaveS3Artifact(t *testing.T) {
 	}
 
 	for name, tc := range tests {
-		_ = os.Setenv(transientEnvVarKey, "this error is transient")
+		t.Setenv(transientEnvVarKey, "this error is transient")
 		t.Run(name, func(t *testing.T) {
 			success, err := saveS3Artifact(
 				tc.s3client,
@@ -532,17 +532,16 @@ func TestSaveS3Artifact(t *testing.T) {
 			if err != nil {
 				assert.Equal(t, tc.errMsg, err.Error())
 			} else {
-				assert.Equal(t, tc.errMsg, "")
+				assert.Equal(t, "", tc.errMsg)
 			}
 		})
-		_ = os.Unsetenv(transientEnvVarKey)
 	}
 }
 
 func TestListObjects(t *testing.T) {
 
 	tests := map[string]struct {
-		s3client         argos3.S3Client
+		s3client         S3Client
 		bucket           string
 		key              string
 		expectedSuccess  bool
@@ -590,7 +589,7 @@ func TestListObjects(t *testing.T) {
 		},
 	}
 
-	_ = os.Setenv(transientEnvVarKey, "this error is transient")
+	t.Setenv(transientEnvVarKey, "this error is transient")
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			_, files, err := listObjects(tc.s3client,
@@ -609,13 +608,125 @@ func TestListObjects(t *testing.T) {
 					},
 				})
 			if tc.expectedSuccess {
-				assert.Nil(t, err)
-				assert.Equal(t, tc.expectedNumFiles, len(files))
+				require.NoError(t, err)
+				assert.Len(t, files, tc.expectedNumFiles)
 			} else {
-				assert.NotNil(t, err)
+				require.Error(t, err)
 				assert.Equal(t, tc.expectedErrMsg, err.Error())
 			}
 		})
 	}
-	_ = os.Unsetenv(transientEnvVarKey)
+}
+
+// TestNewS3Client tests the s3 constructor
+func TestNewS3Client(t *testing.T) {
+	opts := S3ClientOpts{
+		Endpoint:        "foo.com",
+		Region:          "us-south-3",
+		Secure:          false,
+		Transport:       http.DefaultTransport,
+		AccessKey:       "key",
+		SecretKey:       "secret",
+		SessionToken:    "",
+		Trace:           true,
+		RoleARN:         "",
+		RoleSessionName: "",
+		UseSDKCreds:     false,
+		EncryptOpts:     EncryptOpts{Enabled: true, ServerSideCustomerKey: "", KmsKeyId: "", KmsEncryptionContext: ""},
+	}
+	s3If, err := NewS3Client(context.Background(), opts)
+	require.NoError(t, err)
+	s3cli := s3If.(*s3client)
+	assert.Equal(t, opts.Endpoint, s3cli.Endpoint)
+	assert.Equal(t, opts.Region, s3cli.Region)
+	assert.Equal(t, opts.Secure, s3cli.Secure)
+	assert.Equal(t, opts.Transport, s3cli.Transport)
+	assert.Equal(t, opts.AccessKey, s3cli.AccessKey)
+	assert.Equal(t, opts.SessionToken, s3cli.SessionToken)
+	assert.Equal(t, opts.Trace, s3cli.Trace)
+	assert.Equal(t, opts.EncryptOpts, s3cli.EncryptOpts)
+	assert.Equal(t, opts.AddressingStyle, s3cli.AddressingStyle)
+	// s3cli.minioClient.
+	// 	s3client.minioClient
+}
+
+// TestNewS3Client tests the S3 constructor using ephemeral credentials
+func TestNewS3ClientEphemeral(t *testing.T) {
+	opts := S3ClientOpts{
+		Endpoint:     "foo.com",
+		Region:       "us-south-3",
+		AccessKey:    "key",
+		SecretKey:    "secret",
+		SessionToken: "sessionToken",
+	}
+	s3If, err := NewS3Client(context.Background(), opts)
+	require.NoError(t, err)
+	s3cli := s3If.(*s3client)
+	assert.Equal(t, opts.Endpoint, s3cli.Endpoint)
+	assert.Equal(t, opts.Region, s3cli.Region)
+	assert.Equal(t, opts.AccessKey, s3cli.AccessKey)
+	assert.Equal(t, opts.SecretKey, s3cli.SecretKey)
+	assert.Equal(t, opts.SessionToken, s3cli.SessionToken)
+}
+
+// TestNewS3Client tests the s3 constructor
+func TestNewS3ClientWithDiff(t *testing.T) {
+	t.Run("IAMRole", func(t *testing.T) {
+		opts := S3ClientOpts{
+			Endpoint: "foo.com",
+			Region:   "us-south-3",
+			Secure:   false,
+			Trace:    true,
+		}
+		s3If, err := NewS3Client(context.Background(), opts)
+		require.NoError(t, err)
+		s3cli := s3If.(*s3client)
+		assert.Equal(t, opts.Endpoint, s3cli.Endpoint)
+		assert.Equal(t, opts.Region, s3cli.Region)
+		assert.Equal(t, opts.Trace, s3cli.Trace)
+		assert.Equal(t, opts.Endpoint, s3cli.minioClient.EndpointURL().Host)
+	})
+	t.Run("AssumeIAMRole", func(t *testing.T) {
+		t.SkipNow()
+		opts := S3ClientOpts{
+			Endpoint: "foo.com",
+			Region:   "us-south-3",
+			Secure:   false,
+			Trace:    true,
+			RoleARN:  "01234567890123456789",
+		}
+		s3If, err := NewS3Client(context.Background(), opts)
+		require.NoError(t, err)
+		s3cli := s3If.(*s3client)
+		assert.Equal(t, opts.Endpoint, s3cli.Endpoint)
+		assert.Equal(t, opts.Region, s3cli.Region)
+		assert.Equal(t, opts.Trace, s3cli.Trace)
+		assert.Equal(t, opts.Endpoint, s3cli.minioClient.EndpointURL().Host)
+	})
+}
+
+func TestDisallowedComboOptions(t *testing.T) {
+	t.Run("KMS and SSEC", func(t *testing.T) {
+		opts := S3ClientOpts{
+			Endpoint:    "foo.com",
+			Region:      "us-south-3",
+			Secure:      true,
+			Trace:       true,
+			EncryptOpts: EncryptOpts{Enabled: true, ServerSideCustomerKey: "PASSWORD", KmsKeyId: "00000000-0000-0000-0000-000000000000", KmsEncryptionContext: ""},
+		}
+		_, err := NewS3Client(context.Background(), opts)
+		assert.Error(t, err)
+	})
+
+	t.Run("SSEC and InSecure", func(t *testing.T) {
+		opts := S3ClientOpts{
+			Endpoint:    "foo.com",
+			Region:      "us-south-3",
+			Secure:      false,
+			Trace:       true,
+			EncryptOpts: EncryptOpts{Enabled: true, ServerSideCustomerKey: "PASSWORD", KmsKeyId: "", KmsEncryptionContext: ""},
+		}
+		_, err := NewS3Client(context.Background(), opts)
+		assert.Error(t, err)
+	})
 }

@@ -32,6 +32,10 @@ func (r *nullWorkflowArchive) GetWorkflow(string, string, string) (*wfv1.Workflo
 	return nil, fmt.Errorf("getting archived workflows not supported")
 }
 
+func (r *nullWorkflowArchive) GetWorkflowForEstimator(namespace string, requirements []labels.Requirement) (*wfv1.Workflow, error) {
+	return nil, fmt.Errorf("getting archived workflow for estimator not supported")
+}
+
 func (r *nullWorkflowArchive) DeleteWorkflow(string) error {
 	return fmt.Errorf("deleting archived workflows not supported")
 }
