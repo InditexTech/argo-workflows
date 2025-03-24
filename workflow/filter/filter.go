@@ -13,10 +13,15 @@ import (
 
 func CreateListOptions(ctx context.Context, listOptions *metav1.ListOptions) *metav1.ListOptions {
 	filterExpressionDecompress := ""
-	if ctx.Value(auth.ClaimsKey) != nil && ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.FilterExpresion != "" {
-		filterExpressionDecompress = config.Decompress(ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.FilterExpresion)
+	serviceDecompress := ""
+	servicesToFilter := []string{}
+	if ctx.Value(auth.ClaimsKey) != nil && ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.ServiceToGroup != "" {
+		serviceDecompress = config.Decompress(ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.ServiceToGroup)
+		for _, service := range strings.Split(string(serviceDecompress), ",") {
+			servicesToFilter = append(servicesToFilter, strings.Split(service, ":")[0])
+		}
+		filterExpressionDecompress = fmt.Sprintf("%s in (%s)", ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Label, strings.Join(servicesToFilter[:], ","))
 	}
-
 	listOptionsFiltered := &metav1.ListOptions{}
 	if listOptions == nil {
 		if config.CanDelegateByLabel() {
