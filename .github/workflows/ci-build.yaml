@@ -8,10 +8,7 @@ on:
   pull_request:
     branches:
       - "main"
-<<<<<<< HEAD
-=======
       - "release-*"
->>>>>>> draft-3.6.5
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -30,11 +27,7 @@ jobs:
       codegen: ${{ steps.changed-files.outputs.codegen_any_modified == 'true' }}
       lint: ${{ steps.changed-files.outputs.lint_any_modified == 'true' }}
       ui: ${{ steps.changed-files.outputs.ui_any_modified == 'true' }}
-<<<<<<< HEAD
-    runs-on: ubuntu-latest
-=======
     runs-on: ubuntu-24.04
->>>>>>> draft-3.6.5
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
@@ -67,11 +60,8 @@ jobs:
               - Dockerfile
               - manifests/**
               - sdks/**
-<<<<<<< HEAD
-=======
               # example test suite
               - examples/**
->>>>>>> draft-3.6.5
             codegen:
               - *common
               # generated files
@@ -88,21 +78,9 @@ jobs:
               - examples/** # examples are used within the fields lists
               - manifests/** # a few of these are generated and committed
               # generation scripts
-<<<<<<< HEAD
-              - hack/cli/**
-              - hack/jsonschema/**
-              - hack/swagger/**
-              - hack/auto-gen-msg.sh
-              - hack/crdgen.sh
-              - hack/crds.go
-              - hack/docgen.go
-              - hack/parse_examples.go
-              - hack/swaggify.sh
-=======
               - hack/api/**
               - hack/docs/**
               - hack/manifests/**
->>>>>>> draft-3.6.5
               - .clang-format
             lint:
               - *tests
@@ -119,13 +97,8 @@ jobs:
               # proposals live only on GH as pure markdown
               - '!docs/proposals/**'
               # docs scripts & tools from `make docs`
-<<<<<<< HEAD
-              - hack/copy-readme.sh
-              - hack/check-env-doc.sh
-=======
               - hack/docs/copy-readme.sh
               - hack/docs/check-env-doc.sh
->>>>>>> draft-3.6.5
               - .markdownlint.yaml
               - .mlc_config.json
               - .spelling
@@ -133,10 +106,6 @@ jobs:
             ui:
               - *common
               - ui/**
-<<<<<<< HEAD
-=======
-
->>>>>>> draft-3.6.5
   tests:
     name: Unit Tests
     needs: [ changed-files ]
@@ -151,24 +120,6 @@ jobs:
           cache: true
       - run: make test STATIC_FILES=false GOTEST='go test -p 20 -covermode=atomic -coverprofile=coverage.out'
       - name: Upload coverage report
-<<<<<<< HEAD
-        if: github.ref == 'refs/heads/main'
-        run: bash <(curl -s https://codecov.io/bash)
-
-  argo-images:
-    name: argo-images
-    # needs: [ lint ]
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - image: argoexec
-          - image: argocli
-    steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-=======
         # engineers just ignore this in PRs, so lets not even run it
         if: github.ref == 'refs/heads/main'
         uses: codecov/codecov-action@84508663e988701840491b86de86b666e8a86bed # v4.3.0
@@ -242,7 +193,6 @@ jobs:
           - image: argocli
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
->>>>>>> draft-3.6.5
       - uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
       - name: Build and export
         uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
@@ -254,11 +204,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Upload
-<<<<<<< HEAD
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
-=======
         uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
->>>>>>> draft-3.6.5
         with:
           name: ${{matrix.image}}_image.tar
           path: /tmp/${{matrix.image}}_image.tar
@@ -266,19 +212,12 @@ jobs:
 
   e2e-tests:
     name: E2E Tests
-<<<<<<< HEAD
-    needs: [ changed-files, argo-images ]
-    if: ${{ needs.changed-files.outputs.e2e-tests == 'true' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-=======
     needs: [ changed-files, argo-images, build-binaries ]
     if: ${{ needs.changed-files.outputs.e2e-tests == 'true' }}
     runs-on: ubuntu-24.04
     # These tests usually finish in ~25m, but occasionally they take much longer due to resource
     # contention on the runner, which we have no control over.
     timeout-minutes: 60
->>>>>>> draft-3.6.5
     env:
       KUBECONFIG: /home/runner/.kubeconfig
       E2E_ENV_FACTOR: 2
@@ -332,10 +271,6 @@ jobs:
             profile: minimal
             use-api: false
     steps:
-<<<<<<< HEAD
-      - name: Install socat (needed by Kubernetes v1.25)
-        run: sudo apt-get -y install socat
-=======
       - name: Free up unused disk space
         run: |
           printf "==> Available space before cleanup\n"
@@ -344,7 +279,6 @@ jobs:
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
           printf "==> Available space after cleanup\n"
           df -h
->>>>>>> draft-3.6.5
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
         with:
@@ -387,11 +321,7 @@ jobs:
           echo "    token: xxxxxx" >> $KUBECONFIG
           until kubectl cluster-info ; do sleep 10s ; done
       - name: Download images
-<<<<<<< HEAD
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
-=======
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
->>>>>>> draft-3.6.5
         with:
           pattern: '*_image.tar'
           path: /tmp
@@ -400,8 +330,6 @@ jobs:
           set -eux
           docker load < /tmp/argoexec_image.tar/argoexec_image.tar
           docker load < /tmp/argocli_image.tar/argocli_image.tar
-<<<<<<< HEAD
-=======
       - name: Download controller
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
@@ -415,7 +343,6 @@ jobs:
           path: dist/
       - name: Prepare binaries
         run: chmod +x dist/* && make --touch dist/*
->>>>>>> draft-3.6.5
       - name: Set-up /etc/hosts
         run: |
           echo '127.0.0.1 dex'      | sudo tee -a /etc/hosts

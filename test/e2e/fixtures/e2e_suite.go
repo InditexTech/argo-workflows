@@ -95,11 +95,7 @@ func (s *E2ESuite) TearDownSuite() {
 		_, _ = fmt.Println(color.Ize(color.Yellow, fmt.Sprintf("=== SLOW TEST:  %s", x)))
 	}
 	if s.T().Failed() {
-<<<<<<< HEAD
-		s.T().Log("to learn how to diagnose failed tests: https://argo-workflows.readthedocs.io/en/release-3.5/running-locally/#running-e2e-tests-locally")
-=======
 		s.T().Log("to learn how to diagnose failed tests: https://argo-workflows.readthedocs.io/en/latest/running-locally/#running-e2e-tests-locally")
->>>>>>> draft-3.6.5
 	}
 }
 

@@ -661,22 +661,14 @@ func TestArtifactServer_GetArtifactByUIDInvalidRequestPath(t *testing.T) {
 	// make sure there is no index out of bounds error
 	assert.Equal(t, 400, recorder.Result().StatusCode)
 	output, err := io.ReadAll(recorder.Result().Body)
-<<<<<<< HEAD
-	assert.NoError(t, err)
-=======
 	require.NoError(t, err)
->>>>>>> draft-3.6.5
 	assert.Contains(t, string(output), "Bad Request")
 
 	recorder = httptest.NewRecorder()
 	s.GetOutputArtifactByUID(recorder, r)
 	assert.Equal(t, 400, recorder.Result().StatusCode)
 	output, err = io.ReadAll(recorder.Result().Body)
-<<<<<<< HEAD
-	assert.NoError(t, err)
-=======
 	require.NoError(t, err)
->>>>>>> draft-3.6.5
 	assert.Contains(t, string(output), "Bad Request")
 }
 
@@ -687,11 +679,7 @@ func TestArtifactServer_httpBadRequestError(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, recorder.Result().StatusCode)
 	output, err := io.ReadAll(recorder.Result().Body)
-<<<<<<< HEAD
-	assert.NoError(t, err)
-=======
 	require.NoError(t, err)
->>>>>>> draft-3.6.5
 	assert.Contains(t, string(output), "Bad Request")
 }
 
@@ -704,11 +692,7 @@ func TestArtifactServer_httpFromError(t *testing.T) {
 
 	assert.Equal(t, http.StatusInternalServerError, recorder.Result().StatusCode)
 	output, err := io.ReadAll(recorder.Result().Body)
-<<<<<<< HEAD
-	assert.NoError(t, err)
-=======
 	require.NoError(t, err)
->>>>>>> draft-3.6.5
 	assert.Equal(t, "Internal Server Error\n", string(output))
 
 	recorder = httptest.NewRecorder()
@@ -718,11 +702,7 @@ func TestArtifactServer_httpFromError(t *testing.T) {
 
 	assert.Equal(t, http.StatusUnauthorized, recorder.Result().StatusCode)
 	output, err = io.ReadAll(recorder.Result().Body)
-<<<<<<< HEAD
-	assert.NoError(t, err)
-=======
 	require.NoError(t, err)
->>>>>>> draft-3.6.5
 	assert.Contains(t, string(output), "Unauthorized")
 
 	recorder = httptest.NewRecorder()

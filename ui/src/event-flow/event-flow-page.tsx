@@ -1,12 +1,7 @@
-<<<<<<< HEAD:ui/src/app/event-flow/components/event-flow-details/event-flow-page.tsx
-import {Page, SlidingPanel, Tabs} from 'argo-ui';
-import {useContext, useEffect, useState} from 'react';
-=======
 import {Page} from 'argo-ui/src/components/page/page';
 import {SlidingPanel} from 'argo-ui/src/components/sliding-panel/sliding-panel';
 import {Tabs} from 'argo-ui/src/components/tabs/tabs';
 import {useContext, useEffect, useRef, useState} from 'react';
->>>>>>> draft-3.6.5:ui/src/event-flow/event-flow-page.tsx
 import * as React from 'react';
 import {RouteComponentProps} from 'react-router-dom';
 import {Observable} from 'rxjs';

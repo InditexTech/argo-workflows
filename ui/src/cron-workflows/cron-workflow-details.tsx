@@ -4,24 +4,6 @@ import {SlidingPanel} from 'argo-ui/src/components/sliding-panel/sliding-panel';
 import * as React from 'react';
 import {useContext, useEffect, useRef, useState} from 'react';
 import {RouteComponentProps} from 'react-router';
-<<<<<<< HEAD:ui/src/app/cron-workflows/components/cron-workflow-details/cron-workflow-details.tsx
-import * as models from '../../../../models';
-import {CronWorkflow, Link, Workflow} from '../../../../models';
-import {uiUrl} from '../../../shared/base';
-import {ErrorNotice} from '../../../shared/components/error-notice';
-import {openLinkWithKey} from '../../../shared/components/links';
-import {Loading} from '../../../shared/components/loading';
-import {useCollectEvent} from '../../../shared/components/use-collect-event';
-import {ZeroState} from '../../../shared/components/zero-state';
-import {Context} from '../../../shared/context';
-import {historyUrl} from '../../../shared/history';
-import {services} from '../../../shared/services';
-import {useQueryParams} from '../../../shared/use-query-params';
-import {WidgetGallery} from '../../../widgets/widget-gallery';
-import {WorkflowsRow} from '../../../workflows/components/workflows-row/workflows-row';
-import {CronWorkflowEditor} from '../cron-workflow-editor';
-=======
->>>>>>> draft-3.6.5:ui/src/cron-workflows/cron-workflow-details.tsx
 
 import {uiUrl} from '../shared/base';
 import {ErrorNotice} from '../shared/components/error-notice';
@@ -40,11 +22,8 @@ import {WidgetGallery} from '../widgets/widget-gallery';
 import {WorkflowDetailsList} from '../workflows/components/workflow-details-list/workflow-details-list';
 import {CronWorkflowEditor} from './cron-workflow-editor';
 
-<<<<<<< HEAD:ui/src/app/cron-workflows/components/cron-workflow-details/cron-workflow-details.tsx
-=======
 import '../workflows/components/workflow-details/workflow-details.scss';
 
->>>>>>> draft-3.6.5:ui/src/cron-workflows/cron-workflow-details.tsx
 export function CronWorkflowDetails({match, location, history}: RouteComponentProps<any>) {
     // boiler-plate
     const {navigation, notifications, popup} = useContext(Context);

@@ -328,11 +328,7 @@ metadata:
 			func(t *testing.T, e []corev1.Event) {
 				assert.Equal(t, "argo", e[0].InvolvedObject.Namespace)
 				assert.Equal(t, "WorkflowEventBindingError", e[0].Reason)
-<<<<<<< HEAD
-				assert.Equal(t, "failed to dispatch event: failed to evaluate workflow template expression: unexpected token EOF (1:1)", e[0].Message)
-=======
 				assert.Contains(t, "failed to dispatch event: failed to evaluate workflow template expression: unexpected token EOF", e[0].Message)
->>>>>>> draft-3.6.5
 			},
 		)
 }

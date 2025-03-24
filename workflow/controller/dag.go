@@ -431,15 +431,11 @@ func (woc *wfOperationCtx) executeDAGTask(ctx context.Context, dagCtx *dagContex
 
 	if node != nil && node.Fulfilled() {
 		// Collect the completed task metrics
-<<<<<<< HEAD
-		_, tmpl, _, _ := dagCtx.tmplCtx.ResolveTemplate(task)
-=======
 		_, tmpl, _, tmplErr := dagCtx.tmplCtx.ResolveTemplate(task)
 		if tmplErr != nil {
 			woc.markNodeError(node.Name, tmplErr)
 			return
 		}
->>>>>>> draft-3.6.5
 		if err := woc.mergedTemplateDefaultsInto(tmpl); err != nil {
 			woc.markNodeError(node.Name, err)
 			return

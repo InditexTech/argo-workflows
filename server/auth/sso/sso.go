@@ -192,11 +192,7 @@ func newSso(
 	}
 
 	var filterGroupsRegex []*regexp.Regexp
-<<<<<<< HEAD
-	if c.FilterGroupsRegex != nil {
-=======
 	if len(c.FilterGroupsRegex) > 0 {
->>>>>>> draft-3.6.5
 		for _, regex := range c.FilterGroupsRegex {
 			compiledRegex, err := regexp.Compile(regex)
 			if err != nil {
@@ -315,11 +311,7 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// only return groups that match at least one of the regexes
-<<<<<<< HEAD
-	if s.filterGroupsRegex != nil {
-=======
 	if len(s.filterGroupsRegex) > 0 {
->>>>>>> draft-3.6.5
 		var filteredGroups []string
 		for _, group := range groups {
 			for _, regex := range s.filterGroupsRegex {

@@ -406,20 +406,12 @@ func newControllerWithDefaultsVolumeClaimTemplate() (context.CancelFunc, *Workfl
 					},
 					Spec: apiv1.PersistentVolumeClaimSpec{
 						AccessModes: []apiv1.PersistentVolumeAccessMode{apiv1.ReadWriteOnce},
-<<<<<<< HEAD
-						Resources: apiv1.ResourceRequirements{
-=======
 						Resources: apiv1.VolumeResourceRequirements{
->>>>>>> draft-3.6.5
 							Requests: apiv1.ResourceList{
 								apiv1.ResourceStorage: resource.MustParse("1Mi"),
 							},
 						},
-<<<<<<< HEAD
-						StorageClassName: pointer.String("local-path"),
-=======
 						StorageClassName: ptr.To("local-path"),
->>>>>>> draft-3.6.5
 					},
 				}},
 			},
@@ -657,11 +649,7 @@ func TestAddingWorkflowDefaultVolumeClaimTemplate(t *testing.T) {
 	defer cancel()
 	workflow := wfv1.MustUnmarshalWorkflow(testDefaultWf)
 	err := controller.setWorkflowDefaults(workflow)
-<<<<<<< HEAD
-	assert.NoError(t, err)
-=======
 	require.NoError(t, err)
->>>>>>> draft-3.6.5
 	assert.Equal(t, workflow, wfv1.MustUnmarshalWorkflow(testDefaultVolumeClaimTemplateWf))
 }
 

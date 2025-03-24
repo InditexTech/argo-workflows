@@ -534,11 +534,7 @@ func TestMonitorProgress(t *testing.T) {
 }
 
 func TestSaveLogs(t *testing.T) {
-<<<<<<< HEAD
-	const artStorageError = "You need to configure artifact storage. More information on how to do this can be found in the docs: https://argo-workflows.readthedocs.io/en/release-3.5/configure-artifact-repository/"
-=======
 	const artStorageError = "You need to configure artifact storage. More information on how to do this can be found in the docs: https://argo-workflows.readthedocs.io/en/latest/configure-artifact-repository/"
->>>>>>> draft-3.6.5
 	mockRuntimeExecutor := mocks.ContainerRuntimeExecutor{}
 	mockRuntimeExecutor.On("GetOutputStream", mock.Anything, mock.AnythingOfType("string"), true).Return(io.NopCloser(strings.NewReader("hello world")), nil)
 	t.Run("Simple Pod node", func(t *testing.T) {
@@ -555,11 +551,7 @@ func TestSaveLogs(t *testing.T) {
 		ctx := context.Background()
 		logArtifacts := we.SaveLogs(ctx)
 
-<<<<<<< HEAD
-		assert.EqualError(t, we.errors[0], artStorageError)
-=======
 		require.EqualError(t, we.errors[0], artStorageError)
->>>>>>> draft-3.6.5
 		assert.Empty(t, logArtifacts)
 	})
 }
@@ -588,11 +580,7 @@ func TestReportOutputs(t *testing.T) {
 		ctx := context.Background()
 		err := we.ReportOutputs(ctx, artifacts)
 
-<<<<<<< HEAD
-		assert.Equal(t, err, nil)
-=======
 		require.NoError(t, err)
->>>>>>> draft-3.6.5
 		assert.Empty(t, we.errors)
 	})
 

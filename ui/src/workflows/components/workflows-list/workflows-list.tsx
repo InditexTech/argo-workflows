@@ -3,12 +3,6 @@ import {SlidingPanel} from 'argo-ui/src/components/sliding-panel/sliding-panel';
 import * as React from 'react';
 import {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {RouteComponentProps} from 'react-router-dom';
-<<<<<<< HEAD:ui/src/app/workflows/components/workflows-list/workflows-list.tsx
-import * as models from '../../../../models';
-import {isArchivedWorkflow, Workflow, WorkflowPhase, WorkflowPhases} from '../../../../models';
-import {uiUrl} from '../../../shared/base';
-=======
->>>>>>> draft-3.6.5:ui/src/workflows/components/workflows-list/workflows-list.tsx
 
 import {uiUrl} from '../../../shared/base';
 import {CostOptimisationNudge} from '../../../shared/components/cost-optimisation-nudge';
@@ -186,11 +180,7 @@ export function WorkflowsList({match, location, history}: RouteComponentProps<an
             clearSelectedWorkflows();
             listWatch.stop();
         };
-<<<<<<< HEAD:ui/src/app/workflows/components/workflows-list/workflows-list.tsx
-    }, [namespace, phases.toString(), labels.toString(), pagination.limit, pagination.offset]); // referential equality, so use values, not refs
-=======
     }, [namespace, phases.toString(), labels.toString(), pagination.limit, pagination.offset, nameValue, nameFilter, createdAfter, finishedBefore]); // referential equality, so use values, not refs
->>>>>>> draft-3.6.5:ui/src/workflows/components/workflows-list/workflows-list.tsx
 
     useCollectEvent('openedWorkflowList');
 

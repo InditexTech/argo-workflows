@@ -185,14 +185,10 @@ func TestNewOperation(t *testing.T) {
 		assert.Contains(t, "my-param", wf.Spec.Arguments.Parameters[0].Name)
 		paramValues = append(paramValues, string(*wf.Spec.Arguments.Parameters[0].Value))
 	}
-<<<<<<< HEAD
-	assert.Equal(t, "Warning WorkflowEventBindingError failed to dispatch event: failed to evaluate workflow template expression: unexpected token EOF (1:1)", <-recorder.Events)
-=======
 	sort.Strings(paramValues)
 	assert.Equal(t, expectedParamValues, paramValues)
 
 	assert.Contains(t, "Warning WorkflowEventBindingError failed to dispatch event: failed to evaluate workflow template expression: unexpected token EOF", <-recorder.Events)
->>>>>>> draft-3.6.5
 	assert.Equal(t, "Warning WorkflowEventBindingError failed to dispatch event: failed to get workflow template: workflowtemplates.argoproj.io \"not-found\" not found", <-recorder.Events)
 	assert.Equal(t, "Warning WorkflowEventBindingError failed to dispatch event: failed to validate workflow template instanceid: 'my-wft-3' is not managed by the current Argo Server", <-recorder.Events)
 	assert.Equal(t, "Warning WorkflowEventBindingError failed to dispatch event: failed to evaluate workflow template expression: unexpected token Operator(\"!\") (1:8)\n | garbage!!!!!!\n | .......^", <-recorder.Events)

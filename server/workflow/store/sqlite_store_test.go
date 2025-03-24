@@ -5,10 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"testing"
-<<<<<<< HEAD
-=======
 	"time"
->>>>>>> draft-3.6.5
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -23,11 +20,7 @@ import (
 
 func TestInitDB(t *testing.T) {
 	conn, err := initDB()
-<<<<<<< HEAD
-	assert.NoError(t, err)
-=======
 	require.NoError(t, err)
->>>>>>> draft-3.6.5
 	defer conn.Close()
 	t.Run("TestTablesCreated", func(t *testing.T) {
 		err = sqlitex.Execute(conn, `select name from sqlite_master where type='table'`, &sqlitex.ExecOptions{
@@ -87,11 +80,7 @@ func TestStoreOperation(t *testing.T) {
 		for i := 0; i < 10; i++ {
 			require.NoError(t, store.Add(generateWorkflow(i)))
 		}
-<<<<<<< HEAD
-		num, err := store.CountWorkflows(context.Background(), "argo", "", metav1.ListOptions{})
-=======
 		num, err := store.CountWorkflows(context.Background(), "argo", "", "", "", metav1.ListOptions{})
->>>>>>> draft-3.6.5
 		require.NoError(t, err)
 		assert.Equal(t, int64(10), num)
 		// Labels are also added
@@ -141,14 +130,6 @@ func TestStoreOperation(t *testing.T) {
 		}))
 	})
 	t.Run("TestListWorkflows", func(t *testing.T) {
-<<<<<<< HEAD
-		wfList, err := store.ListWorkflows(context.Background(), "argo", "", metav1.ListOptions{Limit: 5})
-		require.NoError(t, err)
-		assert.Len(t, wfList.Items, 5)
-	})
-	t.Run("TestCountWorkflows", func(t *testing.T) {
-		num, err := store.CountWorkflows(context.Background(), "argo", "", metav1.ListOptions{})
-=======
 		wfList, err := store.ListWorkflows(context.Background(), "argo", "", "", "", metav1.ListOptions{Limit: 5})
 		require.NoError(t, err)
 		assert.Len(t, wfList.Items, 5)
@@ -236,7 +217,6 @@ func TestStoreOperation(t *testing.T) {
 	})
 	t.Run("TestCountWorkflows", func(t *testing.T) {
 		num, err := store.CountWorkflows(context.Background(), "argo", "", "", "", metav1.ListOptions{})
->>>>>>> draft-3.6.5
 		require.NoError(t, err)
 		assert.Equal(t, int64(9), num)
 	})
@@ -244,25 +224,15 @@ func TestStoreOperation(t *testing.T) {
 
 func generateWorkflow(uid int) *wfv1.Workflow {
 	return &wfv1.Workflow{ObjectMeta: metav1.ObjectMeta{
-<<<<<<< HEAD
-		UID:       types.UID(fmt.Sprintf("uid-%d", uid)),
-		Name:      fmt.Sprintf("workflow-%d", uid),
-		Namespace: "argo",
-=======
 		UID:               types.UID(fmt.Sprintf("uid-%d", uid)),
 		Name:              fmt.Sprintf("workflow-%d", uid),
 		Namespace:         "argo",
 		CreationTimestamp: metav1.Time{Time: time.Now().Add(-24 * time.Duration(uid) * time.Hour)},
->>>>>>> draft-3.6.5
 		Labels: map[string]string{
 			"workflows.argoproj.io/completed":             "true",
 			"workflows.argoproj.io/phase":                 "Succeeded",
 			"workflows.argoproj.io/controller-instanceid": "my-instanceid",
 			"test-label": fmt.Sprintf("label-%d", uid),
 		},
-<<<<<<< HEAD
-	}}
-=======
 	}, Status: wfv1.WorkflowStatus{FinishedAt: metav1.NewTime(time.Now().Add(-24 * time.Duration(uid) * time.Hour))}}
->>>>>>> draft-3.6.5
 }

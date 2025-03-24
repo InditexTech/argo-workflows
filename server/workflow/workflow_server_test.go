@@ -9,10 +9,7 @@ import (
 	"github.com/go-jose/go-jose/v3/jwt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-<<<<<<< HEAD
-=======
 	"github.com/stretchr/testify/require"
->>>>>>> draft-3.6.5
 	authorizationv1 "k8s.io/api/authorization/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -30,15 +27,10 @@ import (
 	v1alpha "github.com/argoproj/argo-workflows/v3/pkg/client/clientset/versioned/fake"
 	"github.com/argoproj/argo-workflows/v3/server/auth"
 	"github.com/argoproj/argo-workflows/v3/server/auth/types"
-<<<<<<< HEAD
-	sutils "github.com/argoproj/argo-workflows/v3/server/utils"
-	"github.com/argoproj/argo-workflows/v3/server/workflow/store"
-=======
 	"github.com/argoproj/argo-workflows/v3/server/clusterworkflowtemplate"
 	sutils "github.com/argoproj/argo-workflows/v3/server/utils"
 	"github.com/argoproj/argo-workflows/v3/server/workflow/store"
 	"github.com/argoproj/argo-workflows/v3/server/workflowtemplate"
->>>>>>> draft-3.6.5
 	"github.com/argoproj/argo-workflows/v3/util"
 	"github.com/argoproj/argo-workflows/v3/util/instanceid"
 	"github.com/argoproj/argo-workflows/v3/workflow/common"
@@ -635,11 +627,7 @@ func getWorkflowServer() (workflowpkg.WorkflowServiceServer, context.Context) {
 	})
 	wfClientset := v1alpha.NewSimpleClientset(&unlabelledObj, &wfObj1, &wfObj2, &wfObj3, &wfObj4, &wfObj5, &failedWfObj, &wftmpl, &cronwfObj, &cwfTmpl)
 	wfClientset.PrependReactor("create", "workflows", generateNameReactor)
-<<<<<<< HEAD
-	ctx := context.WithValue(context.WithValue(context.WithValue(context.TODO(), auth.WfKey, wfClientset), auth.KubeKey, kubeClientSet), auth.ClaimsKey, &types.Claims{Claims: jwt.Claims{Subject: "my-sub"}})
-=======
 	ctx := context.WithValue(context.WithValue(context.WithValue(context.TODO(), auth.WfKey, wfClientset), auth.KubeKey, kubeClientSet), auth.ClaimsKey, &types.Claims{Claims: jwt.Claims{Subject: "my-sub"}, Email: "my-sub@your.org"})
->>>>>>> draft-3.6.5
 	listOptions := &metav1.ListOptions{}
 	instanceIdSvc := instanceid.NewService("my-instanceid")
 	instanceIdSvc.With(listOptions)
@@ -657,13 +645,9 @@ func getWorkflowServer() (workflowpkg.WorkflowServiceServer, context.Context) {
 		panic(err)
 	}
 	namespaceAll := metav1.NamespaceAll
-<<<<<<< HEAD
-	server := NewWorkflowServer(instanceIdSvc, offloadNodeStatusRepo, archivedRepo, wfClientset, wfStore, wfStore, &namespaceAll)
-=======
 	wftmplStore := workflowtemplate.NewWorkflowTemplateClientStore()
 	cwftmplStore := clusterworkflowtemplate.NewClusterWorkflowTemplateClientStore()
 	server := NewWorkflowServer(instanceIdSvc, offloadNodeStatusRepo, archivedRepo, wfClientset, wfStore, wfStore, wftmplStore, cwftmplStore, nil, &namespaceAll)
->>>>>>> draft-3.6.5
 	return server, ctx
 }
 
@@ -762,7 +746,6 @@ func TestGetWorkflow(t *testing.T) {
 	server, ctx := getWorkflowServer()
 	s := server.(*workflowServer)
 	wfClient := auth.GetWfClient(ctx)
-<<<<<<< HEAD
 	wf, err := s.getWorkflow(ctx, wfClient, "test", "hello-world-9tql2-test", metav1.GetOptions{}, false)
 	if assert.NoError(t, err) {
 		assert.NotNil(t, wf)
@@ -771,30 +754,16 @@ func TestGetWorkflow(t *testing.T) {
 	if assert.NoError(t, err) {
 		assert.NotNil(t, wf)
 	}
-=======
-	wf, err := s.getWorkflow(ctx, wfClient, "test", "hello-world-9tql2-test", metav1.GetOptions{})
-	require.NoError(t, err)
-	assert.NotNil(t, wf)
-	wf, err = s.getWorkflow(ctx, wfClient, "test", "hello-world-9tql2-test", metav1.GetOptions{})
-	require.NoError(t, err)
-	assert.NotNil(t, wf)
->>>>>>> draft-3.6.5
 }
 
 func TestValidateWorkflow(t *testing.T) {
 	server, ctx := getWorkflowServer()
 	s := server.(*workflowServer)
 	wfClient := auth.GetWfClient(ctx)
-<<<<<<< HEAD
 	wf, err := s.getWorkflow(ctx, wfClient, "test", "hello-world-9tql2-test", metav1.GetOptions{}, false)
 	if assert.NoError(t, err) {
 		assert.NoError(t, s.validateWorkflow(wf))
 	}
-=======
-	wf, err := s.getWorkflow(ctx, wfClient, "test", "hello-world-9tql2-test", metav1.GetOptions{})
-	require.NoError(t, err)
-	require.NoError(t, s.validateWorkflow(wf))
->>>>>>> draft-3.6.5
 }
 
 func TestListWorkflow(t *testing.T) {
@@ -979,11 +948,7 @@ func TestSubmitWorkflowFromResource(t *testing.T) {
 			ResourceKind: "workflowtemplate",
 			ResourceName: "workflow-template-whalesay-template",
 		})
-<<<<<<< HEAD
-		assert.EqualError(t, err, "rpc error: code = InvalidArgument desc = spec.arguments.message.value or spec.arguments.message.valueFrom is required")
-=======
 		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = spec.arguments.message.value or spec.arguments.message.valueFrom is required")
->>>>>>> draft-3.6.5
 	})
 	t.Run("SubmitFromWorkflowTemplate", func(t *testing.T) {
 		opts := v1alpha1.SubmitOpts{

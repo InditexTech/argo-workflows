@@ -64,11 +64,7 @@ spec:
 `).
 		When().
 		SubmitWorkflow().
-<<<<<<< HEAD
-		WaitForWorkflow(fixtures.ToBeSucceeded, time.Minute*11).
-=======
 		WaitForWorkflow(fixtures.ToBeFailed, time.Minute*11).
->>>>>>> draft-3.6.5
 		Then().
 		ExpectWorkflow(func(t *testing.T, metadata *metav1.ObjectMeta, status *wfv1.WorkflowStatus) {
 			assert.Equal(t, wfv1.WorkflowFailed, status.Phase)
@@ -149,11 +145,7 @@ spec:
 `).
 		When().
 		SubmitWorkflow().
-<<<<<<< HEAD
-		WaitForWorkflow(fixtures.ToBeSucceeded, time.Minute*11).
-=======
 		WaitForWorkflow(fixtures.ToBeCompleted, time.Minute*1).
->>>>>>> draft-3.6.5
 		Then().
 		ExpectWorkflow(func(t *testing.T, metadata *metav1.ObjectMeta, status *wfv1.WorkflowStatus) {
 			assert.Equal(t, wfv1.WorkflowSucceeded, status.Phase)

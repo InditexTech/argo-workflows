@@ -7,10 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-<<<<<<< HEAD
-=======
 	"github.com/stretchr/testify/require"
->>>>>>> draft-3.6.5
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	authorizationv1 "k8s.io/api/authorization/v1"
@@ -38,11 +35,7 @@ func Test_archivedWorkflowServer(t *testing.T) {
 	offloadNodeStatusRepo := &mocks.OffloadNodeStatusRepo{}
 	offloadNodeStatusRepo.On("IsEnabled", mock.Anything).Return(true)
 	offloadNodeStatusRepo.On("List", mock.Anything).Return(map[sqldb.UUIDVersion]v1alpha1.Nodes{}, nil)
-<<<<<<< HEAD
-	w := NewWorkflowArchiveServer(repo, offloadNodeStatusRepo)
-=======
 	w := NewWorkflowArchiveServer(repo, offloadNodeStatusRepo, nil)
->>>>>>> draft-3.6.5
 	allowed := true
 	kubeClient.AddReactor("create", "selfsubjectaccessreviews", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
 		return true, &authorizationv1.SelfSubjectAccessReview{

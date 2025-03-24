@@ -82,11 +82,7 @@ func TestMetricGC(t *testing.T) {
 	timeoutTime := time.Now().Add(time.Second * 2)
 	for time.Now().Before(timeoutTime) {
 		// Break if we know our test will pass.
-<<<<<<< HEAD
-		if len(m.customMetrics) == 0 {
-=======
 		if len(cm.values) == 0 {
->>>>>>> draft-3.6.5
 			break
 		}
 		// Sleep to prevent overloading test worker CPU.
@@ -231,11 +227,6 @@ func TestRealTimeMetricDeletion(t *testing.T) {
 
 	const key string = `metric`
 
-<<<<<<< HEAD
-	m.DeleteRealtimeMetricsForKey("123")
-	assert.Empty(t, m.workflows["123"])
-	assert.Len(t, m.customMetrics, 0)
-=======
 	labels := []*wfv1.MetricLabel{
 		{Key: "foo", Value: "bar"},
 	}
@@ -250,7 +241,6 @@ func TestRealTimeMetricDeletion(t *testing.T) {
 		},
 	}, "123", func() float64 { return 0.0 })
 	require.NoError(t, err)
->>>>>>> draft-3.6.5
 
 	baseCm := m.GetCustomMetric(key)
 	assert.NotNil(t, baseCm)
@@ -258,11 +248,6 @@ func TestRealTimeMetricDeletion(t *testing.T) {
 	m.StopRealtimeMetricsForWfUID("456")
 	assert.Empty(t, m.realtimeWorkflows["456"])
 
-<<<<<<< HEAD
-	m.DeleteRealtimeMetricsForKey("456")
-	assert.Empty(t, m.workflows["456"])
-	assert.Len(t, m.customMetrics, 1)
-=======
 	cm := customUserData(baseCm, true)
 	assert.NotNil(t, cm)
 	assert.Len(t, cm.values, 1)
@@ -286,5 +271,4 @@ func TestRealTimeMetricDeletion(t *testing.T) {
 
 	assert.Len(t, cm.values, 1)
 	assert.Len(t, m.realtimeWorkflows["456"], 1)
->>>>>>> draft-3.6.5
 }

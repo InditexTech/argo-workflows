@@ -29,16 +29,11 @@ func NewListCommand() *cobra.Command {
 # List Cluster Workflow Templates by name only:
   argo cluster-template list -o name
 `,
-<<<<<<< HEAD
-		Run: func(cmd *cobra.Command, args []string) {
-			ctx, apiClient := client.NewAPIClient(cmd.Context())
-=======
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, apiClient, err := client.NewAPIClient(cmd.Context())
 			if err != nil {
 				return err
 			}
->>>>>>> draft-3.6.5
 			serviceClient, err := apiClient.NewClusterWorkflowTemplateServiceClient()
 			if err != nil {
 				return err

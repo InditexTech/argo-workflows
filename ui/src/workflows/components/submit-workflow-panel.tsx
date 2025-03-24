@@ -1,14 +1,7 @@
-<<<<<<< HEAD:ui/src/app/workflows/components/submit-workflow-panel.tsx
-import {Select} from 'argo-ui';
-import React, {useContext, useMemo, useState} from 'react';
-import {Parameter, Template} from '../../../models';
-import {Context} from '../../shared/context';
-=======
 import {Select} from 'argo-ui/src/components/select/select';
 import {History} from 'history';
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 
->>>>>>> draft-3.6.5:ui/src/workflows/components/submit-workflow-panel.tsx
 import {uiUrl} from '../../shared/base';
 import {ErrorNotice} from '../../shared/components/error-notice';
 import {getValueFromParameter, ParametersInput} from '../../shared/components/parameters-input';
@@ -38,11 +31,7 @@ const defaultTemplate: Template = {
 
 export function SubmitWorkflowPanel(props: Props) {
     const {navigation} = useContext(Context);
-<<<<<<< HEAD:ui/src/app/workflows/components/submit-workflow-panel.tsx
-    const [entrypoint, setEntrypoint] = useState(workflowEntrypoint);
-=======
     const [entrypoint, setEntrypoint] = useState(props.entrypoint || workflowEntrypoint);
->>>>>>> draft-3.6.5:ui/src/workflows/components/submit-workflow-panel.tsx
     const [parameters, setParameters] = useState<Parameter[]>([]);
     const [workflowParameters, setWorkflowParameters] = useState<Parameter[]>(JSON.parse(JSON.stringify(props.workflowParameters)));
     const [labels, setLabels] = useState(['submit-from-ui=true']);

@@ -156,17 +156,6 @@ func (s *SignalsSuite) TestSignaledContainerSet() {
 			assert.Equal(t, wfv1.WorkflowFailed, status.Phase)
 			assert.Contains(t, status.Message, "(exit code 137)")
 			one := status.Nodes.FindByDisplayName("one")
-<<<<<<< HEAD
-			if assert.NotNil(t, one) {
-				assert.Equal(t, wfv1.NodeFailed, one.Phase)
-				assert.Contains(t, one.Message, "(exit code 137)")
-			}
-			two := status.Nodes.FindByDisplayName("two")
-			if assert.NotNil(t, two) {
-				assert.Equal(t, wfv1.NodeFailed, two.Phase)
-				assert.Contains(t, two.Message, "(exit code 143)")
-			}
-=======
 			require.NotNil(t, one)
 			assert.Equal(t, wfv1.NodeFailed, one.Phase)
 			assert.Contains(t, one.Message, "(exit code 137)")
@@ -175,7 +164,6 @@ func (s *SignalsSuite) TestSignaledContainerSet() {
 			require.NotNil(t, two)
 			assert.Equal(t, wfv1.NodeFailed, two.Phase)
 			assert.Contains(t, two.Message, "(exit code 143)")
->>>>>>> draft-3.6.5
 		})
 }
 

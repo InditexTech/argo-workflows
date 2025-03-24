@@ -1,13 +1,6 @@
-<<<<<<< HEAD:ui/src/app/workflows/components/resubmit-workflow-panel.tsx
-import {Checkbox} from 'argo-ui';
-import React, {useContext, useState} from 'react';
-import {Parameter, ResubmitOpts, Workflow} from '../../../models';
-import {Context} from '../../shared/context';
-=======
 import {Checkbox} from 'argo-ui/src/components/checkbox';
 import React, {useContext, useState} from 'react';
 
->>>>>>> draft-3.6.5:ui/src/workflows/components/resubmit-workflow-panel.tsx
 import {uiUrl} from '../../shared/base';
 import {ErrorNotice} from '../../shared/components/error-notice';
 import {getValueFromParameter, ParametersInput} from '../../shared/components/parameters-input';

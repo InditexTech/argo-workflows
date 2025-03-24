@@ -58,13 +58,6 @@ func (s *ExecutorPluginsSuite) TestTemplateExecutor() {
 				assert.Equal(t, "var-run-argo", plug.VolumeMounts[0].Name)
 				assert.Contains(t, plug.VolumeMounts[1].Name, "kube-api-access-")
 			}
-<<<<<<< HEAD
-		}).
-		ExpectWorkflowTaskSet(func(t *testing.T, wfts *wfv1.WorkflowTaskSet) {
-			assert.NotNil(t, wfts)
-			assert.Len(t, wfts.Spec.Tasks, 0)
-			assert.Len(t, wfts.Status.Nodes, 0)
-=======
 			{
 				agent := spec.Containers[1]
 				require.Equal(t, "main", agent.Name)
@@ -87,7 +80,6 @@ func (s *ExecutorPluginsSuite) TestTemplateExecutor() {
 			assert.NotNil(t, wfts)
 			assert.Empty(t, wfts.Spec.Tasks)
 			assert.Empty(t, wfts.Status.Nodes)
->>>>>>> draft-3.6.5
 			assert.Equal(t, "true", wfts.Labels[common.LabelKeyCompleted])
 		})
 }

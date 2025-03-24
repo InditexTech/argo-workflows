@@ -115,11 +115,7 @@ func (woc *wfOperationCtx) killDaemonedChildren(nodeID string) {
 			continue
 		}
 		podName := util.GeneratePodName(woc.wf.Name, childNode.Name, util.GetTemplateFromNode(childNode), childNode.ID, util.GetWorkflowPodNameVersion(woc.wf))
-<<<<<<< HEAD
-		woc.controller.queuePodForCleanup(woc.wf.Namespace, podName, terminateContainers)
-=======
 		woc.controller.PodController.TerminateContainers(woc.wf.Namespace, podName)
->>>>>>> draft-3.6.5
 		childNode.Phase = wfv1.NodeSucceeded
 		childNode.Daemoned = nil
 		woc.wf.Status.Nodes.Set(childNode.ID, childNode)

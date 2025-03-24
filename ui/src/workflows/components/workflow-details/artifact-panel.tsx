@@ -1,10 +1,6 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
 
-<<<<<<< HEAD:ui/src/app/workflows/components/workflow-details/artifact-panel.tsx
-import {Artifact, ArtifactRepository, execSpec, Workflow} from '../../../../models';
-=======
->>>>>>> draft-3.6.5:ui/src/workflows/components/workflow-details/artifact-panel.tsx
 import {artifactKey, artifactURN} from '../../../shared/artifacts';
 import ErrorBoundary from '../../../shared/components/error-boundary';
 import {ErrorNotice} from '../../../shared/components/error-notice';
@@ -12,11 +8,7 @@ import {FirstTimeUserPanel} from '../../../shared/components/first-time-user-pan
 import {GiveFeedbackLink} from '../../../shared/components/give-feedback-link';
 import {LinkButton} from '../../../shared/components/link-button';
 import {SuspenseMonacoEditor} from '../../../shared/components/suspense-monaco-editor';
-<<<<<<< HEAD:ui/src/app/workflows/components/workflow-details/artifact-panel.tsx
-import {useCollectEvent} from '../../../shared/components/use-collect-event';
-=======
 import {Artifact, ArtifactRepository, execSpec, Workflow} from '../../../shared/models';
->>>>>>> draft-3.6.5:ui/src/workflows/components/workflow-details/artifact-panel.tsx
 import {services} from '../../../shared/services';
 import requests from '../../../shared/services/requests';
 import {useCollectEvent} from '../../../shared/use-collect-event';

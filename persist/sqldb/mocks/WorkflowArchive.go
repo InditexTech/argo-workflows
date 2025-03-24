@@ -38,13 +38,10 @@ func (_m *WorkflowArchive) ArchiveWorkflow(wf *v1alpha1.Workflow) error {
 // CountWorkflows provides a mock function with given fields: options
 func (_m *WorkflowArchive) CountWorkflows(options utils.ListOptions) (int64, error) {
 	ret := _m.Called(options)
-<<<<<<< HEAD
-=======
 
 	if len(ret) == 0 {
 		panic("no return value specified for CountWorkflows")
 	}
->>>>>>> draft-3.6.5
 
 	var r0 int64
 	var r1 error
@@ -183,13 +180,10 @@ func (_m *WorkflowArchive) IsEnabled() bool {
 // ListWorkflows provides a mock function with given fields: options
 func (_m *WorkflowArchive) ListWorkflows(options utils.ListOptions) (v1alpha1.Workflows, error) {
 	ret := _m.Called(options)
-<<<<<<< HEAD
-=======
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListWorkflows")
 	}
->>>>>>> draft-3.6.5
 
 	var r0 v1alpha1.Workflows
 	var r1 error

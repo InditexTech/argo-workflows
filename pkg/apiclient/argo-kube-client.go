@@ -11,11 +11,6 @@ import (
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 
-<<<<<<< HEAD
-	"github.com/argoproj/argo-workflows/v3/server/workflow/store"
-
-=======
->>>>>>> draft-3.6.5
 	"github.com/argoproj/argo-workflows/v3"
 	"github.com/argoproj/argo-workflows/v3/persist/sqldb"
 	"github.com/argoproj/argo-workflows/v3/pkg/apiclient/clusterworkflowtemplate"
@@ -30,11 +25,8 @@ import (
 	cronworkflowserver "github.com/argoproj/argo-workflows/v3/server/cronworkflow"
 	"github.com/argoproj/argo-workflows/v3/server/types"
 	workflowserver "github.com/argoproj/argo-workflows/v3/server/workflow"
-<<<<<<< HEAD
-=======
 	"github.com/argoproj/argo-workflows/v3/server/workflow/store"
 	workflowstore "github.com/argoproj/argo-workflows/v3/server/workflow/store"
->>>>>>> draft-3.6.5
 	workflowtemplateserver "github.com/argoproj/argo-workflows/v3/server/workflowtemplate"
 	"github.com/argoproj/argo-workflows/v3/util/help"
 	"github.com/argoproj/argo-workflows/v3/util/instanceid"
@@ -64,13 +56,10 @@ type argoKubeClient struct {
 	opts              ArgoKubeOpts
 	instanceIDService instanceid.Service
 	wfClient          workflow.Interface
-<<<<<<< HEAD
-=======
 	wfTmplStore       types.WorkflowTemplateStore
 	cwfTmplStore      types.ClusterWorkflowTemplateStore
 	wfLister          workflowstore.WorkflowLister
 	wfStore           workflowstore.WorkflowStore
->>>>>>> draft-3.6.5
 }
 
 var _ Client = &argoKubeClient{}
@@ -121,9 +110,6 @@ func newArgoKubeClient(ctx context.Context, opts ArgoKubeOpts, clientConfig clie
 	if err != nil {
 		return nil, nil, err
 	}
-<<<<<<< HEAD
-	return ctx, &argoKubeClient{instanceIDService, wfClient}, nil
-=======
 
 	client := &argoKubeClient{
 		opts:              opts,
@@ -164,17 +150,11 @@ func (a *argoKubeClient) startStores(restConfig *restclient.Config, namespace st
 		a.cwfTmplStore = clusterworkflowtmplserver.NewClusterWorkflowTemplateClientStore()
 	}
 	return nil
->>>>>>> draft-3.6.5
 }
 
 func (a *argoKubeClient) NewWorkflowServiceClient() workflowpkg.WorkflowServiceClient {
 	wfArchive := sqldb.NullWorkflowArchive
-<<<<<<< HEAD
-	wfLister := store.NewKubeLister(a.wfClient)
-	return &errorTranslatingWorkflowServiceClient{&argoKubeWorkflowServiceClient{workflowserver.NewWorkflowServer(a.instanceIDService, argoKubeOffloadNodeStatusRepo, wfArchive, a.wfClient, wfLister, nil, nil)}}
-=======
 	return &errorTranslatingWorkflowServiceClient{&argoKubeWorkflowServiceClient{workflowserver.NewWorkflowServer(a.instanceIDService, argoKubeOffloadNodeStatusRepo, wfArchive, a.wfClient, a.wfLister, a.wfStore, a.wfTmplStore, a.cwfTmplStore, nil, nil)}}
->>>>>>> draft-3.6.5
 }
 
 func (a *argoKubeClient) NewCronWorkflowServiceClient() (cronworkflow.CronWorkflowServiceClient, error) {

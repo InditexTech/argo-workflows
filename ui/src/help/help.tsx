@@ -14,11 +14,7 @@ export function Help() {
                     <div className='help-box'>
                         <div className='help-box__ico help-box__ico--manual' />
                         <h3>Documentation</h3>
-<<<<<<< HEAD:ui/src/app/help/components/help.tsx
-                        <a href='https://argo-workflows.readthedocs.io/en/release-3.5' target='_blank' className='help-box__link'>
-=======
                         <a className='help-box__link' target='_blank' href='https://argo-workflows.readthedocs.io/en/latest' rel='noreferrer'>
->>>>>>> draft-3.6.5:ui/src/help/help.tsx
                             Online Help
                         </a>
                         <a className='help-box__link' target='_blank' href='https://argo-workflows.readthedocs.io/en/latest/swagger/' rel='noreferrer'>

@@ -1413,8 +1413,6 @@ func schema_pkg_apis_workflow_v1alpha1_Backoff(ref common.ReferenceCallback) com
 					"maxDuration": {
 						SchemaProps: spec.SchemaProps{
 							Description: "MaxDuration is the maximum amount of time allowed for a workflow in the backoff strategy. It is important to note that if the workflow template includes activeDeadlineSeconds, the pod's deadline is initially set with activeDeadlineSeconds. However, when the workflow fails, the pod's deadline is then overridden by maxDuration. This ensures that the workflow does not exceed the specified maximum duration when retries are involved.",
-<<<<<<< HEAD
-=======
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1422,7 +1420,6 @@ func schema_pkg_apis_workflow_v1alpha1_Backoff(ref common.ReferenceCallback) com
 					"cap": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Cap is a limit on revised values of the duration parameter. If a multiplication by the factor parameter would make the duration exceed the cap then the duration is set to the cap",
->>>>>>> draft-3.6.5
 							Type:        []string{"string"},
 							Format:      "",
 						},

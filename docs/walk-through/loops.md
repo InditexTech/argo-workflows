@@ -32,13 +32,8 @@ spec:
 
   - name: hello-world
     container:
-<<<<<<< HEAD
-      image: docker/whalesay:latest
-      command: [cowsay]
-=======
       image: busybox
       command: [echo]
->>>>>>> draft-3.6.5
       args: ["hello world!"]
 ```
 

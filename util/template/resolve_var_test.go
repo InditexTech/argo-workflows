@@ -32,19 +32,11 @@ func Test_ResolveVar(t *testing.T) {
 		})
 		t.Run("Unresolved", func(t *testing.T) {
 			_, err := ResolveVar("{{=foo}}", nil)
-<<<<<<< HEAD
-			assert.EqualError(t, err, "Unable to compile: \"foo\"")
-		})
-		t.Run("Error", func(t *testing.T) {
-			_, err := ResolveVar("{{=!}}", nil)
-			assert.EqualError(t, err, "Unable to compile: \"!\"")
-=======
 			require.EqualError(t, err, "Unable to compile: \"foo\"")
 		})
 		t.Run("Error", func(t *testing.T) {
 			_, err := ResolveVar("{{=!}}", nil)
 			require.EqualError(t, err, "Unable to compile: \"!\"")
->>>>>>> draft-3.6.5
 		})
 	})
 }

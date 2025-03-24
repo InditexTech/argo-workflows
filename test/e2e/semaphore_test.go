@@ -79,8 +79,6 @@ func (s *SemaphoreSuite) TestSynchronizationTmplLevelMutexAndSemaphore() {
 		CreateConfigMap("my-config", map[string]string{"workflow": "1"}, map[string]string{}).
 		SubmitWorkflow().
 		WaitForWorkflow(fixtures.ToBeSucceeded, 90*time.Second)
-<<<<<<< HEAD
-=======
 }
 
 func (s *SemaphoreSuite) TestSynchronizationMultiple() {
@@ -100,7 +98,6 @@ func (s *SemaphoreSuite) TestSynchronizationLegacyMutexAndSemaphore() {
 		CreateConfigMap("my-config", map[string]string{"workflow": "1"}, map[string]string{}).
 		SubmitWorkflow().
 		WaitForWorkflow(fixtures.ToBeSucceeded, 90*time.Second)
->>>>>>> draft-3.6.5
 }
 
 func TestSemaphoreSuite(t *testing.T) {

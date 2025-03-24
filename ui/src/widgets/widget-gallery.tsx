@@ -6,11 +6,7 @@ export const WidgetGallery = ({namespace, name, label}: {namespace: string; name
     <div className='white-box'>
         <h3>Widgets</h3>
         <p>
-<<<<<<< HEAD:ui/src/app/widgets/widget-gallery.tsx
-            These widgets can be embedded inside other applications. <a href='https://argo-workflows.readthedocs.io/en/release-3.5/widgets'>Learn more</a>
-=======
             These widgets can be embedded inside other applications. <a href='https://argo-workflows.readthedocs.io/en/latest/widgets'>Learn more</a>
->>>>>>> draft-3.6.5:ui/src/widgets/widget-gallery.tsx
         </p>
         {[
             {
@@ -65,11 +61,7 @@ export const WidgetGallery = ({namespace, name, label}: {namespace: string; name
             </>
         ))}
         <p>
-<<<<<<< HEAD:ui/src/app/widgets/widget-gallery.tsx
-            Widgets not loading? Check for <a href='https://argo-workflows.readthedocs.io/en/release-3.5/widgets'>solutions in the docs</a>.
-=======
             Widgets not loading? Check for <a href='https://argo-workflows.readthedocs.io/en/latest/widgets'>solutions in the docs</a>.
->>>>>>> draft-3.6.5:ui/src/widgets/widget-gallery.tsx
         </p>
     </div>
 );

@@ -6,11 +6,7 @@ Find out on [our blog](https://blog.argoproj.io) and [changelog](https://github.
 
 ## Breaking Changes and Known Issues
 
-<<<<<<< HEAD
-Check the [upgrading guide](https://argo-workflows.readthedocs.io/en/release-3.5/upgrading/) and search for [existing issues on GitHub](https://github.com/argoproj/argo-workflows/issues).
-=======
 Check the [upgrading guide](https://argo-workflows.readthedocs.io/en/latest/upgrading/) and search for [existing issues on GitHub](https://github.com/argoproj/argo-workflows/issues).
->>>>>>> draft-3.6.5
 
 ## Installation
 

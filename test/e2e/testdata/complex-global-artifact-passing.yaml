@@ -67,11 +67,7 @@ spec:
 
 
   - container:
-<<<<<<< HEAD
-      image: alpine:3.7
-=======
       image: argoproj/argosay:v2
->>>>>>> draft-3.6.5
       command: [sh, -c]
       args: ["sleep 1; echo -n 'test input' > /testInput.txt; echo -n 'test update' > /testUpdate.txt"]
     name: create-global-artifacts
@@ -91,15 +87,9 @@ spec:
 
 
   - container:
-<<<<<<< HEAD
-      command: [sh, -c]
-      args: ["sleep 1; cp /input.txt /upload.txt"]
-      image: alpine:3.7
-=======
       image: argoproj/argosay:v2
       command: [sh, -c]
       args: ["sleep 1; cp /input.txt /upload.txt"]
->>>>>>> draft-3.6.5
       name: ""
       resources: {}
     inputs:
@@ -114,15 +104,9 @@ spec:
         path: /upload.txt
 
   - container:
-<<<<<<< HEAD
-      command: [sh, -c]
-      args: ["sleep 1; echo -n 'Updated testUpdate' > /updated-testUpdate.txt"]
-      image: alpine:3.18.4
-=======
       image: argoproj/argosay:v2
       command: [sh, -c]
       args: ["sleep 1; echo -n 'Updated testUpdate' > /updated-testUpdate.txt"]
->>>>>>> draft-3.6.5
     metadata: {}
     name: generate-testupdate-update
     outputs:
@@ -133,15 +117,9 @@ spec:
           none: {}
 
   - container:
-<<<<<<< HEAD
-      command: [sh, -c]
-      args: ["sleep 1"]
-      image: alpine:3.18.4
-=======
       image: argoproj/argosay:v2
       command: [sh, -c]
       args: ["sleep 1"]
->>>>>>> draft-3.6.5
       name: ""
       resources: {}
     inputs:
@@ -157,11 +135,7 @@ spec:
         path: /testUpload.txt
 
   - container:
-<<<<<<< HEAD
-      image: alpine:3.18.4
-=======
       image: argoproj/argosay:v2
->>>>>>> draft-3.6.5
       command: [sh, -c]
       args: ["sleep 1"]
       name: ""
@@ -181,25 +155,15 @@ spec:
 
 
   - container:
-<<<<<<< HEAD
-      command: [sh, -c]
-      args: ["sleep 1; cat /upload/testUpload; cat /upload/testUpload.txt > /upload/testUpload.txt"]
-      image: alpine:3.18.4
-=======
       image: argoproj/argosay:v2
       command: [sh, -c]
       args: ["sleep 1; cat /upload/testInput.txt > /upload/testUpload.txt"]
->>>>>>> draft-3.6.5
       name: ""
       resources: {}
     inputs:
       artifacts:
       - name: testUpload
-<<<<<<< HEAD
-        path: /upload/testUpload.txt
-=======
         path: /upload/testInput.txt
->>>>>>> draft-3.6.5
     metadata: {}
     name: upload-testupload
     outputs:
@@ -209,15 +173,9 @@ spec:
         path: /upload/testUpload.txt
 
   - container:
-<<<<<<< HEAD
-      command: [sh, -c]
-      args: ["sleep 1; cat /upload/testUpdate.txt"]
-      image: alpine:3.18.4
-=======
       image: argoproj/argosay:v2
       command: [sh, -c]
       args: ["sleep 1; cat /upload/testUpdate.txt"]
->>>>>>> draft-3.6.5
       name: ""
       resources: {}
     inputs:

@@ -221,10 +221,7 @@ var (
 			return node.Type == wfv1.NodeTypePod && node.Phase == wfv1.NodeFailed
 		}), "to have failed pod"
 	}
-<<<<<<< HEAD
-=======
 	ToBePending = ToHavePhase(wfv1.WorkflowPending)
->>>>>>> draft-3.6.5
 )
 
 // `ToBeDone` replaces `ToFinish` which also makes sure the workflow is both complete not pending archiving.
@@ -300,13 +297,8 @@ func (w *When) WaitForWorkflow(options ...interface{}) *When {
 		case time.Duration:
 			// Note that we add the timeoutBias (defaults to 0), set by environment variable E2E_WAIT_TIMEOUT_BIAS
 			timeout = v + timeoutBias
-<<<<<<< HEAD
-		case string:
-			workflowName = v
-=======
 		case metav1.ListOptions:
 			listOptions = v
->>>>>>> draft-3.6.5
 		case Condition:
 			condition = v
 		case WorkflowCompletionOkay:

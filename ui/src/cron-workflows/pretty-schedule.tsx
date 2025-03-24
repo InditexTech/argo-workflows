@@ -1,11 +1,7 @@
 import x from 'cronstrue';
 import * as React from 'react';
 
-<<<<<<< HEAD:ui/src/app/cron-workflows/components/pretty-schedule.tsx
-import {WarningIcon} from '../../shared/components/fa-icons';
-=======
 import {WarningIcon} from '../shared/components/fa-icons';
->>>>>>> draft-3.6.5:ui/src/cron-workflows/pretty-schedule.tsx
 
 /*
     https://github.com/bradymholt/cRonstrue

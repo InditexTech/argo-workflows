@@ -1,22 +1,9 @@
 package help
 
-<<<<<<< HEAD
-const (
-	root       = "https://argo-workflows.readthedocs.io/en/release-3.5"
-	ArgoServer = root + "/argo-server/"
-	CLI        = root + "/cli/argo"
-
-	WorkflowTemplates                          = root + "/workflow-templates/"
-	WorkflowTemplatesReferencingOtherTemplates = WorkflowTemplates + "#referencing-other-workflowtemplates"
-
-	Scaling                        = root + "/scaling/"
-	ConfigureMaximumRecursionDepth = Scaling + "#maximum-recursion-depth"
-=======
 import (
 	"fmt"
 
 	"github.com/argoproj/argo-workflows/v3"
->>>>>>> draft-3.6.5
 )
 
 func root() string {

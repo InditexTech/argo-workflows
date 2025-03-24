@@ -78,24 +78,14 @@ func TestWorkflowSemaphoreKeysIndexFunc(t *testing.T) {
 			},
 			Spec: wfv1.WorkflowSpec{
 				Synchronization: &wfv1.Synchronization{
-<<<<<<< HEAD
-					Semaphore: &wfv1.SemaphoreRef{
-						ConfigMapKeyRef: &apiv1.ConfigMapKeySelector{},
-					},
-=======
 					Semaphores: []*wfv1.SemaphoreRef{{
 						ConfigMapKeyRef: &apiv1.ConfigMapKeySelector{},
 					}},
->>>>>>> draft-3.6.5
 				},
 			},
 		})
 		result, err := WorkflowSemaphoreKeysIndexFunc()(un)
-<<<<<<< HEAD
-		assert.NoError(t, err)
-=======
 		require.NoError(t, err)
->>>>>>> draft-3.6.5
 		assert.Len(t, result, 1)
 	})
 	t.Run("Incomplete", func(t *testing.T) {

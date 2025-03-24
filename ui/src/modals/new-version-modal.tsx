@@ -60,35 +60,23 @@ export function NewVersionModal({version, dismiss}: {version: string; dismiss: (
             <h5>v3.4</h5>
             <ul className='new-version-modal-bullets'>
                 <li>
-<<<<<<< HEAD:ui/src/app/modals/new-version/new-version-modal.tsx
-                    <a href='https://argo-workflows.readthedocs.io/en/release-3.5/artifact-visualization/?utm_source=argo-ui' target='_blank'>
-=======
                     <a href='https://argo-workflows.readthedocs.io/en/latest/artifact-visualization/?utm_source=argo-ui' target='_blank' rel='noreferrer'>
->>>>>>> draft-3.6.5:ui/src/modals/new-version-modal.tsx
                         Visualize artifact{' '}
                     </a>
                     in the UI
                 </li>
                 <li>
                     Automated{' '}
-<<<<<<< HEAD:ui/src/app/modals/new-version/new-version-modal.tsx
-                    <a href='https://argo-workflows.readthedocs.io/en/release-3.5/walk-through/artifacts/#artifact-garbage-collection?utm_source=argo-ui' target='_blank'>
-=======
                     <a
                         href='https://argo-workflows.readthedocs.io/en/latest/walk-through/artifacts/#artifact-garbage-collection?utm_source=argo-ui'
                         target='_blank'
                         rel='noreferrer'>
->>>>>>> draft-3.6.5:ui/src/modals/new-version-modal.tsx
                         artifact garbage collection
                     </a>
                 </li>
                 <li>
                     Provide{' '}
-<<<<<<< HEAD:ui/src/app/modals/new-version/new-version-modal.tsx
-                    <a href='https://argo-workflows.readthedocs.io/en/release-3.5/intermediate-inputs/?utm_source=argo-ui' target='_blank'>
-=======
                     <a href='https://argo-workflows.readthedocs.io/en/latest/intermediate-inputs/?utm_source=argo-ui' target='_blank' rel='noreferrer'>
->>>>>>> draft-3.6.5:ui/src/modals/new-version-modal.tsx
                         parameter input{' '}
                     </a>
                     in the middle of the workflow
@@ -104,11 +92,7 @@ export function NewVersionModal({version, dismiss}: {version: string; dismiss: (
             <ul className='new-version-modal-bullets'>
                 <li>
                     Write your own types of step with{' '}
-<<<<<<< HEAD:ui/src/app/modals/new-version/new-version-modal.tsx
-                    <a href='https://argo-workflows.readthedocs.io/en/release-3.5/plugins/?utm_source=argo-ui' target='_blank'>
-=======
                     <a href='https://argo-workflows.readthedocs.io/en/latest/plugins/?utm_source=argo-ui' target='_blank' rel='noreferrer'>
->>>>>>> draft-3.6.5:ui/src/modals/new-version-modal.tsx
                         plugin templates
                     </a>
                     .
@@ -125,11 +109,7 @@ export function NewVersionModal({version, dismiss}: {version: string; dismiss: (
             <ul className='new-version-modal-bullets'>
                 <li>
                     Writing workflows <b>without YAML</b> using{' '}
-<<<<<<< HEAD:ui/src/app/modals/new-version/new-version-modal.tsx
-                    <a href='https://argo-workflows.readthedocs.io/en/release-3.5/client-libraries/?utm_source=argo-ui' target='_blank'>
-=======
                     <a href='https://argo-workflows.readthedocs.io/en/latest/client-libraries/?utm_source=argo-ui' target='_blank' rel='noreferrer'>
->>>>>>> draft-3.6.5:ui/src/modals/new-version-modal.tsx
                         Python and Java SDKs
                     </a>
                     .
@@ -143,11 +123,7 @@ export function NewVersionModal({version, dismiss}: {version: string; dismiss: (
                 </li>
                 <li>
                     Interact with third-party systems using{' '}
-<<<<<<< HEAD:ui/src/app/modals/new-version/new-version-modal.tsx
-                    <a href='https://argo-workflows.readthedocs.io/en/release-3.5/http-template/?utm_source=argo-ui' target='_blank'>
-=======
                     <a href='https://argo-workflows.readthedocs.io/en/latest/http-template/?utm_source=argo-ui' target='_blank' rel='noreferrer'>
->>>>>>> draft-3.6.5:ui/src/modals/new-version-modal.tsx
                         HTTP template
                     </a>
                     .
@@ -162,33 +138,21 @@ export function NewVersionModal({version, dismiss}: {version: string; dismiss: (
             <ul className='new-version-modal-bullets'>
                 <li>
                     Run workflows <b>faster and cheaper</b>{' '}
-<<<<<<< HEAD:ui/src/app/modals/new-version/new-version-modal.tsx
-                    <a href='https://argo-workflows.readthedocs.io/en/release-3.5/container-set-template/?utm_source=argo-ui' target='_blank'>
-=======
                     <a href='https://argo-workflows.readthedocs.io/en/latest/container-set-template/?utm_source=argo-ui' target='_blank' rel='noreferrer'>
->>>>>>> draft-3.6.5:ui/src/modals/new-version-modal.tsx
                         using container set template and Emissary executor
                     </a>
                     .
                 </li>
                 <li>
                     Run fan-out workflows based on bucket contents using{' '}
-<<<<<<< HEAD:ui/src/app/modals/new-version/new-version-modal.tsx
-                    <a href='https://argo-workflows.readthedocs.io/en/release-3.5/data-sourcing-and-transformation/?utm_source=argo-ui' target='_blank'>
-=======
                     <a href='https://argo-workflows.readthedocs.io/en/latest/data-sourcing-and-transformation/?utm_source=argo-ui' target='_blank' rel='noreferrer'>
->>>>>>> draft-3.6.5:ui/src/modals/new-version-modal.tsx
                         data templates
                     </a>
                     .
                 </li>
                 <li>
                     Complex and dynamic templating using{' '}
-<<<<<<< HEAD:ui/src/app/modals/new-version/new-version-modal.tsx
-                    <a href='https://argo-workflows.readthedocs.io/en/release-3.5/variables/?utm_source=argo-ui#expression' target='_blank'>
-=======
                     <a href='https://argo-workflows.readthedocs.io/en/latest/variables/?utm_source=argo-ui#expression' target='_blank' rel='noreferrer'>
->>>>>>> draft-3.6.5:ui/src/modals/new-version-modal.tsx
                         expression tag templates
                     </a>
                     .

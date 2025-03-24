@@ -191,11 +191,7 @@ func (s gatekeeper) getClients(ctx context.Context, req interface{}) (*servertyp
 		}
 	}
 	if !valid {
-<<<<<<< HEAD
-		return nil, nil, status.Error(codes.Unauthenticated, "token not valid. see https://argo-workflows.readthedocs.io/en/release-3.5/faq/")
-=======
 		return nil, nil, status.Error(codes.Unauthenticated, "token not valid. see https://argo-workflows.readthedocs.io/en/latest/faq/")
->>>>>>> draft-3.6.5
 	}
 	switch mode {
 	case Client:

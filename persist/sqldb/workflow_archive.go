@@ -12,10 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-<<<<<<< HEAD
-=======
 	"k8s.io/apimachinery/pkg/labels"
->>>>>>> draft-3.6.5
 	"k8s.io/apimachinery/pkg/types"
 
 	wfv1 "github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
@@ -167,44 +164,6 @@ func (r *workflowArchive) ArchiveWorkflow(wf *wfv1.Workflow) error {
 
 func (r *workflowArchive) ListWorkflows(options sutils.ListOptions) (wfv1.Workflows, error) {
 	var archivedWfs []archivedWorkflowMetadata
-<<<<<<< HEAD
-
-	selectQuery, err := selectArchivedWorkflowQuery(r.dbType)
-	if err != nil {
-		return nil, err
-	}
-
-	selector := r.session.SQL().
-		Select(selectQuery).
-		From(archiveTableName).
-		Where(r.clusterManagedNamespaceAndInstanceID())
-
-	selector, err = BuildArchivedWorkflowSelector(selector, archiveTableName, archiveLabelsTableName, r.dbType, options, false)
-	if err != nil {
-		return nil, err
-	}
-
-	err = selector.All(&archivedWfs)
-	if err != nil {
-		return nil, err
-	}
-
-	wfs := make(wfv1.Workflows, len(archivedWfs))
-	for i, md := range archivedWfs {
-		labels := make(map[string]string)
-		if err := json.Unmarshal([]byte(md.Labels), &labels); err != nil {
-			return nil, err
-		}
-		// For backward compatibility, we should label workflow retrieved from DB as Persisted.
-		labels[common.LabelKeyWorkflowArchivingStatus] = "Persisted"
-
-		annotations := make(map[string]string)
-		if err := json.Unmarshal([]byte(md.Annotations), &annotations); err != nil {
-			return nil, err
-		}
-
-		t, err := time.Parse(time.RFC3339, md.CreationTimestamp)
-=======
 	var baseSelector = r.session.SQL().Select("name", "namespace", "uid", "phase", "startedat", "finishedat")
 
 	switch r.dbType {
@@ -224,13 +183,10 @@ func (r *workflowArchive) ListWorkflows(options sutils.ListOptions) (wfv1.Workfl
 			Where(r.clusterManagedNamespaceAndInstanceID())
 
 		selectQuery, err := BuildArchivedWorkflowSelector(selectQuery, archiveTableName, archiveLabelsTableName, r.dbType, options, false)
->>>>>>> draft-3.6.5
 		if err != nil {
 			return nil, err
 		}
 
-<<<<<<< HEAD
-=======
 		err = selectQuery.All(&archivedWfs)
 		if err != nil {
 			return nil, err
@@ -292,7 +248,6 @@ func (r *workflowArchive) ListWorkflows(options sutils.ListOptions) (wfv1.Workfl
 			return nil, err
 		}
 
->>>>>>> draft-3.6.5
 		resourcesDuration := make(map[corev1.ResourceName]wfv1.ResourceDuration)
 		if err := json.Unmarshal([]byte(md.ResourcesDuration), &resourcesDuration); err != nil {
 			return nil, err
@@ -385,8 +340,6 @@ func namePrefixClause(namePrefix string) db.Cond {
 		return db.Cond{"name LIKE": namePrefix + "%"}
 	}
 	return db.Cond{}
-<<<<<<< HEAD
-=======
 }
 
 func phaseEqual(phase string) db.Cond {
@@ -394,7 +347,6 @@ func phaseEqual(phase string) db.Cond {
 		return db.Cond{"phase": phase}
 	}
 	return db.Cond{}
->>>>>>> draft-3.6.5
 }
 
 func (r *workflowArchive) GetWorkflow(uid string, namespace string, name string) (*wfv1.Workflow, error) {

@@ -19,11 +19,6 @@ import (
 	sutils "github.com/argoproj/argo-workflows/v3/server/utils"
 	"github.com/argoproj/argo-workflows/v3/util/instanceid"
 	"github.com/argoproj/argo-workflows/v3/workflow/creator"
-<<<<<<< HEAD
-	"github.com/argoproj/argo-workflows/v3/workflow/filter"
-	"github.com/argoproj/argo-workflows/v3/workflow/templateresolution"
-=======
->>>>>>> draft-3.6.5
 	"github.com/argoproj/argo-workflows/v3/workflow/validate"
 )
 

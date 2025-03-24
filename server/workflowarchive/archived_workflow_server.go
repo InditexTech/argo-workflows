@@ -23,8 +23,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
-<<<<<<< HEAD
-=======
 
 	"github.com/argoproj/argo-workflows/v3/persist/sqldb"
 	workflowarchivepkg "github.com/argoproj/argo-workflows/v3/pkg/apiclient/workflowarchive"
@@ -35,7 +33,6 @@ import (
 	"github.com/argoproj/argo-workflows/v3/workflow/util"
 
 	sutils "github.com/argoproj/argo-workflows/v3/server/utils"
->>>>>>> draft-3.6.5
 )
 
 const disableValueListRetrievalKeyPattern = "DISABLE_VALUE_LIST_RETRIEVAL_KEY_PATTERN"
@@ -44,18 +41,6 @@ type archivedWorkflowServer struct {
 	wfArchive             sqldb.WorkflowArchive
 	offloadNodeStatusRepo sqldb.OffloadNodeStatusRepo
 	hydrator              hydrator.Interface
-<<<<<<< HEAD
-}
-
-// NewWorkflowArchiveServer returns a new archivedWorkflowServer
-func NewWorkflowArchiveServer(wfArchive sqldb.WorkflowArchive, offloadNodeStatusRepo sqldb.OffloadNodeStatusRepo) workflowarchivepkg.ArchivedWorkflowServiceServer {
-	return &archivedWorkflowServer{wfArchive, offloadNodeStatusRepo, hydrator.New(offloadNodeStatusRepo)}
-}
-
-func (w *archivedWorkflowServer) ListArchivedWorkflows(ctx context.Context, req *workflowarchivepkg.ListArchivedWorkflowsRequest) (*wfv1.WorkflowList, error) {
-	optionsFiltered := filter.CreateListOptions(ctx, req.ListOptions)
-	options, err := sutils.BuildListOptions(*optionsFiltered, req.Namespace, req.NamePrefix)
-=======
 	wfDefaults            *wfv1.Workflow
 }
 
@@ -66,12 +51,12 @@ func NewWorkflowArchiveServer(wfArchive sqldb.WorkflowArchive, offloadNodeStatus
 
 func (w *archivedWorkflowServer) ListArchivedWorkflows(ctx context.Context, req *workflowarchivepkg.ListArchivedWorkflowsRequest) (*wfv1.WorkflowList, error) {
 	listOptions := metav1.ListOptions{}
+	listOptions := filter.CreateListOptions(ctx, req.ListOptions)
 	if req.ListOptions != nil {
 		listOptions = *req.ListOptions
 	}
 
 	options, err := sutils.BuildListOptions(listOptions, req.Namespace, req.NamePrefix, "", "", "")
->>>>>>> draft-3.6.5
 	if err != nil {
 		return nil, err
 	}

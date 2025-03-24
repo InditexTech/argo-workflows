@@ -1055,13 +1055,7 @@ spec:
 
 func TestDAGMissingParamValueInTask(t *testing.T) {
 	err := validate(dagMissingParamValueInTask)
-<<<<<<< HEAD
-	if assert.NotNil(t, err) {
-		assert.Contains(t, err.Error(), ".valueFrom only allows: default, configMapKeyRef and supplied")
-	}
-=======
 	require.ErrorContains(t, err, ".valueFrom only allows: default, configMapKeyRef and supplied")
->>>>>>> draft-3.6.5
 }
 
 var dagArgParamValueFromConfigMapInTask = `
@@ -1094,11 +1088,7 @@ spec:
 
 func TestDAGArgParamValueFromConfigMapInTask(t *testing.T) {
 	err := validate(dagArgParamValueFromConfigMapInTask)
-<<<<<<< HEAD
-	assert.NoError(t, err)
-=======
 	require.NoError(t, err)
->>>>>>> draft-3.6.5
 }
 
 var failDagArgParamValueFromPathInTask = `
@@ -1128,11 +1118,5 @@ spec:
 
 func TestFailDAGArgParamValueFromPathInTask(t *testing.T) {
 	err := validate(failDagArgParamValueFromPathInTask)
-<<<<<<< HEAD
-	if assert.NotNil(t, err) {
-		assert.Contains(t, err.Error(), "valueFrom only allows: default, configMapKeyRef and supplied")
-	}
-=======
 	require.ErrorContains(t, err, "valueFrom only allows: default, configMapKeyRef and supplied")
->>>>>>> draft-3.6.5
 }

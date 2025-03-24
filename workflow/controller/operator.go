@@ -16,11 +16,6 @@ import (
 	"sync"
 	"time"
 
-<<<<<<< HEAD
-	"github.com/argoproj/argo-workflows/v3/util/secrets"
-
-=======
->>>>>>> draft-3.6.5
 	"github.com/argoproj/pkg/humanize"
 	argokubeerr "github.com/argoproj/pkg/kube/errors"
 	"github.com/argoproj/pkg/strftime"
@@ -812,11 +807,7 @@ func (woc *wfOperationCtx) persistUpdates(ctx context.Context) {
 
 	// Make sure the workflow completed.
 	if woc.wf.Status.Fulfilled() {
-<<<<<<< HEAD
-		woc.controller.metrics.StopRealtimeMetricsForKey(string(woc.wf.GetUID()))
-=======
 		woc.controller.metrics.StopRealtimeMetricsForWfUID(string(woc.wf.GetUID()))
->>>>>>> draft-3.6.5
 		if err := woc.deleteTaskResults(ctx); err != nil {
 			woc.log.WithError(err).Warn("failed to delete task-results")
 		}
@@ -1003,16 +994,6 @@ func (woc *wfOperationCtx) processNodeRetries(node *wfv1.NodeStatus, retryStrate
 		maxDurationDeadline := time.Time{}
 		// Process max duration limit
 		if retryStrategy.Backoff.MaxDuration != "" && len(childNodeIds) > 0 {
-<<<<<<< HEAD
-			maxDuration, err := parseStringToDuration(retryStrategy.Backoff.MaxDuration)
-			if err != nil {
-				return nil, false, err
-			}
-			firstChildNode, err := woc.wf.Status.Nodes.Get(childNodeIds[0])
-			if err != nil {
-				return nil, false, err
-			}
-=======
 			maxDuration, err := wfv1.ParseStringToDuration(retryStrategy.Backoff.MaxDuration)
 			if err != nil {
 				return nil, false, err
@@ -1021,7 +1002,6 @@ func (woc *wfOperationCtx) processNodeRetries(node *wfv1.NodeStatus, retryStrate
 			if err != nil {
 				return nil, false, err
 			}
->>>>>>> draft-3.6.5
 			maxDurationDeadline = firstChildNode.StartedAt.Add(maxDuration)
 			if time.Now().After(maxDurationDeadline) {
 				woc.log.Infoln("Max duration limit exceeded. Failing...")
@@ -1048,8 +1028,6 @@ func (woc *wfOperationCtx) processNodeRetries(node *wfv1.NodeStatus, retryStrate
 			// Formula: timeToWait = duration * factor^retry_number
 			// Note that timeToWait should equal to duration for the first retry attempt.
 			timeToWait = baseDuration * time.Duration(math.Pow(float64(*retryStrategyBackoffFactor), float64(len(childNodeIds)-1)))
-<<<<<<< HEAD
-=======
 		}
 		if retryStrategy.Backoff.Cap != "" {
 			capDuration, err := wfv1.ParseStringToDuration(retryStrategy.Backoff.Cap)
@@ -1059,7 +1037,6 @@ func (woc *wfOperationCtx) processNodeRetries(node *wfv1.NodeStatus, retryStrate
 			if timeToWait > capDuration {
 				timeToWait = capDuration
 			}
->>>>>>> draft-3.6.5
 		}
 		waitingDeadline := lastChildNode.FinishedAt.Add(timeToWait)
 
@@ -1147,10 +1124,7 @@ func (woc *wfOperationCtx) processNodeRetries(node *wfv1.NodeStatus, retryStrate
 func (woc *wfOperationCtx) podReconciliation(ctx context.Context) (error, bool) {
 	podList, err := woc.getAllWorkflowPods()
 	if err != nil {
-<<<<<<< HEAD
-=======
 		woc.log.Error("was unable to retrieve workflow pods")
->>>>>>> draft-3.6.5
 		return err, false
 	}
 	seenPods := make(map[string]*apiv1.Pod)
@@ -1175,16 +1149,12 @@ func (woc *wfOperationCtx) podReconciliation(ctx context.Context) (error, bool) 
 		defer wfNodesLock.Unlock()
 		node, err := woc.wf.Status.Nodes.Get(nodeID)
 		if err == nil {
-<<<<<<< HEAD
-			if newState := woc.assessNodeStatus(pod, node); newState != nil {
-=======
 			if newState := woc.assessNodeStatus(ctx, pod, node); newState != nil {
 				// update if a pod deletion timestamp exists on a completed workflow, ensures this pod is always looked at
 				// in the pod cleanup process
 				if pod.DeletionTimestamp != nil && newState.Fulfilled() {
 					woc.updated = true
 				}
->>>>>>> draft-3.6.5
 				// Check whether its taskresult is in an incompleted state.
 				if newState.Succeeded() && woc.wf.Status.IsTaskResultIncomplete(node.ID) {
 					woc.log.WithFields(log.Fields{"nodeID": newState.ID}).Debug("Taskresult of the node not yet completed")
@@ -1279,22 +1249,8 @@ func (woc *wfOperationCtx) podReconciliation(ctx context.Context) (error, bool) 
 				woc.updated = true
 			}
 			woc.markNodeError(node.Name, errors.New("", "pod deleted"))
-<<<<<<< HEAD
-			// Set pod's child(container) error if pod deleted
-			for _, childNodeID := range node.Children {
-				childNode, err := woc.wf.Status.Nodes.Get(childNodeID)
-				if err != nil {
-					woc.log.Errorf("was unable to obtain node for %s", childNodeID)
-					continue
-				}
-				if childNode.Type == wfv1.NodeTypeContainer {
-					woc.markNodeError(childNode.Name, errors.New("", "container deleted"))
-				}
-			}
-=======
 			// Mark all its children(container) as deleted if pod deleted
 			woc.markAllContainersDeleted(node.ID)
->>>>>>> draft-3.6.5
 		}
 	}
 	return nil, !taskResultIncomplete
@@ -1499,46 +1455,12 @@ func (woc *wfOperationCtx) assessNodeStatus(ctx context.Context, pod *apiv1.Pod,
 		new.PodIP = pod.Status.PodIP
 	}
 
-<<<<<<< HEAD
-	if x, ok := pod.Annotations[common.AnnotationKeyReportOutputsCompleted]; ok {
-		woc.log.Warn("workflow uses legacy/insecure pod patch, see https://argo-workflows.readthedocs.io/en/release-3.5/workflow-rbac/")
-		resultName := woc.nodeID(pod)
-		if x == "true" {
-			woc.wf.Status.MarkTaskResultComplete(resultName)
-		} else {
-			woc.wf.Status.MarkTaskResultIncomplete(resultName)
-		}
-	}
-
-	if x, ok := pod.Annotations[common.AnnotationKeyOutputs]; ok {
-		woc.log.Warn("workflow uses legacy/insecure pod patch, see https://argo-workflows.readthedocs.io/en/release-3.5/workflow-rbac/")
-		if new.Outputs == nil {
-			new.Outputs = &wfv1.Outputs{}
-		}
-		if err := json.Unmarshal([]byte(x), new.Outputs); err != nil {
-			new.Phase = wfv1.NodeError
-			new.Message = err.Error()
-		}
-	}
-
-=======
->>>>>>> draft-3.6.5
 	new.HostNodeName = pod.Spec.NodeName
 
 	if !new.Progress.IsValid() {
 		new.Progress = wfv1.ProgressDefault
 	}
 
-<<<<<<< HEAD
-	if x, ok := pod.Annotations[common.AnnotationKeyProgress]; ok {
-		woc.log.Warn("workflow uses legacy/insecure pod patch, see https://argo-workflows.readthedocs.io/en/release-3.5/workflow-rbac/")
-		if p, ok := wfv1.ParseProgress(x); ok {
-			new.Progress = p
-		}
-	}
-
-=======
->>>>>>> draft-3.6.5
 	// We capture the exit-code after we look for the task-result.
 	// All other outputs are set by the executor, only the exit-code is set by the controller.
 	// By waiting, we avoid breaking the race-condition check.
@@ -1557,14 +1479,6 @@ func (woc *wfOperationCtx) assessNodeStatus(ctx context.Context, pod *apiv1.Pod,
 		}
 	}
 
-<<<<<<< HEAD
-	// We cannot fail the node if the wait container is still running because it may be busy saving outputs, and these
-	// would not get captured successfully.
-	for _, c := range pod.Status.ContainerStatuses {
-		if c.Name == common.WaitContainerName && c.State.Running != nil && new.Phase.Completed() {
-			woc.log.WithField("new.phase", new.Phase).Info("leaving phase un-changed: wait container is not yet terminated ")
-			new.Phase = old.Phase
-=======
 	waitContainerCleanedUp := true
 	// We cannot fail the node if the wait container is still running because it may be busy saving outputs, and these
 	// would not get captured successfully.
@@ -1583,7 +1497,6 @@ func (woc *wfOperationCtx) assessNodeStatus(ctx context.Context, pod *apiv1.Pod,
 					Warn("marking its taskResult as completed since wait container did not exit normally")
 				woc.wf.Status.MarkTaskResultComplete(nodeID)
 			}
->>>>>>> draft-3.6.5
 		}
 	}
 	if pod.Status.Phase == apiv1.PodFailed && pod.Status.Reason == "Evicted" && waitContainerCleanedUp {
@@ -2017,11 +1930,7 @@ func (woc *wfOperationCtx) executeTemplate(ctx context.Context, nodeName string,
 	defer func() { woc.currentStackDepth-- }()
 
 	if woc.currentStackDepth >= woc.controller.maxStackDepth && os.Getenv("DISABLE_MAX_RECURSION") != "true" {
-<<<<<<< HEAD
-		return woc.initializeNodeOrMarkError(node, nodeName, tmplCtx.GetTemplateScope(), orgTmpl, opts.boundaryID, opts.nodeFlag, ErrMaxDepthExceeded), ErrMaxDepthExceeded
-=======
 		return woc.initializeNodeOrMarkError(node, nodeName, templateScope, orgTmpl, opts.boundaryID, opts.nodeFlag, ErrMaxDepthExceeded), ErrMaxDepthExceeded
->>>>>>> draft-3.6.5
 	}
 
 	newTmplCtx, resolvedTmpl, templateStored, err := tmplCtx.ResolveTemplate(orgTmpl)
@@ -2058,8 +1967,6 @@ func (woc *wfOperationCtx) executeTemplate(ctx context.Context, nodeName string,
 	processedTmpl, err := common.ProcessArgs(resolvedTmpl, &args, woc.globalParams, localParams, false, woc.wf.Namespace, woc.controller.configMapInformer.GetIndexer())
 	if err != nil {
 		return woc.initializeNodeOrMarkError(node, nodeName, templateScope, orgTmpl, opts.boundaryID, opts.nodeFlag, err), err
-<<<<<<< HEAD
-=======
 	}
 
 	// Update displayName from processedTmpl
@@ -2071,7 +1978,6 @@ func (woc *wfOperationCtx) executeTemplate(ctx context.Context, nodeName string,
 
 		woc.log.Debugf("Updating node %s display name to %s", node.DisplayName, displayName)
 		woc.setNodeDisplayName(node, displayName)
->>>>>>> draft-3.6.5
 	}
 
 	// Check if this is a fulfilled node for synchronization.
@@ -2492,15 +2398,6 @@ func (woc *wfOperationCtx) markWorkflowPhase(ctx context.Context, phase wfv1.Wor
 		if _, ok := woc.wf.ObjectMeta.Labels[common.LabelKeyCompleted]; !ok {
 			woc.wf.ObjectMeta.Labels[common.LabelKeyCompleted] = "false"
 		}
-<<<<<<< HEAD
-		switch phase {
-		case wfv1.WorkflowRunning:
-			woc.eventRecorder.Event(woc.wf, apiv1.EventTypeNormal, "WorkflowRunning", "Workflow Running")
-		case wfv1.WorkflowSucceeded:
-			woc.eventRecorder.Event(woc.wf, apiv1.EventTypeNormal, "WorkflowSucceeded", "Workflow completed")
-		case wfv1.WorkflowFailed, wfv1.WorkflowError:
-			woc.eventRecorder.Event(woc.wf, apiv1.EventTypeWarning, "WorkflowFailed", message)
-=======
 		if woc.controller.Config.WorkflowEvents.IsEnabled() {
 			switch phase {
 			case wfv1.WorkflowRunning:
@@ -2510,7 +2407,6 @@ func (woc *wfOperationCtx) markWorkflowPhase(ctx context.Context, phase wfv1.Wor
 			case wfv1.WorkflowFailed, wfv1.WorkflowError:
 				woc.eventRecorder.Event(woc.wf, apiv1.EventTypeWarning, "WorkflowFailed", message)
 			}
->>>>>>> draft-3.6.5
 		}
 	}
 	if woc.wf.Status.StartedAt.IsZero() && phase != wfv1.WorkflowPending {
@@ -2544,28 +2440,6 @@ func (woc *wfOperationCtx) markWorkflowPhase(ctx context.Context, phase wfv1.Wor
 		woc.globalParams[common.GlobalVarWorkflowDuration] = fmt.Sprintf("%f", woc.wf.Status.FinishedAt.Sub(woc.wf.Status.StartedAt.Time).Seconds())
 		if woc.wf.ObjectMeta.Labels == nil {
 			woc.wf.ObjectMeta.Labels = make(map[string]string)
-<<<<<<< HEAD
-		}
-		woc.wf.ObjectMeta.Labels[common.LabelKeyCompleted] = "true"
-		woc.wf.Status.Conditions.UpsertCondition(wfv1.Condition{Status: metav1.ConditionTrue, Type: wfv1.ConditionTypeCompleted})
-		err := woc.deletePDBResource(ctx)
-		if err != nil {
-			woc.wf.Status.Phase = wfv1.WorkflowError
-			woc.wf.ObjectMeta.Labels[common.LabelKeyPhase] = string(wfv1.NodeError)
-			woc.updated = true
-			woc.wf.Status.Message = err.Error()
-		}
-		if woc.controller.wfArchive.IsEnabled() {
-			if woc.controller.isArchivable(woc.wf) {
-				woc.log.Info("Marking workflow as pending archiving")
-				woc.wf.Labels[common.LabelKeyWorkflowArchivingStatus] = "Pending"
-			} else {
-				woc.log.Info("Doesn't match with archive label selector. Skipping Archive")
-			}
-		}
-		woc.updated = true
-		woc.controller.queuePodForCleanup(woc.wf.Namespace, woc.getAgentPodName(), deletePod)
-=======
 		}
 		woc.wf.ObjectMeta.Labels[common.LabelKeyCompleted] = "true"
 		woc.wf.Status.Conditions.UpsertCondition(wfv1.Condition{Status: metav1.ConditionTrue, Type: wfv1.ConditionTypeCompleted})
@@ -2588,7 +2462,6 @@ func (woc *wfOperationCtx) markWorkflowPhase(ctx context.Context, phase wfv1.Wor
 		if woc.hasTaskSetNodes() {
 			woc.controller.PodController.DeletePod(woc.wf.Namespace, woc.getAgentPodName())
 		}
->>>>>>> draft-3.6.5
 	}
 }
 
@@ -2824,11 +2697,7 @@ func (woc *wfOperationCtx) getPodByNode(node *wfv1.NodeStatus) (*apiv1.Pod, erro
 	}
 
 	podName := woc.getPodName(node.Name, wfutil.GetTemplateFromNode(*node))
-<<<<<<< HEAD
-	return woc.controller.getPod(woc.wf.GetNamespace(), podName)
-=======
 	return woc.controller.PodController.GetPod(woc.wf.GetNamespace(), podName)
->>>>>>> draft-3.6.5
 }
 
 func (woc *wfOperationCtx) recordNodePhaseEvent(node *wfv1.NodeStatus) {
@@ -4069,31 +3938,6 @@ func (woc *wfOperationCtx) deletePDBResource(ctx context.Context) error {
 // Check if the output of this node is referenced elsewhere in the Workflow. If so, make sure to include it during
 // execution.
 func (woc *wfOperationCtx) includeScriptOutput(nodeName, boundaryID string) (bool, error) {
-<<<<<<< HEAD
-	if boundaryID != "" {
-		if boundaryNode, err := woc.wf.Status.Nodes.Get(boundaryID); err == nil {
-			tmplCtx, err := woc.createTemplateContext(boundaryNode.GetTemplateScope())
-			if err != nil {
-				return false, err
-			}
-			_, parentTemplate, templateStored, err := tmplCtx.ResolveTemplate(boundaryNode)
-			if err != nil {
-				return false, err
-			}
-			// A new template was stored during resolution, persist it
-			if templateStored {
-				woc.updated = true
-			}
-
-			name := getStepOrDAGTaskName(nodeName)
-			return hasOutputResultRef(name, parentTemplate), nil
-		} else {
-			woc.log.Errorf("was unable to obtain node for %s", boundaryID)
-		}
-	}
-
-	return false, nil
-=======
 	if boundaryID == "" {
 		return false, nil
 	}
@@ -4109,7 +3953,6 @@ func (woc *wfOperationCtx) includeScriptOutput(nodeName, boundaryID string) (boo
 
 	name := getStepOrDAGTaskName(nodeName)
 	return hasOutputResultRef(name, parentTemplate), nil
->>>>>>> draft-3.6.5
 }
 
 func (woc *wfOperationCtx) fetchWorkflowSpec(ctx context.Context) (wfv1.WorkflowSpecHolder, error) {
@@ -4392,8 +4235,6 @@ func getChildNodeIdsRetried(node *wfv1.NodeStatus, nodes wfv1.Nodes) []string {
 	}
 	return childrenIds
 }
-<<<<<<< HEAD
-=======
 
 func (woc *wfOperationCtx) setNodeDisplayName(node *wfv1.NodeStatus, displayName string) {
 	nodeID := node.ID
@@ -4401,4 +4242,3 @@ func (woc *wfOperationCtx) setNodeDisplayName(node *wfv1.NodeStatus, displayName
 	newNode.DisplayName = displayName
 	woc.wf.Status.Nodes.Set(nodeID, *newNode)
 }
->>>>>>> draft-3.6.5

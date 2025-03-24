@@ -58,8 +58,6 @@ func TestEvalBool(t *testing.T) {
 			want:    true,
 			wantErr: false,
 		},
-<<<<<<< HEAD
-=======
 		{
 			name: "test null expression",
 			args: args{
@@ -71,7 +69,6 @@ func TestEvalBool(t *testing.T) {
 			want:    false,
 			wantErr: true,
 		},
->>>>>>> draft-3.6.5
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

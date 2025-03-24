@@ -30,15 +30,6 @@ func NewCreateCommand() *cobra.Command {
 # Create a Cluster Workflow Template with relaxed validation:
   argo cluster-template create FILE1 --strict false
 `,
-<<<<<<< HEAD
-
-		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) == 0 {
-				cmd.HelpFunc()(cmd, args)
-				os.Exit(1)
-			}
-=======
->>>>>>> draft-3.6.5
 
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

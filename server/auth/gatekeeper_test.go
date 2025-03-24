@@ -149,18 +149,6 @@ func TestServer_GetWFClient(t *testing.T) {
 		ssoIf.On("Authorize", mock.Anything, mock.Anything).Return(&types.Claims{Claims: jwt.Claims{Subject: "my-sub"}}, nil)
 		ssoIf.On("IsRBACEnabled").Return(false)
 		g, err := NewGatekeeper(Modes{SSO: true}, clients, &rest.Config{Username: "my-username"}, ssoIf, clientForAuthorization, "my-ns", "my-ns", true, resourceCache)
-<<<<<<< HEAD
-		if assert.NoError(t, err) {
-			ctx, err := g.Context(x("Bearer v2:whatever"))
-			if assert.NoError(t, err) {
-				assert.Equal(t, wfClient, GetWfClient(ctx))
-				assert.Equal(t, kubeClient, GetKubeClient(ctx))
-				if assert.NotNil(t, GetClaims(ctx)) {
-					assert.Equal(t, "my-sub", GetClaims(ctx).Subject)
-				}
-			}
-		}
-=======
 		require.NoError(t, err)
 		ctx, err := g.Context(x("Bearer v2:whatever"))
 		require.NoError(t, err)
@@ -168,7 +156,6 @@ func TestServer_GetWFClient(t *testing.T) {
 		assert.Equal(t, kubeClient, GetKubeClient(ctx))
 		require.NotNil(t, GetClaims(ctx))
 		assert.Equal(t, "my-sub", GetClaims(ctx).Subject)
->>>>>>> draft-3.6.5
 	})
 	hook := &test.Hook{}
 	log.AddHook(hook)
@@ -178,22 +165,6 @@ func TestServer_GetWFClient(t *testing.T) {
 		ssoIf.On("Authorize", mock.Anything, mock.Anything).Return(&types.Claims{Groups: []string{"my-group", "other-group"}}, nil)
 		ssoIf.On("IsRBACEnabled").Return(true)
 		g, err := NewGatekeeper(Modes{SSO: true}, clients, &rest.Config{Username: "my-username"}, ssoIf, clientForAuthorization, "my-ns", "my-ns", true, resourceCache)
-<<<<<<< HEAD
-		if assert.NoError(t, err) {
-			ctx, err := g.Context(x("Bearer v2:whatever"))
-			if assert.NoError(t, err) {
-				assert.NotEqual(t, clients, GetWfClient(ctx))
-				assert.NotEqual(t, kubeClient, GetKubeClient(ctx))
-				claims := GetClaims(ctx)
-				if assert.NotNil(t, claims) {
-					assert.Equal(t, []string{"my-group", "other-group"}, claims.Groups)
-					assert.Equal(t, "my-sa", claims.ServiceAccountName)
-					assert.Equal(t, "my-ns", claims.ServiceAccountNamespace)
-				}
-				assert.Equal(t, "my-sa", hook.LastEntry().Data["serviceAccount"])
-			}
-		}
-=======
 		require.NoError(t, err)
 		ctx, err := g.Context(x("Bearer v2:whatever"))
 		require.NoError(t, err)
@@ -205,7 +176,6 @@ func TestServer_GetWFClient(t *testing.T) {
 		assert.Equal(t, "my-sa", claims.ServiceAccountName)
 		assert.Equal(t, "my-ns", claims.ServiceAccountNamespace)
 		assert.Equal(t, "my-sa", hook.LastEntry().Data["serviceAccount"])
->>>>>>> draft-3.6.5
 	})
 	t.Run("SSO+RBAC, Namespace delegation ON, precedence=2, Delegated", func(t *testing.T) {
 		t.Setenv("SSO_DELEGATE_RBAC_TO_NAMESPACE", "true")
@@ -213,23 +183,6 @@ func TestServer_GetWFClient(t *testing.T) {
 		ssoIf.On("Authorize", mock.Anything, mock.Anything).Return(&types.Claims{Groups: []string{"my-group", "other-group"}}, nil)
 		ssoIf.On("IsRBACEnabled").Return(true)
 		g, err := NewGatekeeper(Modes{SSO: true}, clients, &rest.Config{Username: "my-username"}, ssoIf, clientForAuthorization, "my-ns", "my-ns", false, resourceCache)
-<<<<<<< HEAD
-		if assert.NoError(t, err) {
-			ctx, err := g.ContextWithRequest(x("Bearer v2:whatever"), servertypes.NamespaceHolder("user1-ns"))
-			if assert.NoError(t, err) {
-				assert.NotEqual(t, clients, GetWfClient(ctx))
-				assert.NotEqual(t, kubeClient, GetKubeClient(ctx))
-				claims := GetClaims(ctx)
-				if assert.NotNil(t, claims) {
-					assert.Equal(t, []string{"my-group", "other-group"}, claims.Groups)
-					assert.Equal(t, "user1-sa", claims.ServiceAccountName)
-					assert.Equal(t, "user1-ns", claims.ServiceAccountNamespace)
-				}
-				assert.Equal(t, "user1-sa", hook.LastEntry().Data["serviceAccount"])
-			}
-		}
-		os.Unsetenv("SSO_DELEGATE_RBAC_TO_NAMESPACE")
-=======
 		require.NoError(t, err)
 		ctx, err := g.ContextWithRequest(x("Bearer v2:whatever"), servertypes.NamespaceHolder("user1-ns"))
 		require.NoError(t, err)
@@ -241,29 +194,12 @@ func TestServer_GetWFClient(t *testing.T) {
 		assert.Equal(t, "user1-sa", claims.ServiceAccountName)
 		assert.Equal(t, "user1-ns", claims.ServiceAccountNamespace)
 		assert.Equal(t, "user1-sa", hook.LastEntry().Data["serviceAccount"])
->>>>>>> draft-3.6.5
 	})
 	t.Run("SSO+RBAC, Namespace delegation OFF, precedence=2, Not Delegated", func(t *testing.T) {
 		ssoIf := &ssomocks.Interface{}
 		ssoIf.On("Authorize", mock.Anything, mock.Anything).Return(&types.Claims{Groups: []string{"my-group", "other-group"}}, nil)
 		ssoIf.On("IsRBACEnabled").Return(true)
 		g, err := NewGatekeeper(Modes{SSO: true}, clients, &rest.Config{Username: "my-username"}, ssoIf, clientForAuthorization, "my-ns", "my-ns", true, resourceCache)
-<<<<<<< HEAD
-		if assert.NoError(t, err) {
-			ctx, err := g.ContextWithRequest(x("Bearer v2:whatever"), servertypes.NamespaceHolder("user1-ns"))
-			if assert.NoError(t, err) {
-				assert.NotEqual(t, clients, GetWfClient(ctx))
-				assert.NotEqual(t, kubeClient, GetKubeClient(ctx))
-				claims := GetClaims(ctx)
-				if assert.NotNil(t, claims) {
-					assert.Equal(t, []string{"my-group", "other-group"}, claims.Groups)
-					assert.Equal(t, "my-sa", claims.ServiceAccountName)
-					assert.Equal(t, "my-ns", claims.ServiceAccountNamespace)
-				}
-				assert.Equal(t, "my-sa", hook.LastEntry().Data["serviceAccount"])
-			}
-		}
-=======
 		require.NoError(t, err)
 		ctx, err := g.ContextWithRequest(x("Bearer v2:whatever"), servertypes.NamespaceHolder("user1-ns"))
 		require.NoError(t, err)
@@ -275,7 +211,6 @@ func TestServer_GetWFClient(t *testing.T) {
 		assert.Equal(t, "my-sa", claims.ServiceAccountName)
 		assert.Equal(t, "my-ns", claims.ServiceAccountNamespace)
 		assert.Equal(t, "my-sa", hook.LastEntry().Data["serviceAccount"])
->>>>>>> draft-3.6.5
 	})
 	t.Run("SSO+RBAC, Namespace delegation ON, precedence=0, Not delegated", func(t *testing.T) {
 		t.Setenv("SSO_DELEGATE_RBAC_TO_NAMESPACE", "true")
@@ -283,23 +218,6 @@ func TestServer_GetWFClient(t *testing.T) {
 		ssoIf.On("Authorize", mock.Anything, mock.Anything).Return(&types.Claims{Groups: []string{"my-group", "other-group"}}, nil)
 		ssoIf.On("IsRBACEnabled").Return(true)
 		g, err := NewGatekeeper(Modes{SSO: true}, clients, &rest.Config{Username: "my-username"}, ssoIf, clientForAuthorization, "my-ns", "my-ns", false, resourceCache)
-<<<<<<< HEAD
-		if assert.NoError(t, err) {
-			ctx, err := g.ContextWithRequest(x("Bearer v2:whatever"), servertypes.NamespaceHolder("user2-ns"))
-			if assert.NoError(t, err) {
-				assert.NotEqual(t, clients, GetWfClient(ctx))
-				assert.NotEqual(t, kubeClient, GetKubeClient(ctx))
-				claims := GetClaims(ctx)
-				if assert.NotNil(t, claims) {
-					assert.Equal(t, []string{"my-group", "other-group"}, claims.Groups)
-					assert.Equal(t, "my-sa", claims.ServiceAccountName)
-					assert.Equal(t, "my-ns", claims.ServiceAccountNamespace)
-				}
-				assert.Equal(t, "my-sa", hook.LastEntry().Data["serviceAccount"])
-			}
-		}
-		os.Unsetenv("SSO_DELEGATE_RBAC_TO_NAMESPACE")
-=======
 		require.NoError(t, err)
 		ctx, err := g.ContextWithRequest(x("Bearer v2:whatever"), servertypes.NamespaceHolder("user2-ns"))
 		require.NoError(t, err)
@@ -311,7 +229,6 @@ func TestServer_GetWFClient(t *testing.T) {
 		assert.Equal(t, "my-sa", claims.ServiceAccountName)
 		assert.Equal(t, "my-ns", claims.ServiceAccountNamespace)
 		assert.Equal(t, "my-sa", hook.LastEntry().Data["serviceAccount"])
->>>>>>> draft-3.6.5
 	})
 	t.Run("SSO+RBAC, Namespace delegation ON, precedence=1, Not delegated", func(t *testing.T) {
 		t.Setenv("SSO_DELEGATE_RBAC_TO_NAMESPACE", "true")
@@ -319,23 +236,6 @@ func TestServer_GetWFClient(t *testing.T) {
 		ssoIf.On("Authorize", mock.Anything, mock.Anything).Return(&types.Claims{Groups: []string{"my-group", "other-group"}}, nil)
 		ssoIf.On("IsRBACEnabled").Return(true)
 		g, err := NewGatekeeper(Modes{SSO: true}, clients, &rest.Config{Username: "my-username"}, ssoIf, clientForAuthorization, "my-ns", "my-ns", false, resourceCache)
-<<<<<<< HEAD
-		if assert.NoError(t, err) {
-			ctx, err := g.ContextWithRequest(x("Bearer v2:whatever"), servertypes.NamespaceHolder("user3-ns"))
-			if assert.NoError(t, err) {
-				assert.NotEqual(t, clients, GetWfClient(ctx))
-				assert.NotEqual(t, kubeClient, GetKubeClient(ctx))
-				claims := GetClaims(ctx)
-				if assert.NotNil(t, claims) {
-					assert.Equal(t, []string{"my-group", "other-group"}, claims.Groups)
-					assert.Equal(t, "my-sa", claims.ServiceAccountName)
-					assert.Equal(t, "my-ns", claims.ServiceAccountNamespace)
-				}
-				assert.Equal(t, "my-sa", hook.LastEntry().Data["serviceAccount"])
-			}
-		}
-		os.Unsetenv("SSO_DELEGATE_RBAC_TO_NAMESPACE")
-=======
 		require.NoError(t, err)
 		ctx, err := g.ContextWithRequest(x("Bearer v2:whatever"), servertypes.NamespaceHolder("user3-ns"))
 		require.NoError(t, err)
@@ -347,44 +247,26 @@ func TestServer_GetWFClient(t *testing.T) {
 		assert.Equal(t, "my-sa", claims.ServiceAccountName)
 		assert.Equal(t, "my-ns", claims.ServiceAccountNamespace)
 		assert.Equal(t, "my-sa", hook.LastEntry().Data["serviceAccount"])
->>>>>>> draft-3.6.5
 	})
 	t.Run("SSO+RBAC,precedence=0", func(t *testing.T) {
 		ssoIf := &ssomocks.Interface{}
 		ssoIf.On("Authorize", mock.Anything, mock.Anything).Return(&types.Claims{Groups: []string{"other-group"}}, nil)
 		ssoIf.On("IsRBACEnabled").Return(true)
 		g, err := NewGatekeeper(Modes{SSO: true}, clients, &rest.Config{Username: "my-username"}, ssoIf, clientForAuthorization, "my-ns", "my-ns", true, resourceCache)
-<<<<<<< HEAD
-		if assert.NoError(t, err) {
-			ctx, err := g.Context(x("Bearer v2:whatever"))
-			if assert.NoError(t, err) {
-				assert.Equal(t, "my-other-sa", hook.LastEntry().Data["serviceAccount"])
-				assert.Equal(t, "my-other-sa", GetClaims(ctx).ServiceAccountName)
-			}
-		}
-=======
 		require.NoError(t, err)
 		ctx, err := g.Context(x("Bearer v2:whatever"))
 		require.NoError(t, err)
 		assert.Equal(t, "my-other-sa", hook.LastEntry().Data["serviceAccount"])
 		assert.Equal(t, "my-other-sa", GetClaims(ctx).ServiceAccountName)
->>>>>>> draft-3.6.5
 	})
 	t.Run("SSO+RBAC,denied", func(t *testing.T) {
 		ssoIf := &ssomocks.Interface{}
 		ssoIf.On("Authorize", mock.Anything, mock.Anything).Return(&types.Claims{}, nil)
 		ssoIf.On("IsRBACEnabled").Return(true)
 		g, err := NewGatekeeper(Modes{SSO: true}, clients, &rest.Config{Username: "my-username"}, ssoIf, clientForAuthorization, "my-ns", "my-ns", true, resourceCache)
-<<<<<<< HEAD
-		if assert.NoError(t, err) {
-			_, err := g.Context(x("Bearer v2:whatever"))
-			assert.EqualError(t, err, "rpc error: code = PermissionDenied desc = not allowed")
-		}
-=======
 		require.NoError(t, err)
 		_, err = g.Context(x("Bearer v2:whatever"))
 		require.EqualError(t, err, "rpc error: code = PermissionDenied desc = not allowed")
->>>>>>> draft-3.6.5
 	})
 }
 

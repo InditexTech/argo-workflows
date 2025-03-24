@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-# https://argo-workflows.readthedocs.io/en/release-3.5/workflow-rbac/
-=======
 # https://argo-workflows.readthedocs.io/en/latest/workflow-rbac/
->>>>>>> draft-3.6.5
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:

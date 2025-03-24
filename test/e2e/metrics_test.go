@@ -94,8 +94,6 @@ func (s *MetricsSuite) TestDAGMetrics() {
 		})
 }
 
-<<<<<<< HEAD
-=======
 func (s *MetricsSuite) TestDeprecatedCronSchedule() {
 	s.Given().
 		CronWorkflow(`@testdata/cronworkflow-deprecated-schedule.yaml`).
@@ -281,7 +279,6 @@ func (s *MetricsSuite) TestClusterTemplateMetrics() {
 		})
 }
 
->>>>>>> draft-3.6.5
 func TestMetricsSuite(t *testing.T) {
 	suite.Run(t, new(MetricsSuite))
 }

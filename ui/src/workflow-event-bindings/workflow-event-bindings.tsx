@@ -29,11 +29,7 @@ const introductionText = (
         from a remote system.
     </>
 );
-<<<<<<< HEAD:ui/src/app/workflow-event-bindings/components/workflow-event-bindings/workflow-event-bindings.tsx
-const learnMore = <a href={'https://argo-workflows.readthedocs.io/en/release-3.5/events/'}>Learn more</a>;
-=======
 const learnMore = <a href={'https://argo-workflows.readthedocs.io/en/latest/events/'}>Learn more</a>;
->>>>>>> draft-3.6.5:ui/src/workflow-event-bindings/workflow-event-bindings.tsx
 
 export function WorkflowEventBindings({match, location, history}: RouteComponentProps<any>) {
     // boiler-plate

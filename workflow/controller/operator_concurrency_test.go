@@ -198,11 +198,7 @@ func TestSemaphoreTmplLevel(t *testing.T) {
 
 		// Check Node status
 		err, _ = woc_two.podReconciliation(ctx)
-<<<<<<< HEAD
-		assert.NoError(t, err)
-=======
 		require.NoError(t, err)
->>>>>>> draft-3.6.5
 		for _, node := range woc_two.wf.Status.Nodes {
 			assert.Equal(t, wfv1.NodePending, node.Phase)
 		}
@@ -263,11 +259,7 @@ func TestSemaphoreScriptTmplLevel(t *testing.T) {
 
 		// Check Node status
 		err, _ = woc_two.podReconciliation(ctx)
-<<<<<<< HEAD
-		assert.NoError(t, err)
-=======
 		require.NoError(t, err)
->>>>>>> draft-3.6.5
 		for _, node := range woc_two.wf.Status.Nodes {
 			assert.Equal(t, wfv1.NodePending, node.Phase)
 		}
@@ -329,11 +321,7 @@ func TestSemaphoreScriptConfigMapInDifferentNamespace(t *testing.T) {
 
 		// Check Node status
 		err, _ = woc_two.podReconciliation(ctx)
-<<<<<<< HEAD
-		assert.NoError(t, err)
-=======
 		require.NoError(t, err)
->>>>>>> draft-3.6.5
 		for _, node := range woc_two.wf.Status.Nodes {
 			assert.Equal(t, wfv1.NodePending, node.Phase)
 		}
@@ -393,11 +381,7 @@ func TestSemaphoreResourceTmplLevel(t *testing.T) {
 
 		// Check Node status
 		err, _ = woc_two.podReconciliation(ctx)
-<<<<<<< HEAD
-		assert.NoError(t, err)
-=======
 		require.NoError(t, err)
->>>>>>> draft-3.6.5
 		for _, node := range woc_two.wf.Status.Nodes {
 			assert.Equal(t, wfv1.NodePending, node.Phase)
 		}
@@ -434,11 +418,7 @@ func TestSemaphoreWithOutConfigMap(t *testing.T) {
 		require.NoError(t, err)
 		woc := newWorkflowOperationCtx(wf, controller)
 		err, _ = woc.podReconciliation(ctx)
-<<<<<<< HEAD
-		assert.NoError(t, err)
-=======
 		require.NoError(t, err)
->>>>>>> draft-3.6.5
 		for _, node := range woc.wf.Status.Nodes {
 			assert.Equal(t, wfv1.NodePending, node.Phase)
 		}

@@ -6,10 +6,7 @@ import (
 	"fmt"
 	"io"
 	"sort"
-<<<<<<< HEAD
-=======
 	"sync"
->>>>>>> draft-3.6.5
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -47,14 +44,9 @@ import (
 )
 
 const (
-<<<<<<< HEAD
-	latestAlias    = "@latest"
-	reSyncDuration = 20 * time.Minute
-=======
 	latestAlias                  = "@latest"
 	reSyncDuration               = 20 * time.Minute
 	workflowTemplateResyncPeriod = 20 * time.Minute
->>>>>>> draft-3.6.5
 )
 
 type workflowServer struct {
@@ -64,34 +56,24 @@ type workflowServer struct {
 	wfArchive             sqldb.WorkflowArchive
 	wfLister              store.WorkflowLister
 	wfReflector           *cache.Reflector
-<<<<<<< HEAD
-=======
 	wftmplStore           servertypes.WorkflowTemplateStore
 	cwftmplStore          servertypes.ClusterWorkflowTemplateStore
 	wfDefaults            *wfv1.Workflow
->>>>>>> draft-3.6.5
 }
 
 var _ workflowpkg.WorkflowServiceServer = &workflowServer{}
 
 // NewWorkflowServer returns a new WorkflowServer
-<<<<<<< HEAD
-func NewWorkflowServer(instanceIDService instanceid.Service, offloadNodeStatusRepo sqldb.OffloadNodeStatusRepo, wfArchive sqldb.WorkflowArchive, wfClientSet versioned.Interface, wfLister store.WorkflowLister, wfStore store.WorkflowStore, namespace *string) *workflowServer {
-=======
 func NewWorkflowServer(instanceIDService instanceid.Service, offloadNodeStatusRepo sqldb.OffloadNodeStatusRepo, wfArchive sqldb.WorkflowArchive, wfClientSet versioned.Interface, wfLister store.WorkflowLister, wfStore store.WorkflowStore, wftmplStore servertypes.WorkflowTemplateStore, cwftmplStore servertypes.ClusterWorkflowTemplateStore, wfDefaults *wfv1.Workflow, namespace *string) *workflowServer {
->>>>>>> draft-3.6.5
 	ws := &workflowServer{
 		instanceIDService:     instanceIDService,
 		offloadNodeStatusRepo: offloadNodeStatusRepo,
 		hydrator:              hydrator.New(offloadNodeStatusRepo),
 		wfArchive:             wfArchive,
 		wfLister:              wfLister,
-<<<<<<< HEAD
-=======
 		wftmplStore:           wftmplStore,
 		cwftmplStore:          cwftmplStore,
 		wfDefaults:            wfDefaults,
->>>>>>> draft-3.6.5
 	}
 	if wfStore != nil && namespace != nil {
 		lw := &cache.ListWatch{
@@ -193,22 +175,10 @@ func (s *workflowServer) GetWorkflow(ctx context.Context, req *workflowpkg.Workf
 	}
 	return wf, nil
 }
-<<<<<<< HEAD
-func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.WorkflowListRequest) (*wfv1.WorkflowList, error) {
-	listOption := &metav1.ListOptions{}
-	listOption = filter.CreateListOptions(ctx, req.ListOptions)
-	if req.ListOptions != nil {
-		listOption = req.ListOptions
-	}
-	s.instanceIDService.With(listOption)
-	options, err := sutils.BuildListOptions(*listOption, req.Namespace, "")
-	if err != nil {
-		return nil, err
-	}
-=======
 
 func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.WorkflowListRequest) (*wfv1.WorkflowList, error) {
 	listOption := metav1.ListOptions{}
+	listOption = filter.CreateListOptions(ctx, req.ListOptions)
 	if req.ListOptions != nil {
 		listOption = *req.ListOptions
 	}
@@ -220,7 +190,6 @@ func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.Wor
 		return nil, err
 	}
 
->>>>>>> draft-3.6.5
 	// verify if we have permission to list Workflows
 	allowed, err := auth.CanI(ctx, "list", workflow.WorkflowPlural, options.Namespace, "")
 	if err != nil {
@@ -231,11 +200,7 @@ func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.Wor
 	}
 
 	var wfs wfv1.Workflows
-<<<<<<< HEAD
-	liveWfCount, err := s.wfLister.CountWorkflows(ctx, req.Namespace, "", *listOption)
-=======
 	liveWfCount, err := s.wfLister.CountWorkflows(ctx, req.Namespace, req.NameFilter, req.CreatedAfter, req.FinishedBefore, listOption)
->>>>>>> draft-3.6.5
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
@@ -248,11 +213,7 @@ func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.Wor
 	// first fetch live workflows
 	liveWfList := &wfv1.WorkflowList{}
 	if liveWfCount > 0 && (options.Limit == 0 || options.Offset < int(liveWfCount)) {
-<<<<<<< HEAD
-		liveWfList, err = s.wfLister.ListWorkflows(ctx, req.Namespace, "", *listOption)
-=======
 		liveWfList, err = s.wfLister.ListWorkflows(ctx, req.Namespace, req.NameFilter, req.CreatedAfter, req.FinishedBefore, listOption)
->>>>>>> draft-3.6.5
 		if err != nil {
 			return nil, sutils.ToStatusError(err, codes.Internal)
 		}
@@ -551,12 +512,8 @@ func (s *workflowServer) ResubmitWorkflow(ctx context.Context, req *workflowpkg.
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
-<<<<<<< HEAD
-	created, err := util.SubmitWorkflow(ctx, wfClient.ArgoprojV1alpha1().Workflows(req.Namespace), wfClient, req.Namespace, newWF, &wfv1.SubmitOpts{})
-=======
 
 	created, err := util.SubmitWorkflow(ctx, wfClient.ArgoprojV1alpha1().Workflows(req.Namespace), wfClient, req.Namespace, newWF, s.wfDefaults, &wfv1.SubmitOpts{})
->>>>>>> draft-3.6.5
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
@@ -765,11 +722,8 @@ func (s *workflowServer) getWorkflow(ctx context.Context, wfClient versioned.Int
 	wf, origErr := wfClient.ArgoprojV1alpha1().Workflows(namespace).Get(ctx, name, options)
 	// fallback to retrieve from archived workflows
 	if wf == nil || origErr != nil {
-<<<<<<< HEAD
-		wf, err = s.wfArchive.GetWorkflow("", namespace, name)
-=======
+		//wf, err = s.wfArchive.GetWorkflow("", namespace, name)
 		allowed, err := auth.CanI(ctx, "get", workflow.WorkflowPlural, namespace, name)
->>>>>>> draft-3.6.5
 		if err != nil {
 			return nil, getWorkflowOrigErr(origErr, err)
 		}
@@ -856,11 +810,9 @@ func (s *workflowServer) SubmitWorkflow(ctx context.Context, req *workflowpkg.Wo
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.InvalidArgument)
 	}
-<<<<<<< HEAD
 	if hasPermission := filter.ForbidActionsIfNeeded(ctx, wf.Labels); !hasPermission && !isWorkflowTemplate {
 		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
-=======
 
 	// if we are doing a normal dryRun, just return the workflow un-altered
 	if req.SubmitOptions != nil && req.SubmitOptions.DryRun {
@@ -878,7 +830,6 @@ func (s *workflowServer) SubmitWorkflow(ctx context.Context, req *workflowpkg.Wo
 		return workflow, nil
 	}
 
->>>>>>> draft-3.6.5
 	wf, err = wfClient.ArgoprojV1alpha1().Workflows(req.Namespace).Create(ctx, wf, metav1.CreateOptions{})
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.InvalidArgument)

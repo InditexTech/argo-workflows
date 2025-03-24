@@ -2,21 +2,12 @@ import * as React from 'react';
 import {useEffect, useRef, useState} from 'react';
 import MonacoEditor from 'react-monaco-editor';
 
-<<<<<<< HEAD:ui/src/app/shared/components/object-editor/object-editor.tsx
-import {uiUrl} from '../../base';
-import {ScopedLocalStorage} from '../../scoped-local-storage';
-import {Button} from '../button';
-import {parse, stringify} from '../object-parser';
-import {PhaseIcon} from '../phase-icon';
-import {SuspenseMonacoEditor} from '../suspense-monaco-editor';
-=======
 import {uiUrl} from '../base';
 import {useEditableObject} from '../use-editable-object';
 import {Button} from './button';
 import type {Lang} from './object-parser';
 import {PhaseIcon} from './phase-icon';
 import {SuspenseMonacoEditor} from './suspense-monaco-editor';
->>>>>>> draft-3.6.5:ui/src/shared/components/object-editor.tsx
 
 interface Props<T> {
     type?: string;
@@ -29,34 +20,14 @@ interface Props<T> {
 
 export function ObjectEditor<T>({type, value, text, lang, onChange, onLangChange}: Props<T>) {
     const [error, setError] = useState<Error>();
-<<<<<<< HEAD:ui/src/app/shared/components/object-editor/object-editor.tsx
-    const [lang, setLang] = useState<string>(storage.getItem('lang', defaultLang));
-    const [text, setText] = useState<string>(stringify(value, lang));
-=======
->>>>>>> draft-3.6.5:ui/src/shared/components/object-editor.tsx
     const editor = useRef<MonacoEditor>(null);
 
     useEffect(() => {
-<<<<<<< HEAD:ui/src/app/shared/components/object-editor/object-editor.tsx
-        if (!editor.current) {
-            return;
-        }
-
-        // we ONLY want to change the text, if the normalized version has changed, this prevents white-space changes
-        // from resulting in a significant change
-        const editorText = stringify(parse(editor.current.editor.getValue()), lang);
-        const editorLang = editor.current.editor.getValue().startsWith('{') ? 'json' : 'yaml';
-        if (text !== editorText || lang !== editorLang) {
-            editor.current.editor.setValue(stringify(parse(text), lang));
-        }
-    }, [editor, text, lang]);
-=======
         if (!editor.current || text === editor.current.editor.getValue()) {
             return;
         }
         editor.current.editor.setValue(text);
     }, [editor, text]);
->>>>>>> draft-3.6.5:ui/src/shared/components/object-editor.tsx
 
     useEffect(() => {
         if (!type || lang !== 'json') {
@@ -162,11 +133,7 @@ export function ObjectEditor<T>({type, value, text, lang, onChange, onLangChange
                 <div>
                     <i className='fa fa-info-circle' />{' '}
                     {lang === 'json' ? <>Full auto-completion enabled.</> : <>Basic completion for YAML. Switch to JSON for full auto-completion.</>}{' '}
-<<<<<<< HEAD:ui/src/app/shared/components/object-editor/object-editor.tsx
-                    <a href='https://argo-workflows.readthedocs.io/en/release-3.5/ide-setup/'>Learn how to get auto-completion in your IDE.</a>
-=======
                     <a href='https://argo-workflows.readthedocs.io/en/latest/ide-setup/'>Learn how to get auto-completion in your IDE.</a>
->>>>>>> draft-3.6.5:ui/src/shared/components/object-editor.tsx
                 </div>
             )}
         </>

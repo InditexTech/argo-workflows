@@ -783,13 +783,10 @@ func isDescendantNodeSucceeded(wf *wfv1.Workflow, node wfv1.NodeStatus, nodeIDsT
 		childStatus, err := wf.Status.Nodes.Get(child)
 		if err != nil {
 			log.Panicf("Coudn't obtain child for %s, panicking", child)
-<<<<<<< HEAD
-=======
 		}
 		_, present := nodeIDsToReset[child]
 		if (!present && childStatus.Phase == wfv1.NodeSucceeded) || isDescendantNodeSucceeded(wf, *childStatus, nodeIDsToReset) {
 			return true
->>>>>>> draft-3.6.5
 		}
 	}
 	return false
@@ -820,64 +817,7 @@ func deletePodNodeDuringRetryWorkflow(wf *wfv1.Workflow, node wfv1.NodeStatus, d
 	return deletedPods, podsToDelete
 }
 
-<<<<<<< HEAD
-func containsNode(nodes []string, node string) bool {
-	for _, e := range nodes {
-		if e == node {
-			return true
-		}
-	}
-	return false
-}
-
-func isGroupNode(node wfv1.NodeStatus) bool {
-	return node.Type == wfv1.NodeTypeDAG || node.Type == wfv1.NodeTypeTaskGroup || node.Type == wfv1.NodeTypeStepGroup || node.Type == wfv1.NodeTypeSteps
-}
-
-func resetConnectedParentGroupNodes(oldWF *wfv1.Workflow, newWF *wfv1.Workflow, currentNode wfv1.NodeStatus, resetParentGroupNodes []string) (*wfv1.Workflow, []string) {
-	currentNodeID := currentNode.ID
-	for {
-		currentNode, err := oldWF.Status.Nodes.Get(currentNodeID)
-		if err != nil {
-			log.Panicf("dying due to inability to obtain node for %s, panicking", currentNodeID)
-		}
-		if !containsNode(resetParentGroupNodes, currentNodeID) {
-			newWF.Status.Nodes.Set(currentNodeID, resetNode(*currentNode.DeepCopy()))
-			resetParentGroupNodes = append(resetParentGroupNodes, currentNodeID)
-			log.Debugf("Reset connected group node %s", currentNode.Name)
-		}
-		if currentNode.BoundaryID != "" && currentNode.BoundaryID != oldWF.ObjectMeta.Name {
-			parentNode, err := oldWF.Status.Nodes.Get(currentNode.BoundaryID)
-			if err != nil {
-				log.Panicf("unable to obtain node for %s, panicking", currentNode.BoundaryID)
-			}
-			if isGroupNode(*parentNode) {
-				currentNodeID = parentNode.ID
-			} else {
-				break
-			}
-		} else {
-			break
-		}
-	}
-	return newWF, resetParentGroupNodes
-}
-
-// FormulateRetryWorkflow formulates a previous workflow to be retried, deleting all failed steps as well as the onExit node (and children)
-func FormulateRetryWorkflow(ctx context.Context, wf *wfv1.Workflow, restartSuccessful bool, nodeFieldSelector string, parameters []string) (*wfv1.Workflow, []string, error) {
-	switch wf.Status.Phase {
-	case wfv1.WorkflowFailed, wfv1.WorkflowError:
-	case wfv1.WorkflowSucceeded:
-		if !(restartSuccessful && len(nodeFieldSelector) > 0) {
-			return nil, nil, errors.Errorf(errors.CodeBadRequest, "To retry a succeeded workflow, set the options restartSuccessful and nodeFieldSelector")
-		}
-	default:
-		return nil, nil, errors.Errorf(errors.CodeBadRequest, "Cannot retry a workflow in phase %s", wf.Status.Phase)
-	}
-
-=======
 func createNewRetryWorkflow(wf *wfv1.Workflow, parameters []string) (*wfv1.Workflow, error) {
->>>>>>> draft-3.6.5
 	newWF := wf.DeepCopy()
 
 	// Delete/reset fields which indicate workflow completed
@@ -1308,104 +1248,6 @@ func FormulateRetryWorkflow(ctx context.Context, wf *wfv1.Workflow, restartSucce
 		return nil, nil, err
 	}
 
-<<<<<<< HEAD
-	// Iterate the previous nodes. If it was successful Pod carry it forward
-	deletedNodes := make(map[string]bool)
-	deletedPods := make(map[string]bool)
-	var podsToDelete []string
-	var resetParentGroupNodes []string
-	for _, node := range wf.Status.Nodes {
-		doForceResetNode := false
-		if _, present := nodeIDsToReset[node.ID]; present {
-			// if we are resetting this node then don't carry it across regardless of its phase
-			doForceResetNode = true
-		}
-		switch node.Phase {
-		case wfv1.NodeSucceeded, wfv1.NodeSkipped:
-			if strings.HasPrefix(node.Name, onExitNodeName) || doForceResetNode {
-				log.Debugf("Force reset for node: %s", node.Name)
-				// Reset parent node if this node is a step/task group or DAG.
-				if isGroupNode(node) && node.BoundaryID != "" {
-					if node.ID != wf.ObjectMeta.Name { // Skip root node
-						descendantNodeIDs := getDescendantNodeIDs(wf, node)
-						var nodeGroupNeedsReset bool
-						// Only reset DAG that's in the same branch as the nodeIDsToReset
-						for _, child := range descendantNodeIDs {
-							childNode, err := wf.Status.Nodes.Get(child)
-							if err != nil {
-								log.Warnf("was unable to obtain node for %s due to %s", child, err)
-								return nil, nil, fmt.Errorf("Was unable to obtain node for %s due to %s", child, err)
-							}
-							if _, present := nodeIDsToReset[child]; present {
-								log.Debugf("Group node %s needs to reset since its child %s is in the force reset path", node.Name, childNode.Name)
-								nodeGroupNeedsReset = true
-								break
-							}
-						}
-						if nodeGroupNeedsReset {
-							newWF, resetParentGroupNodes = resetConnectedParentGroupNodes(wf, newWF, node, resetParentGroupNodes)
-						}
-					}
-				} else {
-					if node.Type == wfv1.NodeTypePod || node.Type == wfv1.NodeTypeSuspend || node.Type == wfv1.NodeTypeSkipped {
-						newWF, resetParentGroupNodes = resetConnectedParentGroupNodes(wf, newWF, node, resetParentGroupNodes)
-						// Only remove the descendants of a suspended node but not the suspended node itself. The descendants
-						// of a suspended node need to be removed since the conditions should be re-evaluated based on
-						// the modified supplied parameter values.
-						if node.Type != wfv1.NodeTypeSuspend {
-							deletedNodes[node.ID] = true
-							deletedPods, podsToDelete = deletePodNodeDuringRetryWorkflow(wf, node, deletedPods, podsToDelete)
-							log.Debugf("Deleted pod node: %s", node.Name)
-						}
-
-						descendantNodeIDs := getDescendantNodeIDs(wf, node)
-						for _, descendantNodeID := range descendantNodeIDs {
-							deletedNodes[descendantNodeID] = true
-							descendantNode, err := wf.Status.Nodes.Get(descendantNodeID)
-							if err != nil {
-								log.Warnf("Was unable to obtain node for %s due to %s", descendantNodeID, err)
-								return nil, nil, fmt.Errorf("Was unable to obtain node for %s due to %s", descendantNodeID, err)
-							}
-							if descendantNode.Type == wfv1.NodeTypePod {
-								newWF, resetParentGroupNodes = resetConnectedParentGroupNodes(wf, newWF, node, resetParentGroupNodes)
-								deletedPods, podsToDelete = deletePodNodeDuringRetryWorkflow(wf, *descendantNode, deletedPods, podsToDelete)
-								log.Debugf("Deleted pod node %s since it belongs to node %s", descendantNode.Name, node.Name)
-							}
-						}
-					} else {
-						log.Debugf("Reset non-pod/suspend/skipped node %s", node.Name)
-						newNode := node.DeepCopy()
-						newWF.Status.Nodes.Set(newNode.ID, resetNode(*newNode))
-					}
-				}
-			} else {
-				if !containsNode(resetParentGroupNodes, node.ID) {
-					log.Debugf("Node %s remains as is", node.Name)
-					newWF.Status.Nodes.Set(node.ID, node)
-				}
-			}
-		case wfv1.NodeError, wfv1.NodeFailed, wfv1.NodeOmitted:
-			if isGroupNode(node) {
-				newNode := node.DeepCopy()
-				newWF.Status.Nodes.Set(newNode.ID, resetNode(*newNode))
-				log.Debugf("Reset %s node %s since it's a group node", node.Name, string(node.Phase))
-				continue
-			} else {
-				if node.Type != wfv1.NodeTypeRetry && isDescendantNodeSucceeded(wf, node, nodeIDsToReset) {
-					log.Debugf("Node %s remains as is since it has succeed child nodes.", node.Name)
-					newWF.Status.Nodes.Set(node.ID, node)
-					continue
-				}
-				log.Debugf("Deleted %s node %s since it's not a group node", node.Name, string(node.Phase))
-				deletedPods, podsToDelete = deletePodNodeDuringRetryWorkflow(wf, node, deletedPods, podsToDelete)
-				log.Debugf("Deleted pod node: %s", node.Name)
-				deletedNodes[node.ID] = true
-			}
-			// do not add this status to the node. pretend as if this node never existed.
-		default:
-			// Do not allow retry of workflows with pods in Running/Pending phase
-			return nil, nil, errors.InternalErrorf("Workflow cannot be retried with node %s in %s phase", node.Name, node.Phase)
-=======
 	deleteNodesMap, err := getNodeIDsToReset(restartSuccessful, nodeFieldSelector, wf.Status.Nodes)
 	if err != nil {
 		return nil, nil, err
@@ -1415,7 +1257,6 @@ func FormulateRetryWorkflow(ctx context.Context, wf *wfv1.Workflow, restartSucce
 	for nodeID, node := range wf.Status.Nodes {
 		if node.Phase.FailedOrError() && shouldRetryFailedType(node.Type) && !isDescendantNodeSucceeded(wf, node, deleteNodesMap) {
 			failed[nodeID] = true
->>>>>>> draft-3.6.5
 		}
 	}
 	for failedNode := range failed {

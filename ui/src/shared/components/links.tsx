@@ -1,12 +1,8 @@
 import {ObjectMeta} from 'argo-ui/src/models/kubernetes';
 import {useEffect, useState} from 'react';
 import * as React from 'react';
-<<<<<<< HEAD:ui/src/app/shared/components/links.tsx
-import {Link, Workflow} from '../../../models';
-=======
 
 import {Link, Workflow} from '../models';
->>>>>>> draft-3.6.5:ui/src/shared/components/links.tsx
 import {services} from '../services';
 import {Button} from './button';
 

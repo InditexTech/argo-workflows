@@ -136,32 +136,20 @@ func TestPrintWorkflowCostOptimizationNudges(t *testing.T) {
 		require.NoError(t, PrintWorkflows(completedWorkflows, &b, PrintOpts{}))
 		assert.Contains(t, b.String(), "\nYou have at least 101 completed workflows. "+
 			"Reducing the total number of workflows will reduce your costs."+
-<<<<<<< HEAD
-			"\nLearn more at https://argo-workflows.readthedocs.io/en/release-3.5/cost-optimisation/\n")
-=======
 			"\nLearn more at https://argo-workflows.readthedocs.io/en/latest/cost-optimisation/\n")
->>>>>>> draft-3.6.5
 	})
 	t.Run("CostOptimizationOnIncompleteWorkflows", func(t *testing.T) {
 		var b bytes.Buffer
 		require.NoError(t, PrintWorkflows(incompleteWorkflows, &b, PrintOpts{}))
 		assert.Contains(t, b.String(), "\nYou have at least 101 incomplete workflows. "+
 			"Reducing the total number of workflows will reduce your costs."+
-<<<<<<< HEAD
-			"\nLearn more at https://argo-workflows.readthedocs.io/en/release-3.5/cost-optimisation/\n")
-=======
 			"\nLearn more at https://argo-workflows.readthedocs.io/en/latest/cost-optimisation/\n")
->>>>>>> draft-3.6.5
 	})
 	t.Run("CostOptimizationOnCompletedAndIncompleteWorkflows", func(t *testing.T) {
 		var b bytes.Buffer
 		require.NoError(t, PrintWorkflows(completedAndIncompleteWorkflows, &b, PrintOpts{}))
 		assert.Contains(t, b.String(), "\nYou have at least 101 incomplete and 101 completed workflows. "+
 			"Reducing the total number of workflows will reduce your costs."+
-<<<<<<< HEAD
-			"\nLearn more at https://argo-workflows.readthedocs.io/en/release-3.5/cost-optimisation/\n")
-=======
 			"\nLearn more at https://argo-workflows.readthedocs.io/en/latest/cost-optimisation/\n")
->>>>>>> draft-3.6.5
 	})
 }

@@ -630,11 +630,7 @@ func TestGlobalParam(t *testing.T) {
 	require.NoError(t, err)
 
 	err = validate(unsuppliedArgValue)
-<<<<<<< HEAD
-	assert.EqualError(t, err, "spec.arguments.missing.value or spec.arguments.missing.valueFrom is required")
-=======
 	require.EqualError(t, err, "spec.arguments.missing.value or spec.arguments.missing.valueFrom is required")
->>>>>>> draft-3.6.5
 }
 
 var invalidTemplateNames = `
@@ -1257,16 +1253,9 @@ spec:
 
 func TestInvalidArgumentNoValue(t *testing.T) {
 	err := validate(invalidArgumentNoValue)
-<<<<<<< HEAD
-	if assert.NotNil(t, err) {
-		assert.Contains(t, err.Error(), ".value or ")
-		assert.Contains(t, err.Error(), ".valueFrom is required")
-	}
-=======
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), ".value or ")
 	assert.Contains(t, err.Error(), ".valueFrom is required")
->>>>>>> draft-3.6.5
 }
 
 var validWithItems = `
@@ -2734,11 +2723,7 @@ func TestWorkflowTemplateWithEnumValueWithoutValue(t *testing.T) {
 	err = validateWorkflowTemplate(workflowTeamplateWithEnumValuesWithoutValue, ValidateOpts{Lint: true})
 	require.NoError(t, err)
 	err = validateWorkflowTemplate(workflowTeamplateWithEnumValuesWithoutValue, ValidateOpts{Submit: true})
-<<<<<<< HEAD
-	assert.EqualError(t, err, "spec.arguments.message.value or spec.arguments.message.valueFrom is required")
-=======
 	require.EqualError(t, err, "spec.arguments.message.value or spec.arguments.message.valueFrom is required")
->>>>>>> draft-3.6.5
 }
 
 var resourceManifestWithExpressions = `

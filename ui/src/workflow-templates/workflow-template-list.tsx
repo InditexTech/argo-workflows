@@ -27,13 +27,9 @@ import {WorkflowTemplateCreator} from './workflow-template-creator';
 import {WorkflowTemplateFilters} from './workflow-template-filters';
 import {WorkflowTemplateRow} from './workflow-template-row';
 
-<<<<<<< HEAD:ui/src/app/workflow-templates/components/workflow-template-list/workflow-template-list.tsx
-const learnMore = <a href='https://argo-workflows.readthedocs.io/en/release-3.5/workflow-templates/'>Learn more</a>;
-=======
 import './workflow-template-list.scss';
 
 const learnMore = <a href='https://argo-workflows.readthedocs.io/en/latest/workflow-templates/'>Learn more</a>;
->>>>>>> draft-3.6.5:ui/src/workflow-templates/workflow-template-list.tsx
 
 export function WorkflowTemplateList({match, location, history}: RouteComponentProps<any>) {
     // boiler-plate

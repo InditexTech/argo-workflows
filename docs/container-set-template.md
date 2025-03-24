@@ -2,12 +2,7 @@
 
 > v3.1 and after
 
-<<<<<<< HEAD
-A container set template is similar to a normal container or script template, but allows you to specify multiple
-containers to run within a single pod.
-=======
 A ContainerSet template is similar to a normal container template, but it allows you to run multiple containers within a single Pod.
->>>>>>> draft-3.6.5
 
 Since multiple containers run within a single Pod, they schedule on the same host.
 You can use cheap and fast `emptyDir` volumes instead of PersistentVolumeClaims (PVCs) to share data between steps.
@@ -76,13 +71,7 @@ Include a container named `main` in all ContainerSet templates that have artifac
 If you want to use base-layer artifacts, ensure `main` is the last to finish, making it the root node in the graph.
 This may not always be practical.
 
-<<<<<<< HEAD
-That may not be practical.
-
-Instead, have a workspace volume and make sure all artifacts paths are on that volume.
-=======
 Instead, use a workspace volume and ensure all artifact paths are on that volume.
->>>>>>> draft-3.6.5
 
 ## ⚠️ Resource Requests
 
@@ -132,24 +121,13 @@ The total is 3000 CPU, which is enough for `b + c`.
 In this case, `a` only has small requests, but the ContainerSet uses the total of all requests. So it's as if you're using all that GPU for 10h. This will be expensive.
 This is a good example of when using a ContainerSet template would not be efficient.
 
-<<<<<<< HEAD
-Solution: do not use container set when you have lopsided requests.
-
-=======
->>>>>>> draft-3.6.5
 ## Inner `retryStrategy` usage
 
 > v3.3 and after
 
-<<<<<<< HEAD
-You can set an inner `retryStrategy` to apply to all containers of a container set, including the `duration` between each retry and the total number of `retries`.
-
-See an example below:
-=======
 Set an inner `retryStrategy` to apply to all containers of a container set, including the `duration` between each retry and the total number of `retries`.
 
 See the example below:
->>>>>>> draft-3.6.5
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -158,11 +136,7 @@ metadata:
   name: containerset-with-retrystrategy
   annotations:
     workflows.argoproj.io/description: |
-<<<<<<< HEAD
-      This workflow creates a container set with a retryStrategy.
-=======
       This workflow creates a ContainerSet with a retryStrategy.
->>>>>>> draft-3.6.5
 spec:
   entrypoint: containerset-retrystrategy-example
   templates:
@@ -191,21 +165,12 @@ spec:
 
 <!-- markdownlint-disable MD046 -- allow indentation within the admonition -->
 
-<<<<<<< HEAD
-!!! Note "Template-level `retryStrategy` vs Container Set `retryStrategy`"
-    `containerSet.retryStrategy` works differently from [template-level retries](retries.md):
-
-    1. Your `command` will be re-ran by the Executor inside the same container if it fails.
-
-        - As no new containers are created, the nodes in the UI remain the same, and the retried logs are appended to original container's logs. For example, your container logs may look like:
-=======
 !!! Note "Template-level `retryStrategy` vs ContainerSet `retryStrategy`"
     `containerSet.retryStrategy` works differently from [template-level retries](retries.md):
 
     1. The Executor re-runs your `command` inside the same container if it fails.
 
         - Since no new containers are created, the nodes in the UI remain the same, and the retried logs are appended to the original container's logs. For example, your container logs may look like:
->>>>>>> draft-3.6.5
           ```text
           time="2024-03-29T06:40:25 UTC" level=info msg="capturing logs" argo=true
           intentional failure
@@ -220,14 +185,8 @@ spec:
           Error: exit status 1
           ```
 
-<<<<<<< HEAD
-    1. If a container's `command` cannot be located, it will not be retried.
-
-        - As it will fail each time, the retry logic is short-circuited.
-=======
     2. If the Executor cannot locate a container's `command`, it will not retry.
 
         - Since it will fail each time, the retry logic is short-circuited.
->>>>>>> draft-3.6.5
 
 <!-- markdownlint-enable MD046 -->

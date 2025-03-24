@@ -98,10 +98,7 @@ export function WorkflowDetails({history, location, match}: RouteComponentProps<
     const namespace = match.params.namespace;
     const name = match.params.name;
 
-<<<<<<< HEAD:ui/src/app/workflows/components/workflow-details/workflow-details.tsx
-=======
     const isFirstRender = useRef(true);
->>>>>>> draft-3.6.5:ui/src/workflows/components/workflow-details/workflow-details.tsx
     const [tab, setTab] = useState(queryParams.get('tab') || 'workflow');
     const [uid, setUid] = useState(queryParams.get('uid') || '');
     const [nodeId, setNodeId] = useState(queryParams.get('nodeId'));
@@ -372,10 +369,6 @@ export function WorkflowDetails({history, location, match}: RouteComponentProps<
             e => {
                 if (e.type === 'DELETED') {
                     setUid(e.object.metadata.uid);
-<<<<<<< HEAD:ui/src/app/workflows/components/workflow-details/workflow-details.tsx
-                    setError(new Error('Workflow gone'));
-=======
->>>>>>> draft-3.6.5:ui/src/workflows/components/workflow-details/workflow-details.tsx
                     if (e.object.metadata.labels?.[archivalStatus]) {
                         e.object.metadata.labels[archivalStatus] = 'Persisted';
                     } else {
@@ -576,10 +569,7 @@ export function WorkflowDetails({history, location, match}: RouteComponentProps<
                                         onShowContainerLogs={(x, container) => setSidePanel(`logs:${x}:${container}`)}
                                         onShowEvents={() => setSidePanel(`events:${nodeId}`)}
                                         onShowYaml={() => setSidePanel(`yaml:${nodeId}`)}
-<<<<<<< HEAD:ui/src/app/workflows/components/workflow-details/workflow-details.tsx
-=======
                                         onRetryNode={() => setShowRetryNode(true)}
->>>>>>> draft-3.6.5:ui/src/workflows/components/workflow-details/workflow-details.tsx
                                         archived={archived}
                                         onResume={() => renderResumePopup()}
                                     />

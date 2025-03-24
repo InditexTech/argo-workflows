@@ -1128,13 +1128,7 @@ spec:
 				}
 			}
 			assert.True(t, memoHit)
-<<<<<<< HEAD
-
 		})
-
-=======
-		})
->>>>>>> draft-3.6.5
 }
 
 func (s *FunctionalSuite) TestDAGLevelMemoize() {

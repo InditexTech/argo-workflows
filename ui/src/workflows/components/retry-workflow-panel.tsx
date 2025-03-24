@@ -1,13 +1,6 @@
-<<<<<<< HEAD:ui/src/app/workflows/components/retry-workflow-panel.tsx
-import {Checkbox} from 'argo-ui';
-import React, {useContext, useState} from 'react';
-import {Parameter, RetryOpts, Workflow} from '../../../models';
-import {Context} from '../../shared/context';
-=======
 import {Checkbox} from 'argo-ui/src/components/checkbox';
 import React, {useContext, useState} from 'react';
 
->>>>>>> draft-3.6.5:ui/src/workflows/components/retry-workflow-panel.tsx
 import {uiUrl} from '../../shared/base';
 import {ErrorNotice} from '../../shared/components/error-notice';
 import {getValueFromParameter, ParametersInput} from '../../shared/components/parameters-input';
@@ -95,11 +88,7 @@ export function RetryWorkflowPanel(props: Props) {
                 {restartSuccessful && (
                     <div key='node-field-selector' style={{marginBottom: 25}}>
                         <label>
-<<<<<<< HEAD:ui/src/app/workflows/components/retry-workflow-panel.tsx
-                            Node Field Selector to restart nodes. <a href='https://argo-workflows.readthedocs.io/en/release-3.5/node-field-selector/'>See document</a>.
-=======
                             Node Field Selector to restart nodes. <a href='https://argo-workflows.readthedocs.io/en/latest/node-field-selector/'>See document</a>.
->>>>>>> draft-3.6.5:ui/src/workflows/components/retry-workflow-panel.tsx
                         </label>
 
                         <div className='columns small-9'>

@@ -1,11 +1,6 @@
 import {Autocomplete} from 'argo-ui/src/components/autocomplete/autocomplete';
 import * as React from 'react';
 import {useContext, useEffect, useState} from 'react';
-<<<<<<< HEAD:ui/src/app/workflows/components/workflow-logs-viewer/workflow-logs-viewer.tsx
-
-import {Autocomplete} from 'argo-ui';
-=======
->>>>>>> draft-3.6.5:ui/src/workflows/components/workflow-logs-viewer/workflow-logs-viewer.tsx
 import {Observable} from 'rxjs';
 import {map, publishReplay, refCount} from 'rxjs/operators';
 
@@ -71,11 +66,7 @@ function parseAndTransform(formattedString: string, timeZone: string) {
         // hack to get a local ISO time: en-CA locale is very close to ISO (https://en.wikipedia.org/wiki/Date_and_time_notation_in_Canada)
         const newTime = new Date(maybeTime.quoted).toLocaleString('en-CA', {timeZone, hour12: false}).replace(', ', 'T');
         const shortTz = new Date().toLocaleTimeString('en-US', {timeZone, timeZoneName: 'short'}).split(' ')[2];
-<<<<<<< HEAD:ui/src/app/workflows/components/workflow-logs-viewer/workflow-logs-viewer.tsx
-        const newFormattedTime = `time=\"${newTime} ${shortTz}\"`;
-=======
         const newFormattedTime = `time="${newTime} ${shortTz}"`;
->>>>>>> draft-3.6.5:ui/src/workflows/components/workflow-logs-viewer/workflow-logs-viewer.tsx
         const newFormattedString = formattedString.replace(maybeTime.fullstring, newFormattedTime);
         return newFormattedString;
     } catch {
@@ -105,10 +96,6 @@ export function WorkflowLogsViewer({workflow, initialNodeId, initialPodName, con
     const [uiTimezone, setUITimezone] = useState<string>(DEFAULT_TZ);
     // timezone used for timezone formatting
     const [timezone, setTimezone] = useLocalStorage<string>(TZ_LOCALSTORAGE_KEY, DEFAULT_TZ);
-<<<<<<< HEAD:ui/src/app/workflows/components/workflow-logs-viewer/workflow-logs-viewer.tsx
-
-=======
->>>>>>> draft-3.6.5:ui/src/workflows/components/workflow-logs-viewer/workflow-logs-viewer.tsx
     // update the UI everytime the timezone changes
     useEffect(() => {
         setUITimezone(timezone);
@@ -166,19 +153,6 @@ export function WorkflowLogsViewer({workflow, initialNodeId, initialPodName, con
         return () => subscription.unsubscribe();
     }, [workflow.metadata.namespace, workflow.metadata.name, podName, selectedContainer, grep, archived, selectedJsonFields, timezone]);
 
-<<<<<<< HEAD:ui/src/app/workflows/components/workflow-logs-viewer/workflow-logs-viewer.tsx
-    // filter allows us to introduce a short delay, before we actually change grep
-    const [logFilter, setLogFilter] = useState('');
-    useEffect(() => {
-        const x = setTimeout(() => setGrep(logFilter), 1000);
-        return () => clearTimeout(x);
-    }, [logFilter]);
-
-    const annotations = workflow.metadata.annotations || {};
-    const podNameVersion = annotations[ANNOTATION_KEY_POD_NAME_VERSION];
-
-=======
->>>>>>> draft-3.6.5:ui/src/workflows/components/workflow-logs-viewer/workflow-logs-viewer.tsx
     // map pod names to corresponding node IDs
     const podNamesToNodeIDs = new Map<string, string>();
     const podNames = [{value: '', label: 'All'}].concat(
@@ -315,11 +289,7 @@ export function WorkflowLogsViewer({workflow, initialNodeId, initialPodName, con
                 )}
                 {execSpec(workflow).podGC && (
                     <>
-<<<<<<< HEAD:ui/src/app/workflows/components/workflow-logs-viewer/workflow-logs-viewer.tsx
-                        <WarningIcon /> Your pod GC settings will delete pods and their logs{' '}
-=======
                         <WarningIcon /> Your pod GC settings will delete pods{' '}
->>>>>>> draft-3.6.5:ui/src/workflows/components/workflow-logs-viewer/workflow-logs-viewer.tsx
                         {execSpec(workflow).podGC.deleteDelayDuration ? `after ${execSpec(workflow).podGC.deleteDelayDuration}` : 'immediately'} on completion.
                     </>
                 )}{' '}

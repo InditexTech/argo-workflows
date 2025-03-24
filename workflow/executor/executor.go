@@ -306,16 +306,6 @@ func (we *WorkflowExecutor) SaveArtifacts(ctx context.Context) (wfv1.Artifacts, 
 		return artifacts, argoerrs.InternalWrapError(err)
 	}
 
-<<<<<<< HEAD
-	for _, art := range we.Template.Outputs.Artifacts {
-		err := we.saveArtifact(ctx, common.MainContainerName, &art)
-		if err != nil {
-			return artifacts, err
-		}
-		artifacts = append(artifacts, art)
-	}
-	return artifacts, nil
-=======
 	aggregateError := ""
 	for _, art := range we.Template.Outputs.Artifacts {
 		saved, err := we.saveArtifact(ctx, common.MainContainerName, &art)
@@ -333,7 +323,6 @@ func (we *WorkflowExecutor) SaveArtifacts(ctx context.Context) (wfv1.Artifacts, 
 		return artifacts, errors.New(aggregateError)
 	}
 
->>>>>>> draft-3.6.5
 }
 
 // save artifact
@@ -825,13 +814,7 @@ func (we *WorkflowExecutor) FinalizeOutput(ctx context.Context) {
 			common.LabelKeyReportOutputsCompleted: "true",
 		})
 		if apierr.IsForbidden(err) || apierr.IsNotFound(err) {
-<<<<<<< HEAD
-			log.WithError(err).Warn("failed to patch task result, falling back to legacy/insecure pod patch, see https://argo-workflows.readthedocs.io/en/release-3.5/workflow-rbac/")
-			// Only added as a backup in case LabelKeyReportOutputsCompleted could not be set
-			err = we.AddAnnotation(ctx, common.AnnotationKeyReportOutputsCompleted, "true")
-=======
 			log.WithError(err).Warn("failed to patch task result, see https://argo-workflows.readthedocs.io/en/latest/workflow-rbac/")
->>>>>>> draft-3.6.5
 		}
 		return err
 	})
@@ -850,13 +833,7 @@ func (we *WorkflowExecutor) InitializeOutput(ctx context.Context) {
 	}, errorsutil.IsTransientErr, func() error {
 		err := we.upsertTaskResult(ctx, wfv1.NodeResult{})
 		if apierr.IsForbidden(err) {
-<<<<<<< HEAD
-			log.WithError(err).Warn("failed to patch task result, falling back to legacy/insecure pod patch, see https://argo-workflows.readthedocs.io/en/release-3.5/workflow-rbac/")
-			// Only added as a backup in case LabelKeyReportOutputsCompleted could not be set
-			err = we.AddAnnotation(ctx, common.AnnotationKeyReportOutputsCompleted, "false")
-=======
 			log.WithError(err).Warn("failed to patch task result, see https://argo-workflows.readthedocs.io/en/latest/workflow-rbac/")
->>>>>>> draft-3.6.5
 		}
 		return err
 	})
@@ -892,24 +869,7 @@ func (we *WorkflowExecutor) reportResult(ctx context.Context, result wfv1.NodeRe
 	}, errorsutil.IsTransientErr, func() error {
 		err := we.upsertTaskResult(ctx, result)
 		if apierr.IsForbidden(err) {
-<<<<<<< HEAD
-			log.WithError(err).Warn("failed to patch task result, falling back to legacy/insecure pod patch, see https://argo-workflows.readthedocs.io/en/release-3.5/workflow-rbac/")
-			if result.Outputs.HasOutputs() {
-				value, err := json.Marshal(result.Outputs)
-				if err != nil {
-					return err
-				}
-
-				return we.AddAnnotation(ctx, common.AnnotationKeyOutputs, string(value))
-			}
-			if result.Progress.IsValid() { // this may result in occasionally two patches
-				return we.AddAnnotation(ctx, common.AnnotationKeyProgress, string(result.Progress))
-			}
-			// Only added as a backup in case LabelKeyReportOutputsCompleted could not be set
-			return we.AddAnnotation(ctx, common.AnnotationKeyReportOutputsCompleted, "false")
-=======
 			log.WithError(err).Warn("failed to patch task result, see https://argo-workflows.readthedocs.io/en/latest/workflow-rbac/")
->>>>>>> draft-3.6.5
 		}
 		return err
 	})

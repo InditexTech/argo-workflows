@@ -24,13 +24,9 @@ import {CronWorkflowCreator} from './cron-workflow-creator';
 import {CronWorkflowFilters} from './cron-workflow-filters';
 import {CronWorkflowRow} from './cron-workflow-row';
 
-<<<<<<< HEAD:ui/src/app/cron-workflows/components/cron-workflow-list/cron-workflow-list.tsx
-const learnMore = <a href='https://argo-workflows.readthedocs.io/en/release-3.5/cron-workflows/'>Learn more</a>;
-=======
 import './cron-workflow-list.scss';
 
 const learnMore = <a href='https://argo-workflows.readthedocs.io/en/latest/cron-workflows/'>Learn more</a>;
->>>>>>> draft-3.6.5:ui/src/cron-workflows/cron-workflow-list.tsx
 
 export function CronWorkflowList({match, location, history}: RouteComponentProps<any>) {
     const queryParams = new URLSearchParams(location.search);

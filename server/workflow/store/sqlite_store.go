@@ -14,16 +14,10 @@ import (
 
 	sutils "github.com/argoproj/argo-workflows/v3/server/utils"
 
-<<<<<<< HEAD
-	"github.com/argoproj/argo-workflows/v3/persist/sqldb"
-	wfv1 "github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
-	"github.com/argoproj/argo-workflows/v3/util/instanceid"
-=======
 	persist "github.com/argoproj/argo-workflows/v3/persist/sqldb"
 	wfv1 "github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
 	"github.com/argoproj/argo-workflows/v3/util/instanceid"
 	"github.com/argoproj/argo-workflows/v3/util/sqldb"
->>>>>>> draft-3.6.5
 	"github.com/argoproj/argo-workflows/v3/workflow/common"
 )
 
@@ -95,13 +89,8 @@ func NewSQLiteStore(instanceService instanceid.Service) (*SQLiteStore, error) {
 	return &SQLiteStore{conn: conn, instanceService: instanceService}, nil
 }
 
-<<<<<<< HEAD
-func (s *SQLiteStore) ListWorkflows(ctx context.Context, namespace, namePrefix string, listOptions metav1.ListOptions) (*wfv1.WorkflowList, error) {
-	options, err := sutils.BuildListOptions(listOptions, namespace, namePrefix)
-=======
 func (s *SQLiteStore) ListWorkflows(ctx context.Context, namespace, nameFilter, createdAfter, finishedBefore string, listOptions metav1.ListOptions) (*wfv1.WorkflowList, error) {
 	options, err := sutils.BuildListOptions(listOptions, namespace, "", nameFilter, createdAfter, finishedBefore)
->>>>>>> draft-3.6.5
 	if err != nil {
 		return nil, err
 	}
@@ -110,11 +99,7 @@ where instanceid = ?
 `
 	args := []any{s.instanceService.InstanceID()}
 
-<<<<<<< HEAD
-	query, args, err = sqldb.BuildWorkflowSelector(query, args, workflowTableName, workflowLabelsTableName, sqldb.SQLite, options, false)
-=======
 	query, args, err = persist.BuildWorkflowSelector(query, args, workflowTableName, workflowLabelsTableName, sqldb.SQLite, options, false)
->>>>>>> draft-3.6.5
 	if err != nil {
 		return nil, err
 	}
@@ -145,13 +130,8 @@ where instanceid = ?
 	}, nil
 }
 
-<<<<<<< HEAD
-func (s *SQLiteStore) CountWorkflows(ctx context.Context, namespace, namePrefix string, listOptions metav1.ListOptions) (int64, error) {
-	options, err := sutils.BuildListOptions(listOptions, namespace, namePrefix)
-=======
 func (s *SQLiteStore) CountWorkflows(ctx context.Context, namespace, nameFilter, createdAfter, finishedBefore string, listOptions metav1.ListOptions) (int64, error) {
 	options, err := sutils.BuildListOptions(listOptions, namespace, "", nameFilter, createdAfter, finishedBefore)
->>>>>>> draft-3.6.5
 	if err != nil {
 		return 0, err
 	}
@@ -162,11 +142,7 @@ where instanceid = ?
 
 	options.Limit = 0
 	options.Offset = 0
-<<<<<<< HEAD
-	query, args, err = sqldb.BuildWorkflowSelector(query, args, workflowTableName, workflowLabelsTableName, sqldb.SQLite, options, true)
-=======
 	query, args, err = persist.BuildWorkflowSelector(query, args, workflowTableName, workflowLabelsTableName, sqldb.SQLite, options, true)
->>>>>>> draft-3.6.5
 	if err != nil {
 		return 0, err
 	}

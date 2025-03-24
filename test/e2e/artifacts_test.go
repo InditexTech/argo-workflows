@@ -186,30 +186,18 @@ func (s *ArtifactsSuite) TestStoppedWorkflow() {
 		c, err := minio.New("localhost:9000", &minio.Options{
 			Creds: credentials.NewStaticV4("admin", "password", ""),
 		})
-<<<<<<< HEAD
-		assert.NoError(s.T(), err)
-=======
 		s.Require().NoError(err)
->>>>>>> draft-3.6.5
 
 		// Ensure the artifacts aren't in the bucket.
 		_, err = c.StatObject(context.Background(), "my-bucket-3", "on-deletion-wf-stopped-1", minio.StatObjectOptions{})
 		if err == nil {
 			err = c.RemoveObject(context.Background(), "my-bucket-3", "on-deletion-wf-stopped-1", minio.RemoveObjectOptions{})
-<<<<<<< HEAD
-			assert.NoError(s.T(), err)
-=======
 			s.Require().NoError(err)
->>>>>>> draft-3.6.5
 		}
 		_, err = c.StatObject(context.Background(), "my-bucket-3", "on-deletion-wf-stopped-2", minio.StatObjectOptions{})
 		if err == nil {
 			err = c.RemoveObject(context.Background(), "my-bucket-3", "on-deletion-wf-stopped-2", minio.RemoveObjectOptions{})
-<<<<<<< HEAD
-			assert.NoError(s.T(), err)
-=======
 			s.Require().NoError(err)
->>>>>>> draft-3.6.5
 		}
 
 		then := s.Given().
@@ -219,17 +207,10 @@ func (s *ArtifactsSuite) TestStoppedWorkflow() {
 
 		// Assert the artifacts don't exist.
 		then.ExpectArtifactByKey("on-deletion-wf-stopped-1", "my-bucket-3", func(t *testing.T, object minio.ObjectInfo, err error) {
-<<<<<<< HEAD
-			assert.NotNil(t, err)
-		})
-		then.ExpectArtifactByKey("on-deletion-wf-stopped-2", "my-bucket-3", func(t *testing.T, object minio.ObjectInfo, err error) {
-			assert.NotNil(t, err)
-=======
 			require.Error(t, err)
 		})
 		then.ExpectArtifactByKey("on-deletion-wf-stopped-2", "my-bucket-3", func(t *testing.T, object minio.ObjectInfo, err error) {
 			require.Error(t, err)
->>>>>>> draft-3.6.5
 		})
 
 		when := then.When().
@@ -254,17 +235,10 @@ func (s *ArtifactsSuite) TestStoppedWorkflow() {
 
 		// Assert artifact exists
 		then.ExpectArtifactByKey("on-deletion-wf-stopped-1", "my-bucket-3", func(t *testing.T, object minio.ObjectInfo, err error) {
-<<<<<<< HEAD
-			assert.NoError(t, err)
-		})
-		then.ExpectArtifactByKey("on-deletion-wf-stopped-2", "my-bucket-3", func(t *testing.T, object minio.ObjectInfo, err error) {
-			assert.NoError(t, err)
-=======
 			require.NoError(t, err)
 		})
 		then.ExpectArtifactByKey("on-deletion-wf-stopped-2", "my-bucket-3", func(t *testing.T, object minio.ObjectInfo, err error) {
 			require.NoError(t, err)
->>>>>>> draft-3.6.5
 		})
 
 		when = then.When()
@@ -277,17 +251,10 @@ func (s *ArtifactsSuite) TestStoppedWorkflow() {
 
 		// Assert the artifacts don't exist.
 		then.ExpectArtifactByKey("on-deletion-wf-stopped-1", "my-bucket-3", func(t *testing.T, object minio.ObjectInfo, err error) {
-<<<<<<< HEAD
-			assert.NotNil(t, err)
-		})
-		then.ExpectArtifactByKey("on-deletion-wf-stopped-2", "my-bucket-3", func(t *testing.T, object minio.ObjectInfo, err error) {
-			assert.NotNil(t, err)
-=======
 			require.Error(t, err)
 		})
 		then.ExpectArtifactByKey("on-deletion-wf-stopped-2", "my-bucket-3", func(t *testing.T, object minio.ObjectInfo, err error) {
 			require.Error(t, err)
->>>>>>> draft-3.6.5
 		})
 
 		when = then.When()
@@ -340,19 +307,11 @@ func (s *ArtifactsSuite) TestArtifactGC() {
 			workflowShouldSucceed:        true,
 			expectedGCPodsOnWFCompletion: 2,
 			expectedArtifacts: []artifactState{
-<<<<<<< HEAD
-				artifactState{s3Location{bucketName: "my-bucket-2", specifiedKey: "first-on-completion-1"}, true, false},
-				artifactState{s3Location{bucketName: "my-bucket-3", specifiedKey: "first-on-completion-2"}, true, false},
-				artifactState{s3Location{bucketName: "my-bucket-3", specifiedKey: "first-no-deletion"}, false, false},
-				artifactState{s3Location{bucketName: "my-bucket-3", specifiedKey: "second-on-deletion"}, false, true},
-				artifactState{s3Location{bucketName: "my-bucket-2", specifiedKey: "second-on-completion"}, true, false},
-=======
 				{s3Location{bucketName: "my-bucket-2", specifiedKey: "first-on-completion-1"}, true, false},
 				{s3Location{bucketName: "my-bucket-3", specifiedKey: "first-on-completion-2"}, true, false},
 				{s3Location{bucketName: "my-bucket-3", specifiedKey: "first-no-deletion"}, false, false},
 				{s3Location{bucketName: "my-bucket-3", specifiedKey: "second-on-deletion"}, false, true},
 				{s3Location{bucketName: "my-bucket-2", specifiedKey: "second-on-completion"}, true, false},
->>>>>>> draft-3.6.5
 			},
 		},
 		// entire Workflow based on a WorkflowTemplate
@@ -362,13 +321,8 @@ func (s *ArtifactsSuite) TestArtifactGC() {
 			workflowShouldSucceed:        true,
 			expectedGCPodsOnWFCompletion: 1,
 			expectedArtifacts: []artifactState{
-<<<<<<< HEAD
-				artifactState{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-completion"}, true, false},
-				artifactState{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-deletion"}, false, true},
-=======
 				{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-completion"}, true, false},
 				{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-deletion"}, false, true},
->>>>>>> draft-3.6.5
 			},
 		},
 		// entire Workflow based on a WorkflowTemplate
@@ -378,13 +332,8 @@ func (s *ArtifactsSuite) TestArtifactGC() {
 			workflowShouldSucceed:        true,
 			expectedGCPodsOnWFCompletion: 1,
 			expectedArtifacts: []artifactState{
-<<<<<<< HEAD
-				artifactState{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-completion"}, true, false},
-				artifactState{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-deletion"}, false, true},
-=======
 				{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-completion"}, true, false},
 				{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-deletion"}, false, true},
->>>>>>> draft-3.6.5
 			},
 		},
 		// Step in Workflow references a WorkflowTemplate's template
@@ -394,13 +343,8 @@ func (s *ArtifactsSuite) TestArtifactGC() {
 			workflowShouldSucceed:        true,
 			expectedGCPodsOnWFCompletion: 1,
 			expectedArtifacts: []artifactState{
-<<<<<<< HEAD
-				artifactState{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-completion"}, true, false},
-				artifactState{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-deletion"}, false, true},
-=======
 				{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-completion"}, true, false},
 				{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-deletion"}, false, true},
->>>>>>> draft-3.6.5
 			},
 		},
 		// Step in Workflow references a WorkflowTemplate's template
@@ -410,13 +354,8 @@ func (s *ArtifactsSuite) TestArtifactGC() {
 			workflowShouldSucceed:        true,
 			expectedGCPodsOnWFCompletion: 1,
 			expectedArtifacts: []artifactState{
-<<<<<<< HEAD
-				artifactState{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-completion"}, true, false},
-				artifactState{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-deletion"}, false, false},
-=======
 				{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-completion"}, true, false},
 				{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-deletion"}, false, false},
->>>>>>> draft-3.6.5
 			},
 		},
 		// entire Workflow based on a WorkflowTemplate which has a Step that references another WorkflowTemplate's template
@@ -426,13 +365,8 @@ func (s *ArtifactsSuite) TestArtifactGC() {
 			workflowShouldSucceed:        true,
 			expectedGCPodsOnWFCompletion: 1,
 			expectedArtifacts: []artifactState{
-<<<<<<< HEAD
-				artifactState{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-completion"}, true, false},
-				artifactState{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-deletion"}, false, true},
-=======
 				{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-completion"}, true, false},
 				{s3Location{bucketName: "my-bucket-2", specifiedKey: "on-deletion"}, false, true},
->>>>>>> draft-3.6.5
 			},
 		},
 		// Step in Workflow references a WorkflowTemplate's template
@@ -441,8 +375,6 @@ func (s *ArtifactsSuite) TestArtifactGC() {
 			workflowFile:                 "@testdata/artifactgc/artgc-step-wf-tmpl-no-gc.yaml",
 			hasGC:                        false,
 			workflowShouldSucceed:        true,
-<<<<<<< HEAD
-=======
 			expectedGCPodsOnWFCompletion: 0,
 			expectedArtifacts:            []artifactState{},
 		},
@@ -473,7 +405,6 @@ func (s *ArtifactsSuite) TestArtifactGC() {
 			workflowFile:                 "@testdata/artifactgc/artgc-artifact-not-written-failed.yaml",
 			hasGC:                        true,
 			workflowShouldSucceed:        false,
->>>>>>> draft-3.6.5
 			expectedGCPodsOnWFCompletion: 0,
 			expectedArtifacts:            []artifactState{},
 		},
@@ -538,20 +469,12 @@ func (s *ArtifactsSuite) TestArtifactGC() {
 			if expectedArtifact.deletedAtWFCompletion {
 				fmt.Printf("verifying artifact %s is deleted at completion time\n", artifactKey)
 				then.ExpectArtifactByKey(artifactKey, expectedArtifact.artifactLocation.bucketName, func(t *testing.T, object minio.ObjectInfo, err error) {
-<<<<<<< HEAD
-					assert.NotNil(t, err)
-=======
 					require.Error(t, err)
->>>>>>> draft-3.6.5
 				})
 			} else {
 				fmt.Printf("verifying artifact %s is not deleted at completion time\n", artifactKey)
 				then.ExpectArtifactByKey(artifactKey, expectedArtifact.artifactLocation.bucketName, func(t *testing.T, object minio.ObjectInfo, err error) {
-<<<<<<< HEAD
-					assert.NoError(t, err)
-=======
 					require.NoError(t, err)
->>>>>>> draft-3.6.5
 				})
 			}
 		}
@@ -581,20 +504,12 @@ func (s *ArtifactsSuite) TestArtifactGC() {
 			if expectedArtifact.deletedAtWFDeletion {
 				fmt.Printf("verifying artifact %s is deleted\n", artifactKey)
 				then.ExpectArtifactByKey(artifactKey, expectedArtifact.artifactLocation.bucketName, func(t *testing.T, object minio.ObjectInfo, err error) {
-<<<<<<< HEAD
-					assert.NotNil(t, err)
-=======
 					require.Error(t, err)
->>>>>>> draft-3.6.5
 				})
 			} else {
 				fmt.Printf("verifying artifact %s is not deleted\n", artifactKey)
 				then.ExpectArtifactByKey(artifactKey, expectedArtifact.artifactLocation.bucketName, func(t *testing.T, object minio.ObjectInfo, err error) {
-<<<<<<< HEAD
-					assert.NoError(t, err)
-=======
 					require.NoError(t, err)
->>>>>>> draft-3.6.5
 				})
 			}
 		}

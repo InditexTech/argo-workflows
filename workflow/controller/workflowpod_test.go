@@ -654,11 +654,7 @@ func Test_createWorkflowPod_emissary(t *testing.T) {
 	t.Run("NoCommand", func(t *testing.T) {
 		woc := newWoc()
 		_, err := woc.createWorkflowPod(context.Background(), "", []apiv1.Container{{Image: "docker/whalesay:nope"}}, &wfv1.Template{Name: "my-tmpl"}, &createWorkflowPodOpts{})
-<<<<<<< HEAD
-		assert.EqualError(t, err, "failed to look-up entrypoint/cmd for image \"docker/whalesay:nope\", you must either explicitly specify the command, or list the image's command in the index: https://argo-workflows.readthedocs.io/en/release-3.5/workflow-executors/#emissary-emissary: GET https://index.docker.io/v2/docker/whalesay/manifests/nope: MANIFEST_UNKNOWN: manifest unknown; unknown tag=nope")
-=======
 		require.EqualError(t, err, "failed to look-up entrypoint/cmd for image \"docker/whalesay:nope\", you must either explicitly specify the command, or list the image's command in the index: https://argo-workflows.readthedocs.io/en/latest/workflow-executors/#emissary-emissary: GET https://index.docker.io/v2/docker/whalesay/manifests/nope: MANIFEST_UNKNOWN: manifest unknown; unknown tag=nope")
->>>>>>> draft-3.6.5
 	})
 	t.Run("CommandNoArgs", func(t *testing.T) {
 		woc := newWoc()
@@ -1459,11 +1455,7 @@ func TestPodSpecPatch(t *testing.T) {
 	woc = newWoc(*wf)
 	mainCtr = woc.execWf.Spec.Templates[0].Container
 	pod, _ = woc.createWorkflowPod(ctx, wf.Name, []apiv1.Container{*mainCtr}, &wf.Spec.Templates[0], &createWorkflowPodOpts{})
-<<<<<<< HEAD
-	assert.Equal(t, pointer.Bool(true), pod.Spec.Containers[1].SecurityContext.RunAsNonRoot)
-=======
 	assert.Equal(t, ptr.To(true), pod.Spec.Containers[1].SecurityContext.RunAsNonRoot)
->>>>>>> draft-3.6.5
 	assert.Equal(t, apiv1.Capability("ALL"), pod.Spec.Containers[1].SecurityContext.Capabilities.Add[0])
 	assert.Equal(t, []apiv1.Capability(nil), pod.Spec.Containers[1].SecurityContext.Capabilities.Drop)
 
@@ -1471,13 +1463,8 @@ func TestPodSpecPatch(t *testing.T) {
 	woc = newWoc(*wf)
 	mainCtr = woc.execWf.Spec.Templates[0].Container
 	_, err := woc.createWorkflowPod(ctx, wf.Name, []apiv1.Container{*mainCtr}, &wf.Spec.Templates[0], &createWorkflowPodOpts{})
-<<<<<<< HEAD
-	assert.EqualError(t, err, "Error applying PodSpecPatch")
-	assert.EqualError(t, errors.Cause(err), "invalid character '}' after object key")
-=======
 	require.EqualError(t, err, "Error applying PodSpecPatch")
 	require.EqualError(t, errors.Cause(err), "invalid character '}' after object key")
->>>>>>> draft-3.6.5
 }
 
 var helloWorldStepWfWithPatch = `
@@ -1620,11 +1607,7 @@ func TestExecutorContainerCustomization(t *testing.T) {
 	}
 
 	pod, err := woc.createWorkflowPod(context.Background(), "", nil, &wfv1.Template{}, &createWorkflowPodOpts{})
-<<<<<<< HEAD
-	assert.NoError(t, err)
-=======
 	require.NoError(t, err)
->>>>>>> draft-3.6.5
 	waitCtr := pod.Spec.Containers[0]
 	assert.Equal(t, []string{"foo"}, waitCtr.Args)
 	assert.Equal(t, "0.900", waitCtr.Resources.Limits.Cpu().AsDec().String())

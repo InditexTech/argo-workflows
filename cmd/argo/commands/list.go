@@ -93,16 +93,11 @@ func NewListCommand() *cobra.Command {
   argo list -l label1=value1,label2=value2
 `,
 
-<<<<<<< HEAD
-		Run: func(cmd *cobra.Command, args []string) {
-			ctx, apiClient := client.NewAPIClient(cmd.Context())
-=======
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, apiClient, err := client.NewAPIClient(cmd.Context())
 			if err != nil {
 				return err
 			}
->>>>>>> draft-3.6.5
 			serviceClient := apiClient.NewWorkflowServiceClient()
 			if !allNamespaces {
 				listArgs.namespace = client.Namespace()

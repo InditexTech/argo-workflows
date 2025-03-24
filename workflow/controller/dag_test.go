@@ -1685,18 +1685,10 @@ func TestRetryStrategyNodes(t *testing.T) {
 	assert.Equal(t, wfv1.NodeFailed, retryNode.Phase)
 
 	onExitNode, err := woc.wf.GetNodeByName("wf-retry-pol.onExit")
-<<<<<<< HEAD
-	if assert.NoError(t, err) {
-		assert.NotNil(t, onExitNode)
-		assert.True(t, onExitNode.NodeFlag.Hooked)
-		assert.Equal(t, wfv1.NodePending, onExitNode.Phase)
-	}
-=======
 	require.NoError(t, err)
 	assert.NotNil(t, onExitNode)
 	assert.True(t, onExitNode.NodeFlag.Hooked)
 	assert.Equal(t, wfv1.NodePending, onExitNode.Phase)
->>>>>>> draft-3.6.5
 
 	assert.Equal(t, wfv1.WorkflowRunning, woc.wf.Status.Phase)
 }
@@ -1859,18 +1851,10 @@ func TestOnExitDAGPhase(t *testing.T) {
 	assert.Equal(t, wfv1.NodeRunning, retryNode.Phase)
 
 	retryNode, err = woc.wf.GetNodeByName("dag-diamond-88trp.B.onExit")
-<<<<<<< HEAD
-	if assert.NoError(t, err) {
-		assert.NotNil(t, retryNode)
-		assert.True(t, retryNode.NodeFlag.Hooked)
-		assert.Equal(t, wfv1.NodePending, retryNode.Phase)
-	}
-=======
 	require.NoError(t, err)
 	assert.NotNil(t, retryNode)
 	assert.True(t, retryNode.NodeFlag.Hooked)
 	assert.Equal(t, wfv1.NodePending, retryNode.Phase)
->>>>>>> draft-3.6.5
 
 	assert.Equal(t, wfv1.WorkflowRunning, woc.wf.Status.Phase)
 }
@@ -1993,18 +1977,10 @@ func TestOnExitNonLeaf(t *testing.T) {
 
 	woc.operate(ctx)
 	retryNode, err := woc.wf.GetNodeByName("exit-handler-bug-example.step-2.onExit")
-<<<<<<< HEAD
-	if assert.NoError(t, err) {
-		assert.NotNil(t, retryNode)
-		assert.True(t, retryNode.NodeFlag.Hooked)
-		assert.Equal(t, wfv1.NodePending, retryNode.Phase)
-	}
-=======
 	require.NoError(t, err)
 	assert.NotNil(t, retryNode)
 	assert.True(t, retryNode.NodeFlag.Hooked)
 	assert.Equal(t, wfv1.NodePending, retryNode.Phase)
->>>>>>> draft-3.6.5
 
 	_, err = woc.wf.GetNodeByName("exit-handler-bug-example.step-3")
 	require.Error(t, err)
@@ -2271,18 +2247,10 @@ func TestDagTargetTaskOnExit(t *testing.T) {
 
 	woc.operate(ctx)
 	onExitNode, err := woc.wf.GetNodeByName("dag-primay-branch-6bnnl.A.onExit")
-<<<<<<< HEAD
-	if assert.NoError(t, err) {
-		assert.NotNil(t, onExitNode)
-		assert.True(t, onExitNode.NodeFlag.Hooked)
-		assert.Equal(t, wfv1.NodePending, onExitNode.Phase)
-	}
-=======
 	require.NoError(t, err)
 	assert.NotNil(t, onExitNode)
 	assert.True(t, onExitNode.NodeFlag.Hooked)
 	assert.Equal(t, wfv1.NodePending, onExitNode.Phase)
->>>>>>> draft-3.6.5
 }
 
 var testEmptyWithParamDAG = `

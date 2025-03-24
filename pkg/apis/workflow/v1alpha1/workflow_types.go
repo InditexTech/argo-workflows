@@ -1218,11 +1218,7 @@ func (a *ArtifactLocation) Get() (ArtifactLocationType, error) {
 	} else if a.S3 != nil {
 		return a.S3, nil
 	}
-<<<<<<< HEAD
-	return nil, fmt.Errorf("You need to configure artifact storage. More information on how to do this can be found in the docs: https://argo-workflows.readthedocs.io/en/release-3.5/configure-artifact-repository/")
-=======
 	return nil, fmt.Errorf("You need to configure artifact storage. More information on how to do this can be found in the docs: https://argo-workflows.readthedocs.io/en/latest/configure-artifact-repository/")
->>>>>>> draft-3.6.5
 }
 
 // SetType sets the type of the artifact to type the argument.
@@ -2027,11 +2023,7 @@ func (ws *WorkflowStatus) IsTaskResultIncomplete(name string) bool {
 	if found {
 		return !value
 	}
-<<<<<<< HEAD
-	return true
-=======
 	return false // workflows from older versions do not have this status, so assume completed if this is missing
->>>>>>> draft-3.6.5
 }
 
 func (ws *WorkflowStatus) IsOffloadNodeStatus() bool {
@@ -4003,12 +3995,9 @@ type NodeFlag struct {
 	// Retried tracks whether or not this node was retried by retryStrategy
 	Retried bool `json:"retried,omitempty" protobuf:"varint,2,opt,name=retried"`
 }
-<<<<<<< HEAD
-=======
 
 type TemplateAnnotation string
 
 const (
 	TemplateAnnotationDisplayName TemplateAnnotation = "workflows.argoproj.io/display-name"
 )
->>>>>>> draft-3.6.5

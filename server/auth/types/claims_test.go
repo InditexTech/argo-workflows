@@ -229,13 +229,7 @@ func TestGetCustomGroup(t *testing.T) {
 	t.Run("NoCustomGroupSet", func(t *testing.T) {
 		claims := &Claims{}
 		_, err := claims.GetCustomGroup(("ad_groups"))
-<<<<<<< HEAD
-		if assert.Error(t, err) {
-			assert.EqualError(t, err, "no claim found for key: ad_groups")
-		}
-=======
 		require.EqualError(t, err, "no claim found for key: ad_groups")
->>>>>>> draft-3.6.5
 	})
 	t.Run("CustomGroupSet", func(t *testing.T) {
 		tGroup := []string{"my-group"}
@@ -260,13 +254,7 @@ func TestGetCustomGroup(t *testing.T) {
 			"ad_groups": tGroupsIf,
 		}}
 		_, err := claims.GetCustomGroup(("ad_groups"))
-<<<<<<< HEAD
-		if assert.Error(t, err) {
-			assert.EqualError(t, err, "group name 0 was not a string")
-		}
-=======
 		require.EqualError(t, err, "group name 0 was not a string")
->>>>>>> draft-3.6.5
 	})
 	t.Run("CustomGroupNotSlice", func(t *testing.T) {
 		tGroup := "None"
@@ -300,12 +288,7 @@ func TestGetUserInfoGroups(t *testing.T) {
 
 		claims := &Claims{}
 		groups, err := claims.GetUserInfoGroups(httpClient, "Bearer fake", "https://fake.okta.com", "/user-info")
-<<<<<<< HEAD
-		assert.Equal(t, groups, []string{"Everyone"})
-		assert.Equal(t, nil, err)
-=======
 		assert.Equal(t, []string{"Everyone"}, groups)
 		require.NoError(t, err)
->>>>>>> draft-3.6.5
 	})
 }

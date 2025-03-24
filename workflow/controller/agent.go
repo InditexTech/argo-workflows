@@ -186,19 +186,11 @@ func (woc *wfOperationCtx) createAgentPod(ctx context.Context) (*apiv1.Pod, erro
 	// the `init` container populates the shared empty-dir volume with tokens
 	agentInitCtr := agentCtrTemplate.DeepCopy()
 	agentInitCtr.Name = common.InitContainerName
-<<<<<<< HEAD
-	agentInitCtr.Args = []string{"agent", "init", "--loglevel", getExecutorLogLevel()}
-	// the `main` container runs the actual work
-	agentMainCtr := agentCtrTemplate.DeepCopy()
-	agentMainCtr.Name = common.MainContainerName
-	agentMainCtr.Args = []string{"agent", "main", "--loglevel", getExecutorLogLevel()}
-=======
 	agentInitCtr.Args = append([]string{"agent", "init"}, woc.getExecutorLogOpts()...)
 	// the `main` container runs the actual work
 	agentMainCtr := agentCtrTemplate.DeepCopy()
 	agentMainCtr.Name = common.MainContainerName
 	agentMainCtr.Args = append([]string{"agent", "main"}, woc.getExecutorLogOpts()...)
->>>>>>> draft-3.6.5
 
 	pod = &apiv1.Pod{
 		ObjectMeta: metav1.ObjectMeta{

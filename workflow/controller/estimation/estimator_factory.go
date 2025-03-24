@@ -9,11 +9,7 @@ import (
 
 	"github.com/argoproj/argo-workflows/v3/persist/sqldb"
 	wfv1 "github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
-<<<<<<< HEAD
-	"github.com/argoproj/argo-workflows/v3/server/utils"
-=======
 	"github.com/argoproj/argo-workflows/v3/util/env"
->>>>>>> draft-3.6.5
 	"github.com/argoproj/argo-workflows/v3/workflow/common"
 	"github.com/argoproj/argo-workflows/v3/workflow/controller/indexes"
 	"github.com/argoproj/argo-workflows/v3/workflow/hydrator"
@@ -87,17 +83,7 @@ func (f *estimatorFactory) NewEstimator(wf *wfv1.Workflow) (Estimator, error) {
 			if err != nil {
 				return defaultEstimator, fmt.Errorf("failed to parse selector to requirements: %v", err)
 			}
-<<<<<<< HEAD
-			workflows, err := f.wfArchive.ListWorkflows(
-				utils.ListOptions{
-					Namespace:         wf.Namespace,
-					LabelRequirements: requirements,
-					Limit:             1,
-					Offset:            0,
-				})
-=======
 			baselineWF, err := f.wfArchive.GetWorkflowForEstimator(wf.Namespace, requirements)
->>>>>>> draft-3.6.5
 			if err != nil {
 				return defaultEstimator, fmt.Errorf("failed to get archived workflow for estimator: %v", err)
 			}

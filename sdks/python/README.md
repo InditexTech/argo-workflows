@@ -15,11 +15,7 @@ Python >= 3.6
 If you'd like to install the official releases of the SDK on PyPI, please run the following:
 
 ```sh
-<<<<<<< HEAD
-pip install argo-workflows==6.3.0rc2
-=======
 pip install argo-workflows
->>>>>>> draft-3.6.5
 ```
 
 Otherwise, you can install the latest development version of the SDK via the following:

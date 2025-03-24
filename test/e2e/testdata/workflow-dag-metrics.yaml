@@ -43,9 +43,5 @@ spec:
         parameters:
           - name: message
       container:
-<<<<<<< HEAD
-        image: alpine:3.7
-=======
         image: argoproj/argosay:v2
->>>>>>> draft-3.6.5
         command: [echo, "{{inputs.parameters.message}}"]

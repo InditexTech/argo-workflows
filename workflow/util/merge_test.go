@@ -382,11 +382,7 @@ func TestJoinWfSpecArguments(t *testing.T) {
 	result := wfv1.MustUnmarshalWorkflow(wfArgumentsResult)
 
 	targetWf, err := JoinWorkflowSpec(&wf.Spec, wft.GetWorkflowSpec(), nil)
-<<<<<<< HEAD
-	assert.NoError(err)
-=======
 	require.NoError(t, err)
->>>>>>> draft-3.6.5
 	assert.Equal(result.Spec.Arguments, targetWf.Spec.Arguments)
 }
 

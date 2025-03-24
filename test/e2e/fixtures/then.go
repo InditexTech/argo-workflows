@@ -276,8 +276,6 @@ func (t *Then) ExpectPods(f func(t *testing.T, pods []apiv1.Pod)) *Then {
 	return t
 }
 
-<<<<<<< HEAD
-=======
 func (t *Then) ExpectContainerLogs(container string, f func(t *testing.T, logs string)) *Then {
 	t.t.Helper()
 
@@ -297,7 +295,6 @@ func (t *Then) ExpectContainerLogs(container string, f func(t *testing.T, logs s
 	return t
 }
 
->>>>>>> draft-3.6.5
 func (t *Then) ExpectWorkflowTaskSet(block func(t *testing.T, wfts *wfv1.WorkflowTaskSet)) *Then {
 	t.t.Helper()
 	ctx := context.Background()

@@ -10,15 +10,9 @@ import (
 type DBType string
 
 const (
-<<<<<<< HEAD:persist/sqldb/db_type.go
-	MySQL    dbType = "mysql"
-	Postgres dbType = "postgres"
-	SQLite   dbType = "sqlite"
-=======
 	MySQL    DBType = "mysql"
 	Postgres DBType = "postgres"
 	SQLite   DBType = "sqlite"
->>>>>>> draft-3.6.5:util/sqldb/db_type.go
 )
 
 func DBTypeFor(session db.Session) DBType {

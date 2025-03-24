@@ -999,11 +999,7 @@ spec:
 	makePodsPhase(ctx, woc, apiv1.PodFailed)
 	woc = newWorkflowOperationCtx(woc.wf, controller)
 	err, _ := woc.podReconciliation(ctx)
-<<<<<<< HEAD
-	assert.NoError(t, err)
-=======
 	require.NoError(t, err)
->>>>>>> draft-3.6.5
 	node = woc.wf.Status.Nodes.FindByDisplayName("hook-failures.hooks.failure")
 	assert.NotNil(t, node)
 	assert.True(t, node.NodeFlag.Hooked)
@@ -1146,11 +1142,7 @@ spec:
 	pod.Status.Phase = apiv1.PodSucceeded
 	updatedPod, _ := podcs.Update(ctx, pod, metav1.UpdateOptions{})
 	woc.wf.Status.MarkTaskResultComplete(woc.nodeID(pod))
-<<<<<<< HEAD
-	_ = woc.controller.podInformer.GetStore().Update(updatedPod)
-=======
 	_ = woc.controller.PodController.TestingPodInformer().GetStore().Update(updatedPod)
->>>>>>> draft-3.6.5
 	woc = newWorkflowOperationCtx(woc.wf, controller)
 	woc.operate(ctx)
 	assert.Equal(t, wfv1.Progress("1/2"), woc.wf.Status.Progress)
@@ -1240,11 +1232,7 @@ spec:
 	pod := pods.Items[0]
 	pod.Status.Phase = apiv1.PodSucceeded
 	updatedPod, _ := podcs.Update(ctx, &pod, metav1.UpdateOptions{})
-<<<<<<< HEAD
-	_ = woc.controller.podInformer.GetStore().Update(updatedPod)
-=======
 	_ = woc.controller.PodController.TestingPodInformer().GetStore().Update(updatedPod)
->>>>>>> draft-3.6.5
 	woc.wf.Status.MarkTaskResultComplete(woc.nodeID(&pod))
 	woc = newWorkflowOperationCtx(woc.wf, controller)
 	woc.operate(ctx)

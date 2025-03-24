@@ -52,20 +52,9 @@ metadata:
     workflows.argoproj.io/phase: Succeeded
 `), wfFailed)
 	wfArchive := &sqldbmocks.WorkflowArchive{}
-<<<<<<< HEAD
-	r, err := labels.ParseToRequirements("workflows.argoproj.io/phase=Succeeded,workflows.argoproj.io/workflow-template=my-archived-wftmpl")
-	assert.NoError(t, err)
-	wfArchive.On("ListWorkflows", utils.ListOptions{
-		Namespace:         "my-ns",
-		LabelRequirements: r,
-		Limit:             1,
-	}).Return(wfv1.Workflows{
-		*testutil.MustUnmarshalWorkflow(`
-=======
 	r, err := labels.ParseToRequirements("workflows.argoproj.io/workflow-template=my-archived-wftmpl")
 	require.NoError(t, err)
 	wfArchive.On("GetWorkflowForEstimator", "my-ns", r).Return(testutil.MustUnmarshalWorkflow(`
->>>>>>> draft-3.6.5
 metadata:
   name: my-archived-wftmpl-baseline`), nil)
 	f := NewEstimatorFactory(informer, hydratorfake.Always, wfArchive)

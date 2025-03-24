@@ -47,11 +47,7 @@ func isTransientErr(err error) bool {
 		return false
 	}
 	err = argoerrs.Cause(err)
-<<<<<<< HEAD
-	isTransient := isExceededQuotaErr(err) ||
-=======
 	return isExceededQuotaErr(err) ||
->>>>>>> draft-3.6.5
 		apierr.IsTooManyRequests(err) ||
 		isResourceQuotaConflictErr(err) ||
 		isResourceQuotaTimeoutErr(err) ||
@@ -62,15 +58,6 @@ func isTransientErr(err error) bool {
 		matchTransientErrPattern(err) ||
 		errors.Is(err, NewErrTransient("")) ||
 		isTransientSqbErr(err)
-<<<<<<< HEAD
-	if isTransient {
-		log.Infof("Transient error: %v", err)
-	} else {
-		log.Warnf("Non-transient error: %v", err)
-	}
-	return isTransient
-=======
->>>>>>> draft-3.6.5
 }
 
 func matchTransientErrPattern(err error) bool {

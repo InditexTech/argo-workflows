@@ -12,14 +12,6 @@ func NewDataCommand() *cobra.Command {
 	command := cobra.Command{
 		Use:   "data",
 		Short: "Process data",
-<<<<<<< HEAD
-		Run: func(cmd *cobra.Command, args []string) {
-			ctx := cmd.Context()
-			err := execData(ctx)
-			if err != nil {
-				log.Fatalf("%+v", err)
-			}
-=======
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 			err := execData(ctx)
@@ -27,7 +19,6 @@ func NewDataCommand() *cobra.Command {
 				return fmt.Errorf("%+v", err)
 			}
 			return nil
->>>>>>> draft-3.6.5
 		},
 	}
 	return &command

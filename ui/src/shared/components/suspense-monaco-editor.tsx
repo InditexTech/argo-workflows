@@ -1,11 +1,6 @@
 import * as React from 'react';
-<<<<<<< HEAD:ui/src/app/shared/components/suspense-monaco-editor.tsx
-import {MonacoEditorProps} from 'react-monaco-editor';
-import MonacoEditor from 'react-monaco-editor';
-=======
 import type {MonacoEditorProps} from 'react-monaco-editor';
 import type MonacoEditor from 'react-monaco-editor';
->>>>>>> draft-3.6.5:ui/src/shared/components/suspense-monaco-editor.tsx
 
 import {Loading} from './loading';
 

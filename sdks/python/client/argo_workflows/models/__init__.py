@@ -256,10 +256,6 @@ from argo_workflows.model.io_argoproj_workflow_v1alpha1_mutex import IoArgoprojW
 from argo_workflows.model.io_argoproj_workflow_v1alpha1_mutex_holding import IoArgoprojWorkflowV1alpha1MutexHolding
 from argo_workflows.model.io_argoproj_workflow_v1alpha1_mutex_status import IoArgoprojWorkflowV1alpha1MutexStatus
 from argo_workflows.model.io_argoproj_workflow_v1alpha1_node_flag import IoArgoprojWorkflowV1alpha1NodeFlag
-<<<<<<< HEAD
-from argo_workflows.model.io_argoproj_workflow_v1alpha1_node_result import IoArgoprojWorkflowV1alpha1NodeResult
-=======
->>>>>>> draft-3.6.5
 from argo_workflows.model.io_argoproj_workflow_v1alpha1_node_status import IoArgoprojWorkflowV1alpha1NodeStatus
 from argo_workflows.model.io_argoproj_workflow_v1alpha1_node_synchronization_status import IoArgoprojWorkflowV1alpha1NodeSynchronizationStatus
 from argo_workflows.model.io_argoproj_workflow_v1alpha1_o_auth2_auth import IoArgoprojWorkflowV1alpha1OAuth2Auth

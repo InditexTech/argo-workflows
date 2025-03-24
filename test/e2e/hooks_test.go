@@ -606,36 +606,22 @@ spec:
 		WaitForWorkflow(fixtures.ToBeFailed).
 		Then().
 		ExpectWorkflow(func(t *testing.T, metadata *v1.ObjectMeta, status *v1alpha1.WorkflowStatus) {
-<<<<<<< HEAD
-			assert.Equal(t, status.Phase, v1alpha1.WorkflowFailed)
-=======
 			assert.Equal(t, v1alpha1.WorkflowFailed, status.Phase)
->>>>>>> draft-3.6.5
 			assert.Equal(t, status.Progress, v1alpha1.Progress("2/4"))
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 			return status.Name == "test-workflow-level-hooks-with-retry.hooks.running"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Equal(t, v1alpha1.NodeSucceeded, status.Phase)
-<<<<<<< HEAD
-			assert.Equal(t, true, status.NodeFlag.Hooked)
-			assert.Equal(t, false, status.NodeFlag.Retried)
-=======
 			assert.True(t, status.NodeFlag.Hooked)
 			assert.False(t, status.NodeFlag.Retried)
->>>>>>> draft-3.6.5
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 			return status.Name == "test-workflow-level-hooks-with-retry.hooks.failed"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Equal(t, v1alpha1.NodeSucceeded, status.Phase)
-<<<<<<< HEAD
-			assert.Equal(t, true, status.NodeFlag.Hooked)
-			assert.Equal(t, false, status.NodeFlag.Retried)
-=======
 			assert.True(t, status.NodeFlag.Hooked)
 			assert.False(t, status.NodeFlag.Retried)
->>>>>>> draft-3.6.5
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 			return status.Name == "test-workflow-level-hooks-with-retry"
@@ -648,25 +634,15 @@ spec:
 			return status.Name == "test-workflow-level-hooks-with-retry(0)"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Equal(t, v1alpha1.NodeFailed, status.Phase)
-<<<<<<< HEAD
-			assert.Equal(t, false, status.NodeFlag.Hooked)
-			assert.Equal(t, true, status.NodeFlag.Retried)
-=======
 			assert.False(t, status.NodeFlag.Hooked)
 			assert.True(t, status.NodeFlag.Retried)
->>>>>>> draft-3.6.5
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 			return status.Name == "test-workflow-level-hooks-with-retry(1)"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Equal(t, v1alpha1.NodeFailed, status.Phase)
-<<<<<<< HEAD
-			assert.Equal(t, false, status.NodeFlag.Hooked)
-			assert.Equal(t, true, status.NodeFlag.Retried)
-=======
 			assert.False(t, status.NodeFlag.Hooked)
 			assert.True(t, status.NodeFlag.Retried)
->>>>>>> draft-3.6.5
 		})
 }
 
@@ -710,27 +686,12 @@ spec:
     
     - name: output-artifact
       script:
-<<<<<<< HEAD
-        image: python:alpine3.6
-        command: [ python ]
-        source: |
-          import time
-          import random
-          import sys
-          time.sleep(1) # lifecycle hook for running won't trigger unless it runs for more than "a few seconds"
-          with open("result.txt", "w") as f:
-            f.write("Welcome")
-          if {{retries}} == 2:
-          	sys.exit(0)
-          sys.exit(1)
-=======
         image: argoproj/argosay:v2
         command: [/bin/sh]
         source: |
           sleep 1
           echo 'Welcome' > result.txt
           [ "{{retries}}" = "2" ]
->>>>>>> draft-3.6.5
       retryStrategy: 
         limit: 2
       outputs:
@@ -740,23 +701,6 @@ spec:
 
     - name: started
       container:
-<<<<<<< HEAD
-        image: python:alpine3.6
-        command: [sh, -c]
-        args: ["echo STARTED!"]
-
-    - name: success
-      container:
-        image: python:alpine3.6
-        command: [sh, -c]
-        args: ["echo SUCCEEDED!"]
-
-    - name: failed
-      container:
-        image: python:alpine3.6
-        command: [sh, -c]
-        args: ["echo FAILED or ERROR!"]
-=======
         image: argoproj/argosay:v2
         args: ["echo", "STARTED!"]
 
@@ -769,7 +713,6 @@ spec:
       container:
         image: argoproj/argosay:v2
         args: ["echo", "FAILED or ERROR!"]
->>>>>>> draft-3.6.5
 
     - name: print-artifact
       inputs:
@@ -777,14 +720,8 @@ spec:
           - name: message
             path: /tmp/message
       container:
-<<<<<<< HEAD
-        image: python:alpine3.6
-        command: [sh, -c]
-        args: ["cat /tmp/message"]
-=======
         image: argoproj/argosay:v2
         args: ["cat", "/tmp/message"]
->>>>>>> draft-3.6.5
 `).When().
 		SubmitWorkflow().
 		WaitForWorkflow(fixtures.ToBeCompleted).
@@ -803,32 +740,20 @@ spec:
 			return status.Name == "retries-with-hooks-and-artifact[0].build(0)"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Contains(t, children, status.ID)
-<<<<<<< HEAD
-			assert.Equal(t, false, status.NodeFlag.Hooked)
-=======
 			assert.False(t, status.NodeFlag.Hooked)
->>>>>>> draft-3.6.5
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 			return status.Name == "retries-with-hooks-and-artifact[0].build.hooks.started"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Contains(t, children, status.ID)
-<<<<<<< HEAD
-			assert.Equal(t, true, status.NodeFlag.Hooked)
-=======
 			assert.True(t, status.NodeFlag.Hooked)
->>>>>>> draft-3.6.5
 			assert.Equal(t, v1alpha1.NodeSucceeded, status.Phase)
 		})).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
 			return status.Name == "retries-with-hooks-and-artifact[0].build.hooks.success"
 		}, func(t *testing.T, status *v1alpha1.NodeStatus, pod *apiv1.Pod) {
 			assert.Contains(t, children, status.ID)
-<<<<<<< HEAD
-			assert.Equal(t, true, status.NodeFlag.Hooked)
-=======
 			assert.True(t, status.NodeFlag.Hooked)
->>>>>>> draft-3.6.5
 			assert.Equal(t, v1alpha1.NodeSucceeded, status.Phase)
 		}).
 		ExpectWorkflowNode(func(status v1alpha1.NodeStatus) bool {
@@ -838,8 +763,6 @@ spec:
 		})
 }
 
-<<<<<<< HEAD
-=======
 func (s *HooksSuite) TestExitHandlerWithWorkflowLevelDeadline() {
 	var onExitNodeName string
 	(s.Given().
@@ -935,7 +858,6 @@ spec:
 		}))
 }
 
->>>>>>> draft-3.6.5
 func TestHooksSuite(t *testing.T) {
 	suite.Run(t, new(HooksSuite))
 }
