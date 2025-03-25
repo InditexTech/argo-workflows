@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
@@ -44,9 +45,7 @@ func (c *cronWorkflowServiceServer) LintCronWorkflow(ctx context.Context, req *c
 
 func (c *cronWorkflowServiceServer) ListCronWorkflows(ctx context.Context, req *cronworkflowpkg.ListCronWorkflowsRequest) (*v1alpha1.CronWorkflowList, error) {
 	options := &metav1.ListOptions{}
-	if req.ListOptions != nil {
-		options = req.ListOptions
-	}
+	options = filter.CreateListOptions(ctx, req.ListOptions)
 	c.instanceIDService.With(options)
 	cronWfList, err := auth.GetWfClient(ctx).ArgoprojV1alpha1().CronWorkflows(req.Namespace).List(ctx, *options)
 	if err != nil {
@@ -68,6 +67,9 @@ func (c *cronWorkflowServiceServer) CreateCronWorkflow(ctx context.Context, req 
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.InvalidArgument)
 	}
+	if hasPermission := filter.ForbidActionsIfNeeded(ctx, req.CronWorkflow.Labels); !hasPermission {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
+	}
 	crWf, err := wfClient.ArgoprojV1alpha1().CronWorkflows(req.Namespace).Create(ctx, req.CronWorkflow, metav1.CreateOptions{})
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
@@ -85,7 +87,7 @@ func (c *cronWorkflowServiceServer) GetCronWorkflow(ctx context.Context, req *cr
 
 func (c *cronWorkflowServiceServer) UpdateCronWorkflow(ctx context.Context, req *cronworkflowpkg.UpdateCronWorkflowRequest) (*v1alpha1.CronWorkflow, error) {
 	wfClient := auth.GetWfClient(ctx)
-	_, err := c.getCronWorkflowAndValidate(ctx, req.Namespace, req.CronWorkflow.Name, metav1.GetOptions{})
+	_, err := c.getCronWorkflowAndValidate(ctx, req.Namespace, req.CronWorkflow.Name, metav1.GetOptions{}, false)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
@@ -102,7 +104,7 @@ func (c *cronWorkflowServiceServer) UpdateCronWorkflow(ctx context.Context, req 
 }
 
 func (c *cronWorkflowServiceServer) DeleteCronWorkflow(ctx context.Context, req *cronworkflowpkg.DeleteCronWorkflowRequest) (*cronworkflowpkg.CronWorkflowDeletedResponse, error) {
-	_, err := c.getCronWorkflowAndValidate(ctx, req.Namespace, req.Name, metav1.GetOptions{})
+	_, err := c.getCronWorkflowAndValidate(ctx, req.Namespace, req.Name, metav1.GetOptions{}, false)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
@@ -120,6 +122,10 @@ func (c *cronWorkflowServiceServer) DeleteCronWorkflow(ctx context.Context, req 
 }
 
 func (c *cronWorkflowServiceServer) ResumeCronWorkflow(ctx context.Context, req *cronworkflowpkg.CronWorkflowResumeRequest) (*v1alpha1.CronWorkflow, error) {
+	_, err := c.getCronWorkflowAndValidate(ctx, req.Namespace, req.Name, metav1.GetOptions{}, false)
+	if err != nil {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
+	}
 	crWf, err := setCronWorkflowSuspend(ctx, false, req.Namespace, req.Name)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
@@ -128,6 +134,10 @@ func (c *cronWorkflowServiceServer) ResumeCronWorkflow(ctx context.Context, req 
 }
 
 func (c *cronWorkflowServiceServer) SuspendCronWorkflow(ctx context.Context, req *cronworkflowpkg.CronWorkflowSuspendRequest) (*v1alpha1.CronWorkflow, error) {
+	_, err := c.getCronWorkflowAndValidate(ctx, req.Namespace, req.Name, metav1.GetOptions{}, false)
+	if err != nil {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
+	}
 	crWf, err := setCronWorkflowSuspend(ctx, true, req.Namespace, req.Name)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.Internal)
@@ -147,7 +157,7 @@ func setCronWorkflowSuspend(ctx context.Context, setTo bool, namespace, name str
 	return cronWfs, nil
 }
 
-func (c *cronWorkflowServiceServer) getCronWorkflowAndValidate(ctx context.Context, namespace string, name string, options metav1.GetOptions) (*v1alpha1.CronWorkflow, error) {
+func (c *cronWorkflowServiceServer) getCronWorkflowAndValidate(ctx context.Context, namespace string, name string, options metav1.GetOptions, isGetCron bool) (*v1alpha1.CronWorkflow, error) {
 	wfClient := auth.GetWfClient(ctx)
 	cronWf, err := wfClient.ArgoprojV1alpha1().CronWorkflows(namespace).Get(ctx, name, options)
 	if err != nil {
@@ -156,6 +166,9 @@ func (c *cronWorkflowServiceServer) getCronWorkflowAndValidate(ctx context.Conte
 	err = c.instanceIDService.Validate(cronWf)
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.InvalidArgument)
+	}
+	if hasPermission := filter.ForbidActionsIfNeeded(ctx, cronWf.Labels); !hasPermission && !isGetCron {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 	return cronWf, nil
 }

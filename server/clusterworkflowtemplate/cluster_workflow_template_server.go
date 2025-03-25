@@ -13,6 +13,7 @@ import (
 	"github.com/argoproj/argo-workflows/v3/server/auth"
 	"github.com/argoproj/argo-workflows/v3/util/instanceid"
 	"github.com/argoproj/argo-workflows/v3/workflow/creator"
+	"github.com/argoproj/argo-workflows/v3/workflow/filter"
 	"github.com/argoproj/argo-workflows/v3/workflow/templateresolution"
 	"github.com/argoproj/argo-workflows/v3/workflow/validate"
 
@@ -70,9 +71,7 @@ func (cwts *ClusterWorkflowTemplateServer) getTemplateAndValidate(ctx context.Co
 func (cwts *ClusterWorkflowTemplateServer) ListClusterWorkflowTemplates(ctx context.Context, req *clusterwftmplpkg.ClusterWorkflowTemplateListRequest) (*v1alpha1.ClusterWorkflowTemplateList, error) {
 	wfClient := auth.GetWfClient(ctx)
 	options := &v1.ListOptions{}
-	if req.ListOptions != nil {
-		options = req.ListOptions
-	}
+	options = filter.CreateListOptions(ctx, req.ListOptions)
 	cwts.instanceIDService.With(options)
 	cwfList, err := wfClient.ArgoprojV1alpha1().ClusterWorkflowTemplates().List(ctx, *options)
 	if err != nil {
