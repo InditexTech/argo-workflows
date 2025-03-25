@@ -36,6 +36,7 @@ import (
 	"github.com/argoproj/argo-workflows/v3/util/logs"
 	"github.com/argoproj/argo-workflows/v3/workflow/common"
 	"github.com/argoproj/argo-workflows/v3/workflow/creator"
+	"github.com/argoproj/argo-workflows/v3/workflow/filter"
 	"github.com/argoproj/argo-workflows/v3/workflow/hydrator"
 	"github.com/argoproj/argo-workflows/v3/workflow/templateresolution"
 	"github.com/argoproj/argo-workflows/v3/workflow/util"
@@ -170,7 +171,7 @@ func (s *workflowServer) GetWorkflow(ctx context.Context, req *workflowpkg.Workf
 
 func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.WorkflowListRequest) (*wfv1.WorkflowList, error) {
 	listOption := metav1.ListOptions{}
-	listOption = filter.CreateListOptions(ctx, req.ListOptions)
+	listOption = *filter.CreateListOptions(ctx, req.ListOptions)
 	s.instanceIDService.With(&listOption)
 
 	options, err := sutils.BuildListOptions(listOption, req.Namespace, "", req.NameFilter)
@@ -677,7 +678,7 @@ func (s *workflowServer) PodLogs(req *workflowpkg.WorkflowLogRequest, ws workflo
 	ctx := ws.Context()
 	wfClient := auth.GetWfClient(ctx)
 	kubeClient := auth.GetKubeClient(ctx)
-	wf, err := s.getWorkflow(ctx, wfClient, req.Namespace, req.Name, metav1.GetOptions{})
+	wf, err := s.getWorkflow(ctx, wfClient, req.Namespace, req.Name, metav1.GetOptions{}, true)
 	if err != nil {
 		return sutils.ToStatusError(err, codes.Internal)
 	}

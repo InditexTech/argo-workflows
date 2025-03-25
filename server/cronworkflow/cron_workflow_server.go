@@ -15,6 +15,7 @@ import (
 	"github.com/argoproj/argo-workflows/v3/server/auth"
 	"github.com/argoproj/argo-workflows/v3/util/instanceid"
 	"github.com/argoproj/argo-workflows/v3/workflow/creator"
+	"github.com/argoproj/argo-workflows/v3/workflow/filter"
 	"github.com/argoproj/argo-workflows/v3/workflow/templateresolution"
 	"github.com/argoproj/argo-workflows/v3/workflow/validate"
 
@@ -82,7 +83,7 @@ func (c *cronWorkflowServiceServer) GetCronWorkflow(ctx context.Context, req *cr
 	if req.GetOptions != nil {
 		options = *req.GetOptions
 	}
-	return c.getCronWorkflowAndValidate(ctx, req.Namespace, req.Name, options)
+	return c.getCronWorkflowAndValidate(ctx, req.Namespace, req.Name, options, true)
 }
 
 func (c *cronWorkflowServiceServer) UpdateCronWorkflow(ctx context.Context, req *cronworkflowpkg.UpdateCronWorkflowRequest) (*v1alpha1.CronWorkflow, error) {
