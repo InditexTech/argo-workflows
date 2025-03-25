@@ -7,7 +7,7 @@ import (
 )
 
 type GroupAndServices struct {
-	ServiceToGroup map[string]string
+	ServiceToGroup []string
 }
 type WriteGroupsParams struct {
 	Relationship string   `yaml:"relationship"`
@@ -107,8 +107,8 @@ func GetRolesAndServices(result *ApiStruct, servicesToRelationship map[string]st
 	return servicesToRelationship, servicesToRoles
 }
 
-func GetServiceToGroup(writeGroups WriteGroupsList, servicesToRelationship map[string]string, servicesToRoles map[string][]string) map[string]string {
-	appToRole := make(map[string]string)
+func GetServiceToGroup(writeGroups WriteGroupsList, servicesToRelationship map[string]string, servicesToRoles map[string][]string) []string {
+	var appToRole []string
 	for _, writeGroup := range writeGroups {
 		for app, relationship := range servicesToRelationship {
 			if relationship != writeGroup.Relationship {
@@ -116,10 +116,10 @@ func GetServiceToGroup(writeGroups WriteGroupsList, servicesToRelationship map[s
 			}
 			for _, role := range servicesToRoles[app] {
 				if slices.Contains(writeGroup.Roles, role) {
-					appToRole[app] = "writer"
+					appToRole = append(appToRole, fmt.Sprintf("%s:writer", app))
 					break
 				} else {
-					appToRole[app] = "reader"
+					appToRole = append(appToRole, fmt.Sprintf("%s:reader", app))
 				}
 			}
 
