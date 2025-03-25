@@ -3,9 +3,8 @@ ARG GIT_COMMIT=unknown
 ARG GIT_TAG=unknown
 ARG GIT_TREE_STATE=unknown
 
-FROM golang:1.23-alpine3.19 as builder
+FROM golang:1.21-alpine3.18 as builder
 
-# libc-dev to build openapi-gen
 RUN apk update && apk add --no-cache \
     git \
     make \
@@ -13,10 +12,16 @@ RUN apk update && apk add --no-cache \
     wget \
     curl \
     gcc \
-    libc-dev \
     bash \
     mailcap
-
+# ITX Modified: Adding Inditex CA
+COPY hack/ca/* /usr/share/pki/ca-trust-source/anchors/
+RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/* \
+  mkdir /usr/local/share/ca-certificates/extra
+COPY hack/ca/* /usr/local/share/ca-certificates/extra
+RUN update-ca-certificates
+COPY hack/ca/* /etc/ssl/certs/
+# ITX Modified: END Inditex CA
 WORKDIR /go/src/github.com/argoproj/argo-workflows
 COPY go.mod .
 COPY go.sum .
@@ -41,7 +46,7 @@ COPY api api
 
 RUN --mount=type=cache,target=/root/.yarn \
   YARN_CACHE_FOLDER=/root/.yarn JOBS=max \
-  NODE_OPTIONS="--max-old-space-size=2048" JOBS=max yarn --cwd ui build
+  NODE_OPTIONS="--openssl-legacy-provider --max-old-space-size=2048" JOBS=max yarn --cwd ui build
 
 ####################################################################################################
 
@@ -73,8 +78,6 @@ ARG GIT_TREE_STATE
 
 RUN mkdir -p ui/dist
 COPY --from=argo-ui ui/dist/app ui/dist/app
-# update timestamp so that `make` doesn't try to rebuild this -- it was already built in the previous stage
-RUN touch ui/dist/app/index.html
 
 RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build STATIC_FILES=true make dist/argo GIT_COMMIT=${GIT_COMMIT} GIT_TAG=${GIT_TAG} GIT_TREE_STATE=${GIT_TREE_STATE}
 
@@ -82,6 +85,10 @@ RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache
 
 FROM gcr.io/distroless/static as argoexec
 
+# ITX Modified: Adding Inditex CA
+COPY hack/ca/* /etc/ssl/certs/
+#COPY --from=builder /etc/ssl/certs /etc/ssl/certs
+# ITX Modified: END Inditex CA
 COPY --from=argoexec-build /go/src/github.com/argoproj/argo-workflows/dist/argoexec /bin/
 COPY --from=argoexec-build /etc/mime.types /etc/mime.types
 COPY hack/ssh_known_hosts /etc/ssh/
@@ -95,6 +102,10 @@ FROM gcr.io/distroless/static as workflow-controller
 
 USER 8737
 
+# ITX Modified: Adding Inditex CA
+COPY hack/ca/* /etc/ssl/certs/
+#COPY --from=builder /etc/ssl/certs /etc/ssl/certs
+# ITX Modified: END Inditex CA
 COPY hack/ssh_known_hosts /etc/ssh/
 COPY hack/nsswitch.conf /etc/
 COPY --chown=8737 --from=workflow-controller-build /go/src/github.com/argoproj/argo-workflows/dist/workflow-controller /bin/
@@ -108,7 +119,10 @@ FROM gcr.io/distroless/static as argocli
 USER 8737
 
 WORKDIR /home/argo
-
+# ITX Modified: Adding Inditex CA
+COPY hack/ca/* /etc/ssl/certs/
+#COPY --from=builder /etc/ssl/certs /etc/ssl/certs
+# ITX Modified: END Inditex CA
 COPY hack/ssh_known_hosts /etc/ssh/
 COPY hack/nsswitch.conf /etc/
 COPY --from=argocli-build /go/src/github.com/argoproj/argo-workflows/dist/argo /bin/

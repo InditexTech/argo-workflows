@@ -7,7 +7,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/argoproj/argo-workflows/v3/workflow/filter"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	workflowtemplatepkg "github.com/argoproj/argo-workflows/v3/pkg/apiclient/workflowtemplate"
@@ -66,6 +68,9 @@ func (wts *WorkflowTemplateServer) getTemplateAndValidate(ctx context.Context, n
 	if err != nil {
 		return nil, sutils.ToStatusError(err, codes.InvalidArgument)
 	}
+	if hasPermission := filter.ForbidActionsIfNeeded(ctx, wfTmpl.Labels); !hasPermission {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
+	}
 	return wfTmpl, nil
 }
 
@@ -115,10 +120,7 @@ func cursorPaginationByResourceVersion(items []v1alpha1.WorkflowTemplate, resour
 func (wts *WorkflowTemplateServer) ListWorkflowTemplates(ctx context.Context, req *workflowtemplatepkg.WorkflowTemplateListRequest) (*v1alpha1.WorkflowTemplateList, error) {
 	wfClient := auth.GetWfClient(ctx)
 	k8sOptions := &v1.ListOptions{}
-
-	if req.ListOptions != nil {
-		k8sOptions = req.ListOptions
-	}
+	k8sOptions = filter.CreateListOptions(ctx, req.ListOptions)
 
 	// Save the original Continue and Limit for custom filtering.
 	resourceVersion := k8sOptions.Continue

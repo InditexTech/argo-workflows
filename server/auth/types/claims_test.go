@@ -25,7 +25,7 @@ func TestUnmarshalJSON(t *testing.T) {
 	}{
 		{
 			description:     "unmarshal valid data",
-			data:            `{"user_tz":"America\/Chicago","sub":"test-user@argoproj.github.io","user_locale":"en","idp_name":"UserNamePassword","user.tenant.name":"test-user","onBehalfOfUser":true,"idp_guid":"UserNamePassword","amr":["USERNAME_PASSWORD"],"iss":"https:\/\/identity-service.argoproj.github.io","user_tenantname":"test-user","client_id":"tokenGenerator","user_isAdmin":true,"sub_type":"user","scope":"","client_tenantname":"argo-proj","region_name":"us1","user_lang":"en","userAppRoles":["Authenticated","Global Viewer","Identity Domain Administrator"],"exp":1626527469,"iat":1626467469,"client_guid":"adsf34534645654653454","client_name":"tokenGenerator","idp_type":"LOCAL","tenant":"test-user23523423","jti":"345sd435d454356","ad_groups":["argo_admin", "argo_readonly"],"gtp":"jwt","user_displayname":"Test User","sub_mappingattr":"userName","primTenant":true,"tok_type":"AT","ca_guid":"test-ca_guid","aud":["example-aud"],"user_id":"8948923893458945234","clientAppRoles":["Authenticated Client","Cross Tenant"],"tenant_iss":"https:\/\/identiy-service.argoproj.github.io"}`,
+			data:            `{"user_tz":"America\/Chicago","sub":"test-user@argoproj.github.io","user_locale":"en","idp_name":"UserNamePassword","user.tenant.name":"test-user","onBehalfOfUser":true,"idp_guid":"UserNamePassword","amr":["USERNAME_PASSWORD"],"iss":"https:\/\/identity-service.argoproj.github.io","user_tenantname":"test-user","client_id":"tokenGenerator","user_isAdmin":true,"sub_type":"user","scope":"","client_tenantname":"argo-proj","region_name":"us1","user_lang":"en","userAppRoles":["Authenticated","Global Viewer","Identity Domain Administrator"],"exp":1626527469,"iat":1626467469,"client_guid":"adsf34534645654653454","client_name":"tokenGenerator","idp_type":"LOCAL","tenant":"test-user23523423","jti":"345sd435d454356","ad_groups":["argo_admin", "argo_readonly"],"gtp":"jwt","user_displayname":"Test User","sub_mappingattr":"userName","primTenant":true,"tok_type":"AT","ca_guid":"test-ca_guid","aud":["example-aud"],"user_id":"8948923893458945234","clientAppRoles":["Authenticated Client","Cross Tenant"],"tenant_iss":"https:\/\/identiy-service.argoproj.github.io","TeamFilterClaims":{"group": "testGroup","label":"testLabel","filterexpresion":"testFilter","values": ["testValue1","testValue2"],"isAdmin":true}}`,
 			customClaimName: "ad_groups",
 			expectedErr:     nil,
 			expectedClaims: &Claims{
@@ -76,12 +76,25 @@ func TestUnmarshalJSON(t *testing.T) {
 					"user_tenantname":   "test-user",
 					"user_tz":           "America/Chicago",
 					"user_displayname":  "Test User",
+					"TeamFilterClaims": map[string]interface{}{
+						"group":           "testGroup",
+						"label":           "testLabel",
+						"filterexpresion": "testFilter",
+						"values":          []interface{}{"testValue1", "testValue2"},
+						"isAdmin":         true,
+					},
+				},
+				TeamFilterClaims: TeamFilterClaims{
+					ServiceToGroup:  map[string]string{"test": "testValue1", "test2": "testValue2"},
+					FilterExpresion: "testFilter",
+					Label:           "testLabel",
+					IsAdmin:         true,
 				},
 			},
 		},
 		{
 			description: "unmarshal valid data, with default custom groups name",
-			data:        `{"user_tz":"America\/Chicago","sub":"test-user@argoproj.github.io","user_locale":"en","idp_name":"UserNamePassword","user.tenant.name":"test-user","onBehalfOfUser":true,"idp_guid":"UserNamePassword","amr":["USERNAME_PASSWORD"],"iss":"https:\/\/identity-service.argoproj.github.io","user_tenantname":"test-user","client_id":"tokenGenerator","user_isAdmin":true,"sub_type":"user","scope":"","client_tenantname":"argo-proj","region_name":"us1","user_lang":"en","userAppRoles":["Authenticated","Global Viewer","Identity Domain Administrator"],"exp":1626527469,"iat":1626467469,"client_guid":"adsf34534645654653454","client_name":"tokenGenerator","idp_type":"LOCAL","tenant":"test-user23523423","jti":"345sd435d454356","groups":["argo_admin", "argo_readonly"],"gtp":"jwt","user_displayname":"Test User","sub_mappingattr":"userName","primTenant":true,"tok_type":"AT","ca_guid":"test-ca_guid","aud":["example-aud"],"user_id":"8948923893458945234","clientAppRoles":["Authenticated Client","Cross Tenant"],"tenant_iss":"https:\/\/identiy-service.argoproj.github.io"}`,
+			data:        `{"user_tz":"America\/Chicago","sub":"test-user@argoproj.github.io","user_locale":"en","idp_name":"UserNamePassword","user.tenant.name":"test-user","onBehalfOfUser":true,"idp_guid":"UserNamePassword","amr":["USERNAME_PASSWORD"],"iss":"https:\/\/identity-service.argoproj.github.io","user_tenantname":"test-user","client_id":"tokenGenerator","user_isAdmin":true,"sub_type":"user","scope":"","client_tenantname":"argo-proj","region_name":"us1","user_lang":"en","userAppRoles":["Authenticated","Global Viewer","Identity Domain Administrator"],"exp":1626527469,"iat":1626467469,"client_guid":"adsf34534645654653454","client_name":"tokenGenerator","idp_type":"LOCAL","tenant":"test-user23523423","jti":"345sd435d454356","groups":["argo_admin", "argo_readonly"],"gtp":"jwt","user_displayname":"Test User","sub_mappingattr":"userName","primTenant":true,"tok_type":"AT","ca_guid":"test-ca_guid","aud":["example-aud"],"user_id":"8948923893458945234","clientAppRoles":["Authenticated Client","Cross Tenant"],"tenant_iss":"https:\/\/identiy-service.argoproj.github.io","TeamFilterClaims":{"group": "testGroup","label":"testLabel","filterexpresion":"testFilter","values": ["testValue1","testValue2"],"isAdmin":true}}`,
 			expectedErr: nil,
 			expectedClaims: &Claims{
 				Claims: jwt.Claims{
@@ -132,6 +145,19 @@ func TestUnmarshalJSON(t *testing.T) {
 					"user_tenantname":   "test-user",
 					"user_tz":           "America/Chicago",
 					"user_displayname":  "Test User",
+					"TeamFilterClaims": map[string]interface{}{
+						"group":           "testGroup",
+						"label":           "testLabel",
+						"filterexpresion": "testFilter",
+						"values":          []interface{}{"testValue1", "testValue2"},
+						"isAdmin":         true,
+					},
+				},
+				TeamFilterClaims: TeamFilterClaims{
+					ServiceToGroup:  map[string]string{"test": "testValue1", "test2": "testValue2"},
+					FilterExpresion: "testFilter",
+					Label:           "testLabel",
+					IsAdmin:         true,
 				},
 			},
 		},
