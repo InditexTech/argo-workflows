@@ -171,10 +171,10 @@ func (s *workflowServer) GetWorkflow(ctx context.Context, req *workflowpkg.Workf
 
 func (s *workflowServer) ListWorkflows(ctx context.Context, req *workflowpkg.WorkflowListRequest) (*wfv1.WorkflowList, error) {
 	listOption := metav1.ListOptions{}
-	listOption = *filter.CreateListOptions(ctx, req.ListOptions)
+	listOptions := filter.CreateListOptions(ctx, req.ListOptions)
 	s.instanceIDService.With(&listOption)
 
-	options, err := sutils.BuildListOptions(listOption, req.Namespace, "", req.NameFilter)
+	options, err := sutils.BuildListOptions(*listOptions, req.Namespace, "", req.NameFilter)
 	if err != nil {
 		return nil, err
 	}

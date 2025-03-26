@@ -47,16 +47,17 @@ func CreateListOptions(ctx context.Context, listOptions *metav1.ListOptions) *me
 
 func ForbidActionsIfNeeded(ctx context.Context, labels map[string]string) bool {
 	serviceDecompress := ""
-	if ctx.Value(auth.ClaimsKey) != nil && ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.ServiceToGroup != "" {
-		serviceDecompress = config.Decompress(ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.ServiceToGroup)
-	}
-
 	if !config.CanDelegateByLabel() || ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.IsAdmin || ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).Issuer == "kubernetes/serviceaccount" {
 		return true
 	}
-	if len(strings.Split(string(serviceDecompress), ",")) <= 0 {
-		return false
+
+	if ctx.Value(auth.ClaimsKey) != nil && ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.ServiceToGroup != "" {
+		serviceDecompress = config.Decompress(ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.ServiceToGroup)
+		if serviceDecompress == "" {
+			return false
+		}
 	}
+
 	for _, service := range strings.Split(string(serviceDecompress), ",") {
 		if strings.Split(service, ":")[0] == labels[ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Label] && strings.Split(service, ":")[1] == "writer" {
 			return true
