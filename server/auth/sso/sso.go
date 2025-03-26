@@ -338,7 +338,6 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 				log.WithError(err).Error("failed to perform RBAC authorization")
 			}
 			c.TeamFilterClaims.ServiceToGroup = resourcesFilter.ServiceToGroup
-			c.TeamFilterClaims.FilterExpresion = resourcesFilter.LabelsFilter
 			c.TeamFilterClaims.Label = ssoExtendedLabelConfig.Label
 		}
 	}
@@ -357,10 +356,9 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		PreferredUsername:       c.PreferredUsername,
 		ServiceAccountNamespace: c.ServiceAccountNamespace,
 		TeamFilterClaims: types.TeamFilterClaims{
-			ServiceToGroup:  c.TeamFilterClaims.ServiceToGroup,
-			FilterExpresion: c.TeamFilterClaims.FilterExpresion,
-			Label:           c.TeamFilterClaims.Label,
-			IsAdmin:         c.TeamFilterClaims.IsAdmin,
+			ServiceToGroup: c.TeamFilterClaims.ServiceToGroup,
+			Label:          c.TeamFilterClaims.Label,
+			IsAdmin:        c.TeamFilterClaims.IsAdmin,
 		},
 	}
 	raw, err := jwt.Encrypted(s.encrypter).Claims(argoClaims).CompactSerialize()

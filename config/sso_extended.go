@@ -21,8 +21,7 @@ type SSOExtendedLabel struct {
 }
 
 type ResourcesToFilter struct {
-	ServiceToGroup map[string]string
-	LabelsFilter   string
+	ServiceToGroup string
 }
 
 func CanDelegateByLabel() bool {
@@ -31,7 +30,6 @@ func CanDelegateByLabel() bool {
 
 func RbacDelegateToLabel(ctx context.Context, mail string, apiUrl, apiEndpoint, apiPassword, label string, writeGroups devhub.WriteGroupsList) (*ResourcesToFilter, error) {
 	resourcesToFilterPopulated := &ResourcesToFilter{}
-	servicesToFilter := []string{}
 	devhubClient := devhub.NewClient()
 	mailParts := strings.Split(mail, "@")
 	servicesAndGroup, err := devhub.GetServicesAndGroup(devhubClient, apiUrl, apiEndpoint, apiPassword, mailParts[0], writeGroups)
@@ -39,12 +37,6 @@ func RbacDelegateToLabel(ctx context.Context, mail string, apiUrl, apiEndpoint, 
 		log.WithError(err).Error(fmt.Printf("Can't Procces the petition on devhub to get roles %+v", err))
 
 	}
-	resourcesToFilterPopulated.ServiceToGroup = servicesAndGroup.ServiceToGroup
-	if servicesAndGroup.ServiceToGroup != nil {
-		for service := range servicesAndGroup.ServiceToGroup {
-			servicesToFilter = append(servicesToFilter, service)
-		}
-		resourcesToFilterPopulated.LabelsFilter = fmt.Sprintf("%s in (%s)", label, strings.Join(servicesToFilter[:], ","))
-	}
+	resourcesToFilterPopulated.ServiceToGroup = Compress(strings.Join(servicesAndGroup.ServiceToGroup, ","))
 	return resourcesToFilterPopulated, nil
 }

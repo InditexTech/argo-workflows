@@ -6,7 +6,7 @@ import (
 	http "net/http"
 
 	mock "github.com/stretchr/testify/mock"
-
+	"github.com/argoproj/argo-workflows/v3/config"
 	types "github.com/argoproj/argo-workflows/v3/server/auth/types"
 )
 
@@ -55,6 +55,9 @@ func (_m *Interface) HandleRedirect(writer http.ResponseWriter, request *http.Re
 	_m.Called(writer, request)
 }
 
+func (_m *Interface) ExternalApiConfig() *config.SSOExtendedLabel {
+	return &config.SSOExtendedLabel{}
+}
 // IsRBACEnabled provides a mock function with given fields:
 func (_m *Interface) IsRBACEnabled() bool {
 	ret := _m.Called()
