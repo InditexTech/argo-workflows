@@ -59,7 +59,7 @@ func ForbidActionsIfNeeded(ctx context.Context, labels map[string]string) bool {
 	}
 
 	for _, service := range strings.Split(string(serviceDecompress), ",") {
-		if strings.Split(service, ":")[0] == labels[ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Label] && strings.Split(service, ":")[1] == "writer" {
+		if strings.Split(service, ":")[0] == labels[ctx.Value(auth.ClaimsKey).(*argoTypes.Claims).TeamFilterClaims.Label] && strings.Split(service, ":")[1] == "w" {
 			return true
 		}
 	}
