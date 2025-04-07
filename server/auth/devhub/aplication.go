@@ -109,6 +109,7 @@ func GetRolesAndServices(result *ApiStruct, servicesToRelationship map[string]st
 
 func GetServiceToGroup(writeGroups WriteGroupsList, servicesToRelationship map[string]string, servicesToRoles map[string][]string) []string {
 	var appToRole []string
+	isWriter := false
 	for _, writeGroup := range writeGroups {
 		for app, relationship := range servicesToRelationship {
 			if relationship != writeGroup.Relationship {
@@ -116,13 +117,15 @@ func GetServiceToGroup(writeGroups WriteGroupsList, servicesToRelationship map[s
 			}
 			for _, role := range servicesToRoles[app] {
 				if slices.Contains(writeGroup.Roles, role) {
-					appToRole = append(appToRole, fmt.Sprintf("%s:writer", app))
+					isWriter = true
 					break
-				} else {
-					appToRole = append(appToRole, fmt.Sprintf("%s:reader", app))
 				}
 			}
-
+			if isWriter {
+				appToRole = append(appToRole, fmt.Sprintf("%s:w", app))
+			} else {
+				appToRole = append(appToRole, fmt.Sprintf("%s:r", app))
+			}
 		}
 
 	}
