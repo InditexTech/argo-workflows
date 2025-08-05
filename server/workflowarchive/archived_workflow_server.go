@@ -21,6 +21,7 @@ import (
 	"github.com/argoproj/argo-workflows/v3/server/auth"
 	"github.com/argoproj/argo-workflows/v3/util/logging"
 	"github.com/argoproj/argo-workflows/v3/workflow/creator"
+	"github.com/argoproj/argo-workflows/v3/workflow/filter"
 	"github.com/argoproj/argo-workflows/v3/workflow/hydrator"
 	"github.com/argoproj/argo-workflows/v3/workflow/util"
 
@@ -42,12 +43,8 @@ func NewWorkflowArchiveServer(wfArchive sqldb.WorkflowArchive, offloadNodeStatus
 }
 
 func (w *archivedWorkflowServer) ListArchivedWorkflows(ctx context.Context, req *workflowarchivepkg.ListArchivedWorkflowsRequest) (*wfv1.WorkflowList, error) {
-	listOptions := metav1.ListOptions{}
-	if req.ListOptions != nil {
-		listOptions = *req.ListOptions
-	}
-
-	options, err := sutils.BuildListOptions(listOptions, req.Namespace, req.NamePrefix, req.NameFilter, "", "")
+	optionsFiltered := filter.CreateListOptions(ctx, req.ListOptions)
+	options, err := sutils.BuildListOptions(*optionsFiltered, req.Namespace, req.NamePrefix, req.NameFilter, "", "")
 	if err != nil {
 		return nil, err
 	}
@@ -118,6 +115,9 @@ func (w *archivedWorkflowServer) GetArchivedWorkflow(ctx context.Context, req *w
 		return nil, sutils.ToStatusError(err, codes.Internal)
 	}
 	if !allowed {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
+	}
+	if hasPermission := filter.ForbidActionsIfNeeded(ctx, wf.Labels); !hasPermission {
 		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 	return wf, nil

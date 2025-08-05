@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/argoproj/argo-workflows/v3/config"
+	"github.com/argoproj/argo-workflows/v3/server/auth/devhub"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -198,4 +200,36 @@ func TestIsValidFinalRedirectURL(t *testing.T) {
 			assert.Equal(t, tc.expected, isValidFinalRedirectURL(tc.url))
 		})
 	}
+}
+
+func TestNewSsoWithExtendedSSO(t *testing.T) {
+	//Test if new properties are applied to sso Struct
+	fakeClient := fake.NewSimpleClientset(ssoConfigSecret).CoreV1().Secrets(testNamespace)
+	config := Config{
+		Issuer:               "https://test-issuer",
+		IssuerAlias:          "",
+		ClientID:             getSecretKeySelector("argo-sso-secret", "client-id"),
+		ClientSecret:         getSecretKeySelector("argo-sso-secret", "client-secret"),
+		RedirectURL:          "https://dummy",
+		CustomGroupClaimName: "argo_groups",
+		SSOExtendedLabel: config.SSOExtendedLabel{
+			ApiPassword: "testPassword",
+			ApiUrl:      "testApiUrl",
+			ApiEndpoint: "testApiEndpoint",
+			AdminGroup:  "testAdminGroup",
+			Label:       "testLabel",
+			WriteGroups: devhub.WriteGroupsList{
+				devhub.WriteGroupsParams{Relationship: "testrelan", Roles: []string{"testrole"}},
+			},
+		},
+	}
+	ssoInterface, err := newSso(logging.TestContext(t.Context()), fakeOidcFactory, config, fakeClient, "/", false)
+	assert.NoError(t, err)
+	ssoObject := ssoInterface.(*sso)
+	assert.Equal(t, "testAdminGroup", ssoObject.SSOExtendedLabel.AdminGroup)
+	assert.Equal(t, "testPassword", ssoObject.SSOExtendedLabel.ApiPassword)
+	assert.Equal(t, "testApiUrl", ssoObject.SSOExtendedLabel.ApiUrl)
+	assert.Equal(t, "testApiEndpoint", ssoObject.SSOExtendedLabel.ApiEndpoint)
+	assert.Equal(t, "testLabel", ssoObject.SSOExtendedLabel.Label)
+	assert.Equal(t, 1, len(ssoObject.SSOExtendedLabel.WriteGroups))
 }
