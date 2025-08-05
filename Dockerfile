@@ -56,7 +56,7 @@ FROM builder as argoexec-build
 ARG GIT_COMMIT
 ARG GIT_TAG
 ARG GIT_TREE_STATE
-
+ENV GODEBUG tls3des=1,tlskyber=0,tlsrsakex=1,x509keypairleaf=0
 RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build make dist/argoexec GIT_COMMIT=${GIT_COMMIT} GIT_TAG=${GIT_TAG} GIT_TREE_STATE=${GIT_TREE_STATE}
 
 ####################################################################################################
@@ -66,7 +66,7 @@ FROM builder as workflow-controller-build
 ARG GIT_COMMIT
 ARG GIT_TAG
 ARG GIT_TREE_STATE
-
+ENV GODEBUG tls3des=1,tlskyber=0,tlsrsakex=1,x509keypairleaf=0
 RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build make dist/workflow-controller GIT_COMMIT=${GIT_COMMIT} GIT_TAG=${GIT_TAG} GIT_TREE_STATE=${GIT_TREE_STATE}
 
 ####################################################################################################
@@ -76,7 +76,7 @@ FROM builder as argocli-build
 ARG GIT_COMMIT
 ARG GIT_TAG
 ARG GIT_TREE_STATE
-
+ENV GODEBUG tls3des=1,tlskyber=0,tlsrsakex=1,x509keypairleaf=0
 RUN mkdir -p ui/dist
 COPY --from=argo-ui ui/dist/app ui/dist/app
 # update timestamp so that `make` doesn't try to rebuild this -- it was already built in the previous stage
@@ -91,6 +91,7 @@ FROM gcr.io/distroless/static as argoexec
 COPY hack/ca/* /etc/ssl/certs/
 #COPY --from=builder /etc/ssl/certs /etc/ssl/certs
 # ITX Modified: END Inditex CA
+ENV GODEBUG tls3des=1,tlskyber=0,tlsrsakex=1,x509keypairleaf=0
 COPY --from=argoexec-build /go/src/github.com/argoproj/argo-workflows/dist/argoexec /bin/
 COPY --from=argoexec-build /etc/mime.types /etc/mime.types
 COPY hack/ssh_known_hosts /etc/ssh/
@@ -108,6 +109,7 @@ USER 8737
 COPY hack/ca/* /etc/ssl/certs/
 #COPY --from=builder /etc/ssl/certs /etc/ssl/certs
 # ITX Modified: END Inditex CA
+ENV GODEBUG tls3des=1,tlskyber=0,tlsrsakex=1,x509keypairleaf=0
 COPY hack/ssh_known_hosts /etc/ssh/
 COPY hack/nsswitch.conf /etc/
 COPY --chown=8737 --from=workflow-controller-build /go/src/github.com/argoproj/argo-workflows/dist/workflow-controller /bin/
@@ -125,6 +127,7 @@ WORKDIR /home/argo
 COPY hack/ca/* /etc/ssl/certs/
 #COPY --from=builder /etc/ssl/certs /etc/ssl/certs
 # ITX Modified: END Inditex CA
+ENV GODEBUG tls3des=1,tlskyber=0,tlsrsakex=1,x509keypairleaf=0
 COPY hack/ssh_known_hosts /etc/ssh/
 COPY hack/nsswitch.conf /etc/
 COPY --from=argocli-build /go/src/github.com/argoproj/argo-workflows/dist/argo /bin/
