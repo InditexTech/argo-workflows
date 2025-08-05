@@ -23,7 +23,7 @@ type ResourceRateLimit struct {
 }
 
 // Config contains the root of the configuration settings for the workflow controller
-// as read from the ConfigMap called workflow-controller-configmap
+// as read from the ConfigMap called workflow-controller-configmap.
 type Config struct {
 	// NodeEvents configures how node events are emitted
 	NodeEvents NodeEvents `json:"nodeEvents,omitempty"`
