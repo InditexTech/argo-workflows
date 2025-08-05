@@ -7,6 +7,7 @@ package mocks
 import (
 	"net/http"
 
+	"github.com/argoproj/argo-workflows/v3/config"
 	"github.com/argoproj/argo-workflows/v3/server/auth/types"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -64,6 +65,10 @@ func (_mock *Interface) Authorize(authorization string) (*types.Claims, error) {
 		r1 = ret.Error(1)
 	}
 	return r0, r1
+}
+
+func (_m *Interface) ExternalApiConfig() *config.SSOExtendedLabel {
+	return &config.SSOExtendedLabel{}
 }
 
 // Interface_Authorize_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Authorize'

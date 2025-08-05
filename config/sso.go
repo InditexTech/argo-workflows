@@ -32,7 +32,8 @@ type SSOConfig struct {
 	// InsecureSkipVerify skips TLS certificate verification
 	InsecureSkipVerify bool `json:"insecureSkipVerify,omitempty"`
 	// FilterGroupsRegex filters groups using regular expressions
-	FilterGroupsRegex []string `json:"filterGroupsRegex,omitempty"`
+	FilterGroupsRegex []string         `json:"filterGroupsRegex,omitempty"`
+	SSOExtendedLabel  SSOExtendedLabel `json:"ssoExtendedLabel,omitempty"`
 }
 
 func (c SSOConfig) GetSessionExpiry() time.Duration {

@@ -21,6 +21,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
+	"github.com/argoproj/argo-workflows/v3/config"
 	workflow "github.com/argoproj/argo-workflows/v3/pkg/client/clientset/versioned"
 	"github.com/argoproj/argo-workflows/v3/server/auth/serviceaccount"
 	"github.com/argoproj/argo-workflows/v3/server/auth/sso"
@@ -288,20 +289,34 @@ func (s *gatekeeper) getClientsForServiceAccount(ctx context.Context, claims *au
 }
 
 func (s *gatekeeper) rbacAuthorization(ctx context.Context, claims *authTypes.Claims, req interface{}) (*servertypes.Clients, error) {
+	var acounts []*corev1.ServiceAccount
 	logger := logging.RequireLoggerFromContext(ctx)
 	ssoDelegationAllowed, ssoDelegated := false, false
 	loginAccount, err := s.getServiceAccount(claims, s.ssoNamespace)
 	if err != nil {
 		return nil, err
 	}
-	delegatedAccount := loginAccount
 	if s.canDelegateRBACToRequestNamespace(req) {
 		ssoDelegationAllowed = true
 		namespaceAccount, err := s.getServiceAccount(claims, getNamespace(req))
 		if err != nil {
 			logger.WithError(err).Info(ctx, "Error while SSO Delegation")
-		} else if precedence(namespaceAccount) > precedence(loginAccount) {
-			delegatedAccount = namespaceAccount
+		} else {
+			acounts = append(acounts, namespaceAccount)
+		}
+	}
+	if config.CanDelegateByLabel() {
+		labelAccount, err := s.getServiceAccount(claims, s.ssoNamespace)
+		if err != nil {
+			logger.WithError(err).Info(ctx, "Error while SSO Delegation")
+		} else {
+			acounts = append(acounts, labelAccount)
+		}
+	}
+	delegatedAccount := loginAccount
+	for _, account := range acounts {
+		if precedence(account) > precedence(loginAccount) {
+			delegatedAccount = account
 			ssoDelegated = true
 		}
 	}

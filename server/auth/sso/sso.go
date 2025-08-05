@@ -46,6 +46,7 @@ type Interface interface {
 	HandleRedirect(writer http.ResponseWriter, request *http.Request)
 	HandleCallback(writer http.ResponseWriter, request *http.Request)
 	IsRBACEnabled() bool
+	ExternalApiConfig() *config.SSOExtendedLabel
 }
 
 var _ Interface = &sso{}
@@ -67,10 +68,15 @@ type sso struct {
 	userInfoPath      string
 	filterGroupsRegex []*regexp.Regexp
 	logger            logging.Logger
+	SSOExtendedLabel  *config.SSOExtendedLabel
 }
 
 func (s *sso) IsRBACEnabled() bool {
 	return s.rbacConfig.IsEnabled()
+}
+
+func (s *sso) ExternalApiConfig() *config.SSOExtendedLabel {
+	return s.SSOExtendedLabel
 }
 
 // Abstract methods of oidc.Provider that our code uses into an interface. That
@@ -175,6 +181,7 @@ func newSso(
 	if clientSecret == nil {
 		return nil, fmt.Errorf("key %s missing in secret %s", c.ClientSecret.Key, c.ClientSecret.Name)
 	}
+	ssoExtendedConfigurate := config.SSOExtendedLabel{}
 	config := &oauth2.Config{
 		ClientID:     string(clientID),
 		ClientSecret: string(clientSecret),
@@ -203,6 +210,13 @@ func newSso(
 	if c.IssuerAlias != "" {
 		lf["issuerAlias"] = c.IssuerAlias
 	}
+	ssoExtendedConfigurate.ApiUrl = c.SSOExtendedLabel.ApiUrl
+	ssoExtendedConfigurate.ApiEndpoint = c.SSOExtendedLabel.ApiEndpoint
+	ssoExtendedConfigurate.ApiPassword = c.SSOExtendedLabel.ApiPassword
+	ssoExtendedConfigurate.Label = c.SSOExtendedLabel.Label
+	ssoExtendedConfigurate.AdminGroup = c.SSOExtendedLabel.AdminGroup
+	ssoExtendedConfigurate.WriteGroups = c.SSOExtendedLabel.WriteGroups
+
 	logger := logging.RequireLoggerFromContext(ctx).WithFields(lf)
 	logger.Info(ctx, "SSO configuration")
 
@@ -221,6 +235,7 @@ func newSso(
 		issuer:            c.Issuer,
 		filterGroupsRegex: filterGroupsRegex,
 		logger:            logger,
+		SSOExtendedLabel:  &ssoExtendedConfigurate,
 	}, nil
 }
 
@@ -318,6 +333,23 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		}
 		groups = filteredGroups
 	}
+	if config.CanDelegateByLabel() {
+		c.TeamFilterClaims.IsAdmin = false
+		ssoExtendedLabelConfig := s.ExternalApiConfig()
+		for _, g := range c.Groups {
+			if g == ssoExtendedLabelConfig.AdminGroup {
+				c.TeamFilterClaims.IsAdmin = true
+			}
+		}
+		if !c.TeamFilterClaims.IsAdmin {
+			resourcesFilter, err := config.RbacDelegateToLabel(ctx, c.Email, ssoExtendedLabelConfig.ApiUrl, ssoExtendedLabelConfig.ApiEndpoint, ssoExtendedLabelConfig.ApiPassword, ssoExtendedLabelConfig.Label, ssoExtendedLabelConfig.WriteGroups)
+			if err != nil {
+				s.logger.WithError(err).Error(ctx, "failed to perform RBAC authorization")
+			}
+			c.TeamFilterClaims.ServiceToGroup = resourcesFilter.ServiceToGroup
+			c.TeamFilterClaims.Label = ssoExtendedLabelConfig.Label
+		}
+	}
 
 	argoClaims := &types.Claims{
 		Claims: jwt.Claims{
@@ -332,6 +364,11 @@ func (s *sso) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		ServiceAccountName:      c.ServiceAccountName,
 		PreferredUsername:       c.PreferredUsername,
 		ServiceAccountNamespace: c.ServiceAccountNamespace,
+		TeamFilterClaims: types.TeamFilterClaims{
+			ServiceToGroup: c.TeamFilterClaims.ServiceToGroup,
+			Label:          c.TeamFilterClaims.Label,
+			IsAdmin:        c.TeamFilterClaims.IsAdmin,
+		},
 	}
 	raw, err := jwt.Encrypted(s.encrypter).Claims(argoClaims).CompactSerialize()
 	if err != nil {

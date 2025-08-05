@@ -18,6 +18,7 @@ type Claims struct {
 	ServiceAccountNamespace string                 `json:"service_account_namespace,omitempty"`
 	PreferredUsername       string                 `json:"preferred_username,omitempty"`
 	RawClaim                map[string]interface{} `json:"-"`
+	TeamFilterClaims        TeamFilterClaims       `json:"TeamFilterClaims,omitempty"`
 }
 
 type UserInfo struct {
@@ -26,6 +27,12 @@ type UserInfo struct {
 
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
+}
+
+type TeamFilterClaims struct { // the values in array tu use to filter in get/update... in others actions different than list
+	ServiceToGroup string `json:"serviceToGroup,omitempty"` // Group to search ServiceAccount for (write, read... whatever)
+	Label          string `json:"label,omitempty"`
+	IsAdmin        bool   `json:"isAdmin,omitempty"`
 }
 
 var httpClient HTTPClient
