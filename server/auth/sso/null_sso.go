@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/argoproj/argo-workflows/v3/config"
 	"github.com/argoproj/argo-workflows/v3/server/auth/types"
 )
 
@@ -25,4 +26,8 @@ func (n nullService) HandleRedirect(w http.ResponseWriter, _ *http.Request) {
 
 func (n nullService) HandleCallback(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
+}
+
+func (n nullService) ExternalApiConfig() *config.SSOExtendedLabel {
+	return &config.SSOExtendedLabel{}
 }

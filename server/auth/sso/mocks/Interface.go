@@ -7,6 +7,7 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
+	"github.com/argoproj/argo-workflows/v3/config"
 	types "github.com/argoproj/argo-workflows/v3/server/auth/types"
 )
 
@@ -53,6 +54,10 @@ func (_m *Interface) HandleCallback(writer http.ResponseWriter, request *http.Re
 // HandleRedirect provides a mock function with given fields: writer, request
 func (_m *Interface) HandleRedirect(writer http.ResponseWriter, request *http.Request) {
 	_m.Called(writer, request)
+}
+
+func (_m *Interface) ExternalApiConfig() *config.SSOExtendedLabel {
+	return &config.SSOExtendedLabel{}
 }
 
 // IsRBACEnabled provides a mock function with no fields
