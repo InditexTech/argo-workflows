@@ -745,10 +745,10 @@ func TestGetWorkflow(t *testing.T) {
 	server, ctx := getWorkflowServer()
 	s := server.(*workflowServer)
 	wfClient := auth.GetWfClient(ctx)
-	wf, err := s.getWorkflow(ctx, wfClient, "test", "hello-world-9tql2-test", metav1.GetOptions{})
+	wf, err := s.getWorkflow(ctx, wfClient, "test", "hello-world-9tql2-test", metav1.GetOptions{}, false)
 	require.NoError(t, err)
 	assert.NotNil(t, wf)
-	wf, err = s.getWorkflow(ctx, wfClient, "test", "hello-world-9tql2-test", metav1.GetOptions{})
+	wf, err = s.getWorkflow(ctx, wfClient, "test", "hello-world-9tql2-test", metav1.GetOptions{}, false)
 	require.NoError(t, err)
 	assert.NotNil(t, wf)
 }
@@ -757,7 +757,7 @@ func TestValidateWorkflow(t *testing.T) {
 	server, ctx := getWorkflowServer()
 	s := server.(*workflowServer)
 	wfClient := auth.GetWfClient(ctx)
-	wf, err := s.getWorkflow(ctx, wfClient, "test", "hello-world-9tql2-test", metav1.GetOptions{})
+	wf, err := s.getWorkflow(ctx, wfClient, "test", "hello-world-9tql2-test", metav1.GetOptions{}, false)
 	require.NoError(t, err)
 	require.NoError(t, s.validateWorkflow(wf))
 }

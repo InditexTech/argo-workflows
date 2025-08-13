@@ -11,17 +11,7 @@ import (
 	"github.com/argoproj/argo-workflows/v3/util/secrets"
 
 	events "github.com/argoproj/argo-events/pkg/client/clientset/versioned"
-	log "github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-
+	"github.com/argoproj/argo-workflows/v3/config"
 	workflow "github.com/argoproj/argo-workflows/v3/pkg/client/clientset/versioned"
 	"github.com/argoproj/argo-workflows/v3/server/auth/serviceaccount"
 	"github.com/argoproj/argo-workflows/v3/server/auth/sso"
@@ -32,6 +22,16 @@ import (
 	jsonutil "github.com/argoproj/argo-workflows/v3/util/json"
 	"github.com/argoproj/argo-workflows/v3/util/kubeconfig"
 	"github.com/argoproj/argo-workflows/v3/workflow/common"
+	log "github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 type ContextKey string
@@ -289,19 +289,33 @@ func (s *gatekeeper) getClientsForServiceAccount(ctx context.Context, claims *ty
 }
 
 func (s *gatekeeper) rbacAuthorization(ctx context.Context, claims *types.Claims, req interface{}) (*servertypes.Clients, error) {
+	var acounts []*corev1.ServiceAccount
 	ssoDelegationAllowed, ssoDelegated := false, false
 	loginAccount, err := s.getServiceAccount(claims, s.ssoNamespace)
 	if err != nil {
 		return nil, err
 	}
-	delegatedAccount := loginAccount
 	if s.canDelegateRBACToRequestNamespace(req) {
 		ssoDelegationAllowed = true
 		namespaceAccount, err := s.getServiceAccount(claims, getNamespace(req))
 		if err != nil {
 			log.WithError(err).Info("Error while SSO Delegation")
-		} else if precedence(namespaceAccount) > precedence(loginAccount) {
-			delegatedAccount = namespaceAccount
+		} else {
+			acounts = append(acounts, namespaceAccount)
+		}
+	}
+	if config.CanDelegateByLabel() {
+		labelAccount, err := s.getServiceAccount(claims, s.ssoNamespace)
+		if err != nil {
+			log.WithError(err).Info(ctx, "Error while SSO Delegation")
+		} else {
+			acounts = append(acounts, labelAccount)
+		}
+	}
+	delegatedAccount := loginAccount
+	for _, account := range acounts {
+		if precedence(account) > precedence(loginAccount) {
+			delegatedAccount = account
 			ssoDelegated = true
 		}
 	}
