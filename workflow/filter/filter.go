@@ -33,6 +33,8 @@ func CreateListOptions(ctx context.Context, listOptions *metav1.ListOptions) *me
 		if listOptions.LabelSelector != "" && config.CanDelegateByLabel() {
 			if filterExpressionDecompress != "" {
 				listOptionsFiltered = &metav1.ListOptions{LabelSelector: fmt.Sprintf("%s,%s", filterExpressionDecompress, listOptions.LabelSelector)}
+			} else {
+				listOptionsFiltered = &metav1.ListOptions{LabelSelector: listOptions.LabelSelector}
 			}
 		} else if listOptions.LabelSelector == "" && config.CanDelegateByLabel() {
 			if filterExpressionDecompress != "" {
